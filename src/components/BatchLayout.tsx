@@ -22,12 +22,6 @@ export function BatchLayout({ children }: BatchLayoutProps) {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Batch Management Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Batch & Plant Lifecycle Management</h1>
-          <p className="text-muted-foreground">Central tracking from cloning through final disposition</p>
-        </div>
-
         {/* Batch Tabs */}
         <div className="border-b">
           <div className="flex gap-1 overflow-x-auto">
