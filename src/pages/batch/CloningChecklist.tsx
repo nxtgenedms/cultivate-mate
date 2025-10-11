@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, FileText, CheckCircle2, XCircle, Clock, Check } from 'lucide-react';
 import { format } from 'date-fns';
@@ -283,14 +284,14 @@ export default function CloningChecklist() {
                     New Checklist
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Create Cloning Pre-Start Checklist</DialogTitle>
                     <DialogDescription>
                       Complete all checks before starting cloning operations
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-6 py-4">
+                  <div className="space-y-4 py-4">
                     {/* Basic Information */}
                     <div className="space-y-4">
                       <h3 className="font-semibold">Batch Information</h3>
@@ -327,43 +328,47 @@ export default function CloningChecklist() {
                     </div>
 
                     {/* Question 1 */}
-                    <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">1. Is the mother plant that you're taking cuttings from healthy?</h3>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="motherPlantHealthy"
-                          checked={formData.motherPlantHealthy}
-                          onCheckedChange={(checked) => 
-                            setFormData({ ...formData, motherPlantHealthy: checked as boolean })
-                          }
-                        />
-                        <label htmlFor="motherPlantHealthy" className="text-sm cursor-pointer">
-                          YES
-                        </label>
-                      </div>
+                    <div className="space-y-2 border-t pt-3">
+                      <h3 className="font-semibold text-sm">1. Is the mother plant that you're taking cuttings from healthy?</h3>
+                      <RadioGroup
+                        value={formData.motherPlantHealthy ? "yes" : "no"}
+                        onValueChange={(value) => setFormData({ ...formData, motherPlantHealthy: value === "yes" })}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="q1-yes" />
+                          <Label htmlFor="q1-yes" className="cursor-pointer">YES</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="q1-no" />
+                          <Label htmlFor="q1-no" className="cursor-pointer">NO</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
 
                     {/* Question 2 */}
-                    <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">2. Has the mother plant you are taking cuttings from been fed / watered in the last 12 hours</h3>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="motherPlantFedWatered"
-                          checked={formData.motherPlantFedWatered12h}
-                          onCheckedChange={(checked) => 
-                            setFormData({ ...formData, motherPlantFedWatered12h: checked as boolean })
-                          }
-                        />
-                        <label htmlFor="motherPlantFedWatered" className="text-sm cursor-pointer">
-                          YES
-                        </label>
-                      </div>
+                    <div className="space-y-2 border-t pt-3">
+                      <h3 className="font-semibold text-sm">2. Has the mother plant been fed/watered in the last 12 hours?</h3>
+                      <RadioGroup
+                        value={formData.motherPlantFedWatered12h ? "yes" : "no"}
+                        onValueChange={(value) => setFormData({ ...formData, motherPlantFedWatered12h: value === "yes" })}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="q2-yes" />
+                          <Label htmlFor="q2-yes" className="cursor-pointer">YES</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="q2-no" />
+                          <Label htmlFor="q2-no" className="cursor-pointer">NO</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
 
                     {/* Question 3 - Work Area Prepared */}
-                    <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">3. Is your work area prepared?</h3>
-                      <div className="space-y-2 ml-4">
+                    <div className="space-y-2 border-t pt-3">
+                      <h3 className="font-semibold text-sm">3. Is your work area prepared?</h3>
+                      <div className="grid grid-cols-2 gap-2 ml-4">
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id="sharpScissors"
@@ -452,37 +457,41 @@ export default function CloningChecklist() {
                     </div>
 
                     {/* Question 4 */}
-                    <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">4. Has your work surface area been sterilized?</h3>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="workSurfaceSterilized"
-                          checked={formData.workSurfaceSterilized}
-                          onCheckedChange={(checked) => 
-                            setFormData({ ...formData, workSurfaceSterilized: checked as boolean })
-                          }
-                        />
-                        <label htmlFor="workSurfaceSterilized" className="text-sm cursor-pointer">
-                          YES
-                        </label>
-                      </div>
+                    <div className="space-y-2 border-t pt-3">
+                      <h3 className="font-semibold text-sm">4. Has your work surface area been sterilized?</h3>
+                      <RadioGroup
+                        value={formData.workSurfaceSterilized ? "yes" : "no"}
+                        onValueChange={(value) => setFormData({ ...formData, workSurfaceSterilized: value === "yes" })}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="q4-yes" />
+                          <Label htmlFor="q4-yes" className="cursor-pointer">YES</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="q4-no" />
+                          <Label htmlFor="q4-no" className="cursor-pointer">NO</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
 
                     {/* Question 5 */}
-                    <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">5. Are you wearing clean gloves?</h3>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="wearingGloves"
-                          checked={formData.wearingCleanGloves}
-                          onCheckedChange={(checked) => 
-                            setFormData({ ...formData, wearingCleanGloves: checked as boolean })
-                          }
-                        />
-                        <label htmlFor="wearingGloves" className="text-sm cursor-pointer">
-                          YES
-                        </label>
-                      </div>
+                    <div className="space-y-2 border-t pt-3">
+                      <h3 className="font-semibold text-sm">5. Are you wearing clean gloves?</h3>
+                      <RadioGroup
+                        value={formData.wearingCleanGloves ? "yes" : "no"}
+                        onValueChange={(value) => setFormData({ ...formData, wearingCleanGloves: value === "yes" })}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="q5-yes" />
+                          <Label htmlFor="q5-yes" className="cursor-pointer">YES</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="q5-no" />
+                          <Label htmlFor="q5-no" className="cursor-pointer">NO</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
                   </div>
                   <DialogFooter>
