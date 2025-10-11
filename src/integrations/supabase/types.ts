@@ -14,6 +14,611 @@ export type Database = {
   }
   public: {
     Tables: {
+      batch_lifecycle_records: {
+        Row: {
+          actual_days: number | null
+          actual_flowering_date: string | null
+          actual_rooting_date: string | null
+          batch_id: string | null
+          batch_number: string
+          clonator_1: string | null
+          clonator_2: string | null
+          clonator_2_area_placed: string | null
+          clonator_2_completed_by: string | null
+          clonator_2_date: string | null
+          clonator_2_no_of_days: number | null
+          clonator_2_number_clones: number | null
+          clonator_2_rack_no: string | null
+          clonator_mortalities: number | null
+          clone_germination_date: string | null
+          created_at: string | null
+          created_by: string | null
+          current_stage:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          dome_no: string | null
+          dry_weight_checked_by: string | null
+          dry_weight_checked_date: string | null
+          dry_weight_completed_by: string | null
+          dry_weight_date: string | null
+          dry_weight_no_plants: number | null
+          drying_checked_by: string | null
+          drying_completed_by: string | null
+          drying_date: string | null
+          drying_rack_no: string | null
+          drying_total_plants: number | null
+          eight_nodes: boolean | null
+          estimated_days: number | null
+          expected_flowering_date: string | null
+          expected_rooting_date: string | null
+          extra_lights_from_day: number | null
+          extra_lights_no_of_days: number | null
+          final_manager_sign: string | null
+          final_manager_sign_date: string | null
+          final_processor_sign: string | null
+          final_processor_sign_date: string | null
+          final_qa_sign: string | null
+          final_qa_sign_date: string | null
+          flowering_completed_by: string | null
+          flowering_diseases: boolean | null
+          flowering_grower_sign: string | null
+          flowering_grower_sign_date: string | null
+          flowering_manager_sign: string | null
+          flowering_manager_sign_date: string | null
+          flowering_mortalities: Json | null
+          flowering_number_plants: number | null
+          flowering_pests: boolean | null
+          flowering_qa_sign: string | null
+          flowering_qa_sign_date: string | null
+          flowering_table_no: string | null
+          hardening_area_placed: string | null
+          hardening_completed_by: string | null
+          hardening_grower_sign: string | null
+          hardening_grower_sign_date: string | null
+          hardening_manager_sign: string | null
+          hardening_manager_sign_date: string | null
+          hardening_mortalities: Json | null
+          hardening_no_of_days: number | null
+          hardening_number_clones: number | null
+          hardening_qa_sign: string | null
+          hardening_qa_sign_date: string | null
+          hardening_rack_no: string | null
+          harvest_completed_by: string | null
+          harvest_date: string | null
+          harvest_grower_sign: string | null
+          harvest_grower_sign_date: string | null
+          harvest_manager_sign: string | null
+          harvest_manager_sign_date: string | null
+          harvest_number_plants: number | null
+          harvest_qa_sign: string | null
+          harvest_qa_sign_date: string | null
+          harvest_table_no: string | null
+          id: string
+          increase_in_yield: string | null
+          inspection_completed_by: string | null
+          inspection_date: string | null
+          inspection_number_plants: number | null
+          inspection_rack_no: string | null
+          inspection_table_no: string | null
+          mortality_checked_by: string | null
+          mortality_completed_by: string | null
+          mortality_general_reason: string | null
+          mortality_total_amount_kg: number | null
+          mortality_total_percentage: number | null
+          mother_no: string | null
+          move_to_flowering_date: string | null
+          move_to_hardening_date: string | null
+          move_to_veg_date: string | null
+          no_of_days_drying: number | null
+          nutrients_used: string | null
+          packing_a_grade: number | null
+          packing_b_grade: number | null
+          packing_bag_ids: string | null
+          packing_c_grade: number | null
+          packing_checked_by: string | null
+          packing_completed_by: string | null
+          packing_date: string | null
+          packing_storage_area: string | null
+          processing_manager_sign: string | null
+          processing_manager_sign_date: string | null
+          processing_qa_sign: string | null
+          processing_qa_sign_date: string | null
+          processor_sign: string | null
+          processor_sign_date: string | null
+          rack_no: string | null
+          status: string | null
+          strain_id: string | null
+          total_clones_plants: number | null
+          total_dry_weight: number | null
+          total_plants_processed: number | null
+          total_wet_weight: number | null
+          updated_at: string | null
+          using_extra_lights: boolean | null
+          veg_actual_days: number | null
+          veg_completed_by: string | null
+          veg_diseases: boolean | null
+          veg_expected_days: number | null
+          veg_mortalities: Json | null
+          veg_number_plants: number | null
+          veg_pests: boolean | null
+          veg_table_no: string | null
+        }
+        Insert: {
+          actual_days?: number | null
+          actual_flowering_date?: string | null
+          actual_rooting_date?: string | null
+          batch_id?: string | null
+          batch_number: string
+          clonator_1?: string | null
+          clonator_2?: string | null
+          clonator_2_area_placed?: string | null
+          clonator_2_completed_by?: string | null
+          clonator_2_date?: string | null
+          clonator_2_no_of_days?: number | null
+          clonator_2_number_clones?: number | null
+          clonator_2_rack_no?: string | null
+          clonator_mortalities?: number | null
+          clone_germination_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_stage?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          dome_no?: string | null
+          dry_weight_checked_by?: string | null
+          dry_weight_checked_date?: string | null
+          dry_weight_completed_by?: string | null
+          dry_weight_date?: string | null
+          dry_weight_no_plants?: number | null
+          drying_checked_by?: string | null
+          drying_completed_by?: string | null
+          drying_date?: string | null
+          drying_rack_no?: string | null
+          drying_total_plants?: number | null
+          eight_nodes?: boolean | null
+          estimated_days?: number | null
+          expected_flowering_date?: string | null
+          expected_rooting_date?: string | null
+          extra_lights_from_day?: number | null
+          extra_lights_no_of_days?: number | null
+          final_manager_sign?: string | null
+          final_manager_sign_date?: string | null
+          final_processor_sign?: string | null
+          final_processor_sign_date?: string | null
+          final_qa_sign?: string | null
+          final_qa_sign_date?: string | null
+          flowering_completed_by?: string | null
+          flowering_diseases?: boolean | null
+          flowering_grower_sign?: string | null
+          flowering_grower_sign_date?: string | null
+          flowering_manager_sign?: string | null
+          flowering_manager_sign_date?: string | null
+          flowering_mortalities?: Json | null
+          flowering_number_plants?: number | null
+          flowering_pests?: boolean | null
+          flowering_qa_sign?: string | null
+          flowering_qa_sign_date?: string | null
+          flowering_table_no?: string | null
+          hardening_area_placed?: string | null
+          hardening_completed_by?: string | null
+          hardening_grower_sign?: string | null
+          hardening_grower_sign_date?: string | null
+          hardening_manager_sign?: string | null
+          hardening_manager_sign_date?: string | null
+          hardening_mortalities?: Json | null
+          hardening_no_of_days?: number | null
+          hardening_number_clones?: number | null
+          hardening_qa_sign?: string | null
+          hardening_qa_sign_date?: string | null
+          hardening_rack_no?: string | null
+          harvest_completed_by?: string | null
+          harvest_date?: string | null
+          harvest_grower_sign?: string | null
+          harvest_grower_sign_date?: string | null
+          harvest_manager_sign?: string | null
+          harvest_manager_sign_date?: string | null
+          harvest_number_plants?: number | null
+          harvest_qa_sign?: string | null
+          harvest_qa_sign_date?: string | null
+          harvest_table_no?: string | null
+          id?: string
+          increase_in_yield?: string | null
+          inspection_completed_by?: string | null
+          inspection_date?: string | null
+          inspection_number_plants?: number | null
+          inspection_rack_no?: string | null
+          inspection_table_no?: string | null
+          mortality_checked_by?: string | null
+          mortality_completed_by?: string | null
+          mortality_general_reason?: string | null
+          mortality_total_amount_kg?: number | null
+          mortality_total_percentage?: number | null
+          mother_no?: string | null
+          move_to_flowering_date?: string | null
+          move_to_hardening_date?: string | null
+          move_to_veg_date?: string | null
+          no_of_days_drying?: number | null
+          nutrients_used?: string | null
+          packing_a_grade?: number | null
+          packing_b_grade?: number | null
+          packing_bag_ids?: string | null
+          packing_c_grade?: number | null
+          packing_checked_by?: string | null
+          packing_completed_by?: string | null
+          packing_date?: string | null
+          packing_storage_area?: string | null
+          processing_manager_sign?: string | null
+          processing_manager_sign_date?: string | null
+          processing_qa_sign?: string | null
+          processing_qa_sign_date?: string | null
+          processor_sign?: string | null
+          processor_sign_date?: string | null
+          rack_no?: string | null
+          status?: string | null
+          strain_id?: string | null
+          total_clones_plants?: number | null
+          total_dry_weight?: number | null
+          total_plants_processed?: number | null
+          total_wet_weight?: number | null
+          updated_at?: string | null
+          using_extra_lights?: boolean | null
+          veg_actual_days?: number | null
+          veg_completed_by?: string | null
+          veg_diseases?: boolean | null
+          veg_expected_days?: number | null
+          veg_mortalities?: Json | null
+          veg_number_plants?: number | null
+          veg_pests?: boolean | null
+          veg_table_no?: string | null
+        }
+        Update: {
+          actual_days?: number | null
+          actual_flowering_date?: string | null
+          actual_rooting_date?: string | null
+          batch_id?: string | null
+          batch_number?: string
+          clonator_1?: string | null
+          clonator_2?: string | null
+          clonator_2_area_placed?: string | null
+          clonator_2_completed_by?: string | null
+          clonator_2_date?: string | null
+          clonator_2_no_of_days?: number | null
+          clonator_2_number_clones?: number | null
+          clonator_2_rack_no?: string | null
+          clonator_mortalities?: number | null
+          clone_germination_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_stage?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          dome_no?: string | null
+          dry_weight_checked_by?: string | null
+          dry_weight_checked_date?: string | null
+          dry_weight_completed_by?: string | null
+          dry_weight_date?: string | null
+          dry_weight_no_plants?: number | null
+          drying_checked_by?: string | null
+          drying_completed_by?: string | null
+          drying_date?: string | null
+          drying_rack_no?: string | null
+          drying_total_plants?: number | null
+          eight_nodes?: boolean | null
+          estimated_days?: number | null
+          expected_flowering_date?: string | null
+          expected_rooting_date?: string | null
+          extra_lights_from_day?: number | null
+          extra_lights_no_of_days?: number | null
+          final_manager_sign?: string | null
+          final_manager_sign_date?: string | null
+          final_processor_sign?: string | null
+          final_processor_sign_date?: string | null
+          final_qa_sign?: string | null
+          final_qa_sign_date?: string | null
+          flowering_completed_by?: string | null
+          flowering_diseases?: boolean | null
+          flowering_grower_sign?: string | null
+          flowering_grower_sign_date?: string | null
+          flowering_manager_sign?: string | null
+          flowering_manager_sign_date?: string | null
+          flowering_mortalities?: Json | null
+          flowering_number_plants?: number | null
+          flowering_pests?: boolean | null
+          flowering_qa_sign?: string | null
+          flowering_qa_sign_date?: string | null
+          flowering_table_no?: string | null
+          hardening_area_placed?: string | null
+          hardening_completed_by?: string | null
+          hardening_grower_sign?: string | null
+          hardening_grower_sign_date?: string | null
+          hardening_manager_sign?: string | null
+          hardening_manager_sign_date?: string | null
+          hardening_mortalities?: Json | null
+          hardening_no_of_days?: number | null
+          hardening_number_clones?: number | null
+          hardening_qa_sign?: string | null
+          hardening_qa_sign_date?: string | null
+          hardening_rack_no?: string | null
+          harvest_completed_by?: string | null
+          harvest_date?: string | null
+          harvest_grower_sign?: string | null
+          harvest_grower_sign_date?: string | null
+          harvest_manager_sign?: string | null
+          harvest_manager_sign_date?: string | null
+          harvest_number_plants?: number | null
+          harvest_qa_sign?: string | null
+          harvest_qa_sign_date?: string | null
+          harvest_table_no?: string | null
+          id?: string
+          increase_in_yield?: string | null
+          inspection_completed_by?: string | null
+          inspection_date?: string | null
+          inspection_number_plants?: number | null
+          inspection_rack_no?: string | null
+          inspection_table_no?: string | null
+          mortality_checked_by?: string | null
+          mortality_completed_by?: string | null
+          mortality_general_reason?: string | null
+          mortality_total_amount_kg?: number | null
+          mortality_total_percentage?: number | null
+          mother_no?: string | null
+          move_to_flowering_date?: string | null
+          move_to_hardening_date?: string | null
+          move_to_veg_date?: string | null
+          no_of_days_drying?: number | null
+          nutrients_used?: string | null
+          packing_a_grade?: number | null
+          packing_b_grade?: number | null
+          packing_bag_ids?: string | null
+          packing_c_grade?: number | null
+          packing_checked_by?: string | null
+          packing_completed_by?: string | null
+          packing_date?: string | null
+          packing_storage_area?: string | null
+          processing_manager_sign?: string | null
+          processing_manager_sign_date?: string | null
+          processing_qa_sign?: string | null
+          processing_qa_sign_date?: string | null
+          processor_sign?: string | null
+          processor_sign_date?: string | null
+          rack_no?: string | null
+          status?: string | null
+          strain_id?: string | null
+          total_clones_plants?: number | null
+          total_dry_weight?: number | null
+          total_plants_processed?: number | null
+          total_wet_weight?: number | null
+          updated_at?: string | null
+          using_extra_lights?: boolean | null
+          veg_actual_days?: number | null
+          veg_completed_by?: string | null
+          veg_diseases?: boolean | null
+          veg_expected_days?: number | null
+          veg_mortalities?: Json | null
+          veg_number_plants?: number | null
+          veg_pests?: boolean | null
+          veg_table_no?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_lifecycle_records_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_clonator_2_completed_by_fkey"
+            columns: ["clonator_2_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_dry_weight_checked_by_fkey"
+            columns: ["dry_weight_checked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_dry_weight_completed_by_fkey"
+            columns: ["dry_weight_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_drying_checked_by_fkey"
+            columns: ["drying_checked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_drying_completed_by_fkey"
+            columns: ["drying_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_final_manager_sign_fkey"
+            columns: ["final_manager_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_final_processor_sign_fkey"
+            columns: ["final_processor_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_final_qa_sign_fkey"
+            columns: ["final_qa_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_flowering_completed_by_fkey"
+            columns: ["flowering_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_flowering_grower_sign_fkey"
+            columns: ["flowering_grower_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_flowering_manager_sign_fkey"
+            columns: ["flowering_manager_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_flowering_qa_sign_fkey"
+            columns: ["flowering_qa_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_hardening_completed_by_fkey"
+            columns: ["hardening_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_hardening_grower_sign_fkey"
+            columns: ["hardening_grower_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_hardening_manager_sign_fkey"
+            columns: ["hardening_manager_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_hardening_qa_sign_fkey"
+            columns: ["hardening_qa_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_harvest_completed_by_fkey"
+            columns: ["harvest_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_harvest_grower_sign_fkey"
+            columns: ["harvest_grower_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_harvest_manager_sign_fkey"
+            columns: ["harvest_manager_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_harvest_qa_sign_fkey"
+            columns: ["harvest_qa_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_inspection_completed_by_fkey"
+            columns: ["inspection_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_mortality_checked_by_fkey"
+            columns: ["mortality_checked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_mortality_completed_by_fkey"
+            columns: ["mortality_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_packing_checked_by_fkey"
+            columns: ["packing_checked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_packing_completed_by_fkey"
+            columns: ["packing_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_processing_manager_sign_fkey"
+            columns: ["processing_manager_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_processing_qa_sign_fkey"
+            columns: ["processing_qa_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_processor_sign_fkey"
+            columns: ["processor_sign"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lifecycle_records_veg_completed_by_fkey"
+            columns: ["veg_completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       batches: {
         Row: {
           actual_quantity: number | null
@@ -472,6 +1077,16 @@ export type Database = {
         | "it_admin"
         | "business_admin"
       approval_status: "draft" | "pending" | "approved" | "rejected"
+      batch_lifecycle_stage:
+        | "cloning"
+        | "hardening"
+        | "veg"
+        | "flowering"
+        | "harvest"
+        | "processing"
+        | "drying"
+        | "packing"
+        | "completed"
       batch_stage:
         | "cloning"
         | "rooting"
@@ -617,6 +1232,17 @@ export const Constants = {
         "business_admin",
       ],
       approval_status: ["draft", "pending", "approved", "rejected"],
+      batch_lifecycle_stage: [
+        "cloning",
+        "hardening",
+        "veg",
+        "flowering",
+        "harvest",
+        "processing",
+        "drying",
+        "packing",
+        "completed",
+      ],
       batch_stage: [
         "cloning",
         "rooting",
