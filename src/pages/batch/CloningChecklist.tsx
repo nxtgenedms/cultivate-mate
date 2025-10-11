@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, FileText, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Plus, FileText, CheckCircle2, XCircle, Clock, Check } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function CloningChecklist() {
@@ -198,6 +198,39 @@ export default function CloningChecklist() {
       default:
         return <Badge>{status}</Badge>;
     }
+  };
+
+  const getChecklistSummary = (checklist: any) => {
+    const checks = [
+      { label: 'Vigorous', value: checklist.mother_health_vigorous },
+      { label: 'Pest-free', value: checklist.mother_health_pest_free },
+      { label: 'Disease-free', value: checklist.mother_health_disease_free },
+      { label: 'Tools Sterilized', value: checklist.prep_tools_sterilized },
+      { label: 'Media Ready', value: checklist.prep_media_ready },
+      { label: 'Environment Clean', value: checklist.prep_environment_clean },
+      { label: 'Hands Sanitized', value: checklist.hygiene_hands_sanitized },
+      { label: 'PPE Worn', value: checklist.hygiene_ppe_worn },
+      { label: 'Workspace Clean', value: checklist.hygiene_workspace_clean },
+    ];
+
+    const checkedItems = checks.filter(c => c.value);
+    const totalItems = checks.length;
+
+    return (
+      <div className="space-y-1">
+        <div className="text-sm font-medium">
+          {checkedItems.length}/{totalItems} checks completed
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {checkedItems.map((item, idx) => (
+            <Badge key={idx} variant="outline" className="text-xs">
+              <Check className="h-3 w-3 mr-1" />
+              {item.label}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -416,6 +449,7 @@ export default function CloningChecklist() {
                     <TableHead>Batch #</TableHead>
                     <TableHead>Mother ID</TableHead>
                     <TableHead>Quantity</TableHead>
+                    <TableHead>Checklist Items</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Created By</TableHead>
                     <TableHead>Created</TableHead>
@@ -430,6 +464,7 @@ export default function CloningChecklist() {
                       <TableCell className="font-medium">{checklist.batch_number}</TableCell>
                       <TableCell>{checklist.mother_id}</TableCell>
                       <TableCell>{checklist.quantity}</TableCell>
+                      <TableCell>{getChecklistSummary(checklist)}</TableCell>
                       <TableCell>{getStatusBadge(checklist.status)}</TableCell>
                       <TableCell>You</TableCell>
                       <TableCell>{format(new Date(checklist.created_at), 'MMM d, yyyy')}</TableCell>
