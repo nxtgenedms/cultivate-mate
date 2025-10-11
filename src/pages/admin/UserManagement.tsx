@@ -5,14 +5,14 @@ import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Trash2 } from 'lucide-react';
+import { Plus, Pencil } from 'lucide-react';
 import { AppRole } from '@/hooks/useUserRoles';
+import { format } from 'date-fns';
 
 const ROLE_LABELS: Record<AppRole, string> = {
   assistant_grower: 'Assistant Grower',
@@ -25,9 +25,18 @@ const ROLE_LABELS: Record<AppRole, string> = {
 };
 
 export default function UserManagement() {
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('assistant_grower');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    department: '',
+    role: 'assistant_grower' as AppRole,
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,22 +64,43 @@ export default function UserManagement() {
     },
   });
 
-  // Assign role mutation
-  const assignRole = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role });
+  // Create user mutation
+  const createUser = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session');
 
-      if (error) throw error;
+      const response = await supabase.functions.invoke('create-user', {
+        body: {
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          department: data.department,
+          role: data.role,
+        },
+      });
+
+      if (response.error) throw response.error;
+      if (response.data.error) throw new Error(response.data.error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
-        title: 'Role assigned',
-        description: 'User role has been assigned successfully.',
+        title: 'User created',
+        description: 'User has been created successfully.',
       });
-      setIsDialogOpen(false);
+      setIsCreateDialogOpen(false);
+      setFormData({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+        department: '',
+        role: 'assistant_grower',
+      });
     },
     onError: (error: any) => {
       toast({
@@ -81,23 +111,44 @@ export default function UserManagement() {
     },
   });
 
-  // Remove role mutation
-  const removeRole = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      const { error } = await supabase
+  // Update user mutation
+  const updateUser = useMutation({
+    mutationFn: async (data: typeof formData & { userId: string }) => {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone: data.phone,
+          department: data.department,
+          full_name: `${data.firstName} ${data.lastName}`,
+        })
+        .eq('id', data.userId);
+
+      if (profileError) throw profileError;
+
+      // Update role - delete old and insert new
+      const { error: deleteError } = await supabase
         .from('user_roles')
         .delete()
-        .eq('user_id', userId)
-        .eq('role', role);
+        .eq('user_id', data.userId);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
+
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: data.userId, role: data.role });
+
+      if (roleError) throw roleError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
-        title: 'Role removed',
-        description: 'User role has been removed successfully.',
+        title: 'User updated',
+        description: 'User has been updated successfully.',
       });
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
     },
     onError: (error: any) => {
       toast({
@@ -108,60 +159,129 @@ export default function UserManagement() {
     },
   });
 
-  const handleAssignRole = () => {
-    if (!selectedUserId) {
+  const handleCreateUser = () => {
+    if (!formData.email || !formData.password || !formData.firstName) {
       toast({
         title: 'Error',
-        description: 'Please select a user.',
+        description: 'Please fill in all required fields.',
         variant: 'destructive',
       });
       return;
     }
+    createUser.mutate(formData);
+  };
 
-    assignRole.mutate({ userId: selectedUserId, role: selectedRole });
+  const handleUpdateUser = () => {
+    if (!editingUser || !formData.firstName) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    updateUser.mutate({ ...formData, userId: editingUser.id });
+  };
+
+  const handleEdit = (user: any) => {
+    setEditingUser(user);
+    setFormData({
+      email: user.email,
+      password: '',
+      firstName: user.first_name || '',
+      lastName: user.last_name || '',
+      phone: user.phone || '',
+      department: user.department || '',
+      role: user.roles[0] || 'assistant_grower',
+    });
+    setIsEditDialogOpen(true);
   };
 
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        {/* Header */}
+        <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">Manage user accounts and role assignments</p>
+            <p className="text-muted-foreground">View and manage all users in the system</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Assign Role
+              <Button className="bg-green-600 hover:bg-green-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Create User
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Assign Role to User</DialogTitle>
+                <DialogTitle>Create New User</DialogTitle>
                 <DialogDescription>
-                  Select a user and assign them a role in the system.
+                  Add a new user to the system with their details and role.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="user">User</Label>
-                  <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                    <SelectTrigger id="user">
-                      <SelectValue placeholder="Select a user" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users?.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.full_name} ({user.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      placeholder="John"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      placeholder="Doe"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as AppRole)}>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="user@example.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="1234567890"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Input
+                    id="department"
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="IT, Cultivation, etc."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role *</Label>
+                  <Select value={formData.role} onValueChange={(v) => setFormData({ ...formData, role: v as AppRole })}>
                     <SelectTrigger id="role">
                       <SelectValue />
                     </SelectTrigger>
@@ -176,73 +296,155 @@ export default function UserManagement() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAssignRole}>Assign Role</Button>
+                <Button onClick={handleCreateUser}>Create User</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Users & Roles</CardTitle>
-            <CardDescription>
-              View all users and their assigned roles
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-8">Loading users...</div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Roles</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users?.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.full_name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone || '-'}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles.length > 0 ? (
-                            user.roles.map((role) => (
-                              <Badge key={role} variant="secondary" className="flex items-center gap-1">
-                                {ROLE_LABELS[role]}
-                                <button
-                                  onClick={() => removeRole.mutate({ userId: user.id, role })}
-                                  className="ml-1 hover:text-destructive"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </button>
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground text-sm">No roles assigned</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.is_active ? 'default' : 'secondary'}>
-                          {user.is_active ? 'Active' : 'Inactive'}
+        {/* Users Table */}
+        <div className="bg-card rounded-lg border">
+          {isLoading ? (
+            <div className="text-center py-12">Loading users...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>First Name</TableHead>
+                  <TableHead>Last Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users?.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.first_name || '-'}</TableCell>
+                    <TableCell>{user.last_name || '-'}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      {user.roles.length > 0 ? (
+                        <Badge variant="destructive" className="bg-red-500">
+                          {ROLE_LABELS[user.roles[0]]}
                         </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No role</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{user.department || '-'}</TableCell>
+                    <TableCell>{user.phone || '-'}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-green-500 hover:bg-green-600">
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(user)}
+                        className="gap-2"
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+
+        {/* Edit User Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>
+                Update user details and role assignment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-firstName">First Name *</Label>
+                  <Input
+                    id="edit-firstName"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-lastName">Last Name</Label>
+                  <Input
+                    id="edit-lastName"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={formData.email}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone">Phone</Label>
+                <Input
+                  id="edit-phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-department">Department</Label>
+                <Input
+                  id="edit-department"
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">Role *</Label>
+                <Select value={formData.role} onValueChange={(v) => setFormData({ ...formData, role: v as AppRole })}>
+                  <SelectTrigger id="edit-role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateUser}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
