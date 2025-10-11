@@ -47,13 +47,31 @@ export default function CloningChecklist() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cloning_pre_start_checklists')
-        .select(`
-          *,
-          approved_by_profile:profiles!approved_by(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      // Fetch profiles for approved_by users
+      if (data && data.length > 0) {
+        const approverIds = data
+          .map(c => c.approved_by)
+          .filter(Boolean);
+        
+        if (approverIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', approverIds);
+          
+          // Add profile data to checklists
+          return data.map(checklist => ({
+            ...checklist,
+            approved_by_profile: profiles?.find(p => p.id === checklist.approved_by)
+          }));
+        }
+      }
+      
       return data;
     },
   });
