@@ -43,7 +43,10 @@ export default function CloningChecklist() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cloning_pre_start_checklists')
-        .select('*')
+        .select(`
+          *,
+          approved_by_profile:profiles!approved_by(full_name)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -124,10 +127,13 @@ export default function CloningChecklist() {
   // Approve checklist mutation
   const approveChecklist = useMutation({
     mutationFn: async (checklistId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
         .from('cloning_pre_start_checklists')
         .update({
           status: 'approved',
+          approved_by: user?.id,
           approved_at: new Date().toISOString(),
         })
         .eq('id', checklistId);
@@ -413,6 +419,8 @@ export default function CloningChecklist() {
                     <TableHead>Status</TableHead>
                     <TableHead>Created By</TableHead>
                     <TableHead>Created</TableHead>
+                    <TableHead>Approved By</TableHead>
+                    <TableHead>Approved At</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -425,6 +433,15 @@ export default function CloningChecklist() {
                       <TableCell>{getStatusBadge(checklist.status)}</TableCell>
                       <TableCell>You</TableCell>
                       <TableCell>{format(new Date(checklist.created_at), 'MMM d, yyyy')}</TableCell>
+                      <TableCell>
+                        {checklist.approved_by_profile?.full_name || '-'}
+                      </TableCell>
+                      <TableCell>
+                        {checklist.approved_at 
+                          ? format(new Date(checklist.approved_at), 'MMM d, yyyy h:mm a')
+                          : '-'
+                        }
+                      </TableCell>
                       <TableCell>
                         {checklist.status === 'draft' && (
                           <Button
