@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Layout } from '@/components/Layout';
+import { AdminLayout } from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -147,7 +147,7 @@ export default function LookupManagement() {
   };
 
   return (
-    <Layout>
+    <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -323,6 +323,6 @@ export default function LookupManagement() {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Layout } from '@/components/Layout';
+import { AdminLayout } from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -198,7 +198,7 @@ export default function UserManagement() {
   };
 
   return (
-    <Layout>
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-start">
@@ -446,6 +446,6 @@ export default function UserManagement() {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

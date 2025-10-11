@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import LookupManagement from "./pages/admin/LookupManagement";
+import RoleBasedAccess from "./pages/admin/RoleBasedAccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/roles" element={<RoleBasedAccess />} />
             <Route path="/admin/lookups" element={<LookupManagement />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
