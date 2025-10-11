@@ -91,13 +91,13 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
       </div>
 
       {/* Step Navigation */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
         {stepLabels.map((label, index) => (
           <button
             key={index}
             onClick={() => setCurrentStep(index)}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-center justify-center",
               currentStep === index
                 ? "bg-primary text-primary-foreground"
                 : index < currentStep
@@ -105,8 +105,8 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
                 : "bg-muted/50 text-muted-foreground hover:bg-muted"
             )}
           >
-            {index < currentStep && <CheckCircle2 className="h-4 w-4" />}
-            <span>{label}</span>
+            {index < currentStep && <CheckCircle2 className="h-3 w-3 flex-shrink-0" />}
+            <span className="line-clamp-1">{label}</span>
           </button>
         ))}
       </div>

@@ -126,18 +126,20 @@ export default function MasterRecord() {
                     New Batch Record
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
                   <DialogHeader>
                     <DialogTitle>
                       {editingRecordId ? 'Edit' : 'Create'} Batch Lifecycle Record
                     </DialogTitle>
                   </DialogHeader>
-                  <BatchLifecycleWizard
-                    recordId={editingRecordId}
-                    onSave={async (data, isDraft) => {
-                      return saveMutation.mutateAsync({ data, isDraft });
-                    }}
-                  />
+                  <div className="overflow-y-auto flex-1 pr-2">
+                    <BatchLifecycleWizard
+                      recordId={editingRecordId}
+                      onSave={async (data, isDraft) => {
+                        return saveMutation.mutateAsync({ data, isDraft });
+                      }}
+                    />
+                  </div>
                 </DialogContent>
               </Dialog>
             </div>
