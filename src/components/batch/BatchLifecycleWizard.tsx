@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -11,12 +11,6 @@ import {
 import { cn } from '@/lib/utils';
 import { HeaderInfoStep } from './steps/HeaderInfoStep';
 
-interface WizardStep {
-  id: string;
-  label: string;
-  component: React.ReactNode;
-}
-
 interface BatchLifecycleWizardProps {
   recordId?: string;
   onSave: (data: any, isDraft: boolean) => Promise<void>;
@@ -27,27 +21,23 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
   const [formData, setFormData] = useState<any>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const steps: WizardStep[] = [
-    { 
-      id: 'header', 
-      label: 'Batch Information', 
-      component: <HeaderInfoStep data={formData} onChange={setFormData} />
-    },
-    { id: 'cloning', label: 'Cloning & Rooting', component: null },
-    { id: 'hardening', label: 'Hardening', component: null },
-    { id: 'veg', label: 'Vegetative Stage', component: null },
-    { id: 'flowering', label: 'Flowering/Grow Room', component: null },
-    { id: 'harvest', label: 'Harvest', component: null },
-    { id: 'processing', label: 'Processing & Inspection', component: null },
-    { id: 'drying', label: 'Drying', component: null },
-    { id: 'packing', label: 'Packing', component: null },
-    { id: 'summary', label: 'Mortality Summary', component: null },
+  const stepLabels = [
+    'Batch Information',
+    'Cloning & Rooting',
+    'Hardening',
+    'Vegetative Stage',
+    'Flowering/Grow Room',
+    'Harvest',
+    'Processing & Inspection',
+    'Drying',
+    'Packing',
+    'Mortality Summary',
   ];
 
-  const progress = ((currentStep + 1) / steps.length) * 100;
+  const progress = ((currentStep + 1) / stepLabels.length) * 100;
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (currentStep < stepLabels.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -76,12 +66,25 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
     }
   };
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return <HeaderInfoStep data={formData} onChange={setFormData} />;
+      default:
+        return (
+          <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+            Form content for {stepLabels[currentStep]} coming soon
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium">Step {currentStep + 1} of {steps.length}</span>
+          <span className="font-medium">Step {currentStep + 1} of {stepLabels.length}</span>
           <span className="text-muted-foreground">{Math.round(progress)}% Complete</span>
         </div>
         <Progress value={progress} className="h-2" />
@@ -89,9 +92,9 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
 
       {/* Step Navigation */}
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {steps.map((step, index) => (
+        {stepLabels.map((label, index) => (
           <button
-            key={step.id}
+            key={index}
             onClick={() => setCurrentStep(index)}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
@@ -103,7 +106,7 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
             )}
           >
             {index < currentStep && <CheckCircle2 className="h-4 w-4" />}
-            <span>{step.label}</span>
+            <span>{label}</span>
           </button>
         ))}
       </div>
@@ -113,7 +116,7 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
         <CardContent className="p-6">
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold">{steps[currentStep].label}</h2>
+              <h2 className="text-2xl font-bold">{stepLabels[currentStep]}</h2>
               <p className="text-muted-foreground mt-1">
                 Complete the information for this stage
               </p>
@@ -121,11 +124,7 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
 
             {/* Step component will be rendered here */}
             <div className="min-h-[400px]">
-              {steps[currentStep].component || (
-                <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-                  Form content for {steps[currentStep].label} coming soon
-                </div>
-              )}
+              {renderStepContent()}
             </div>
           </div>
         </CardContent>
@@ -152,7 +151,7 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
             Save Draft
           </Button>
 
-          {currentStep === steps.length - 1 ? (
+          {currentStep === stepLabels.length - 1 ? (
             <Button 
               onClick={handleSubmit}
               disabled={isSaving}
