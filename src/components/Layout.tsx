@@ -18,9 +18,6 @@ export function Layout({ children }: LayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', adminOnly: false },
-    { icon: Leaf, label: 'Cultivation', path: '/cultivation', adminOnly: false },
-    { icon: ClipboardList, label: 'Daily Records', path: '/daily-records', adminOnly: false },
-    { icon: Bug, label: 'Scouting & Issues', path: '/scouting', adminOnly: false },
     { icon: Package, label: 'Inventory', path: '/inventory', adminOnly: false },
     { icon: Settings, label: 'Administration', path: '/admin/users', adminOnly: true },
   ];
