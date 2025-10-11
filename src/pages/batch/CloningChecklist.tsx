@@ -12,11 +12,12 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, FileText, CheckCircle2, XCircle, Clock, Check } from 'lucide-react';
+import { Plus, FileText, CheckCircle2, XCircle, Clock, Check, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function CloningChecklist() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingChecklistId, setEditingChecklistId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     motherId: '',
     batchNumber: '',
@@ -80,35 +81,64 @@ export default function CloningChecklist() {
   // Create checklist mutation
   const createChecklist = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from('cloning_pre_start_checklists')
-        .insert({
-          mother_id: data.motherId,
-          batch_number: data.batchNumber,
-          quantity: parseInt(data.quantity),
-          mother_plant_healthy: data.motherPlantHealthy,
-          mother_plant_fed_watered_12h: data.motherPlantFedWatered12h,
-          work_area_sharp_clean_scissors: data.workAreaSharpCleanScissors,
-          work_area_sharp_clean_blade: data.workAreaSharpCleanBlade,
-          work_area_jug_clean_water: data.workAreaJugCleanWater,
-          work_area_dome_cleaned_disinfected: data.workAreaDomeCleanedDisinfected,
-          work_area_dome_prepared_medium: data.workAreaDomePreparedMedium,
-          work_area_sanitizer_cup: data.workAreaSanitizerCup,
-          work_area_rooting_powder: data.workAreaRootingPowder,
-          work_surface_sterilized: data.workSurfaceSterilized,
-          wearing_clean_gloves: data.wearingCleanGloves,
-          status: 'draft',
-        });
+      if (editingChecklistId) {
+        // Update existing checklist
+        const { error } = await supabase
+          .from('cloning_pre_start_checklists')
+          .update({
+            mother_id: data.motherId,
+            batch_number: data.batchNumber,
+            quantity: parseInt(data.quantity),
+            mother_plant_healthy: data.motherPlantHealthy,
+            mother_plant_fed_watered_12h: data.motherPlantFedWatered12h,
+            work_area_sharp_clean_scissors: data.workAreaSharpCleanScissors,
+            work_area_sharp_clean_blade: data.workAreaSharpCleanBlade,
+            work_area_jug_clean_water: data.workAreaJugCleanWater,
+            work_area_dome_cleaned_disinfected: data.workAreaDomeCleanedDisinfected,
+            work_area_dome_prepared_medium: data.workAreaDomePreparedMedium,
+            work_area_sanitizer_cup: data.workAreaSanitizerCup,
+            work_area_rooting_powder: data.workAreaRootingPowder,
+            work_surface_sterilized: data.workSurfaceSterilized,
+            wearing_clean_gloves: data.wearingCleanGloves,
+          })
+          .eq('id', editingChecklistId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Create new checklist
+        const { error } = await supabase
+          .from('cloning_pre_start_checklists')
+          .insert({
+            mother_id: data.motherId,
+            batch_number: data.batchNumber,
+            quantity: parseInt(data.quantity),
+            mother_plant_healthy: data.motherPlantHealthy,
+            mother_plant_fed_watered_12h: data.motherPlantFedWatered12h,
+            work_area_sharp_clean_scissors: data.workAreaSharpCleanScissors,
+            work_area_sharp_clean_blade: data.workAreaSharpCleanBlade,
+            work_area_jug_clean_water: data.workAreaJugCleanWater,
+            work_area_dome_cleaned_disinfected: data.workAreaDomeCleanedDisinfected,
+            work_area_dome_prepared_medium: data.workAreaDomePreparedMedium,
+            work_area_sanitizer_cup: data.workAreaSanitizerCup,
+            work_area_rooting_powder: data.workAreaRootingPowder,
+            work_surface_sterilized: data.workSurfaceSterilized,
+            wearing_clean_gloves: data.wearingCleanGloves,
+            status: 'draft',
+          });
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cloning-checklists'] });
       toast({
-        title: 'Checklist created',
-        description: 'Cloning pre-start checklist has been saved as draft.',
+        title: editingChecklistId ? 'Checklist updated' : 'Checklist created',
+        description: editingChecklistId 
+          ? 'Cloning pre-start checklist has been updated.' 
+          : 'Cloning pre-start checklist has been saved as draft.',
       });
       setIsCreateDialogOpen(false);
+      setEditingChecklistId(null);
       resetForm();
     },
     onError: (error: any) => {
@@ -198,6 +228,28 @@ export default function CloningChecklist() {
       workSurfaceSterilized: false,
       wearingCleanGloves: false,
     });
+    setEditingChecklistId(null);
+  };
+
+  const handleEditChecklist = (checklist: any) => {
+    setFormData({
+      motherId: checklist.mother_id,
+      batchNumber: checklist.batch_number,
+      quantity: checklist.quantity.toString(),
+      motherPlantHealthy: checklist.mother_plant_healthy,
+      motherPlantFedWatered12h: checklist.mother_plant_fed_watered_12h,
+      workAreaSharpCleanScissors: checklist.work_area_sharp_clean_scissors,
+      workAreaSharpCleanBlade: checklist.work_area_sharp_clean_blade,
+      workAreaJugCleanWater: checklist.work_area_jug_clean_water,
+      workAreaDomeCleanedDisinfected: checklist.work_area_dome_cleaned_disinfected,
+      workAreaDomePreparedMedium: checklist.work_area_dome_prepared_medium,
+      workAreaSanitizerCup: checklist.work_area_sanitizer_cup,
+      workAreaRootingPowder: checklist.work_area_rooting_powder,
+      workSurfaceSterilized: checklist.work_surface_sterilized,
+      wearingCleanGloves: checklist.wearing_clean_gloves,
+    });
+    setEditingChecklistId(checklist.id);
+    setIsCreateDialogOpen(true);
   };
 
   const handleSubmit = () => {
@@ -277,7 +329,12 @@ export default function CloningChecklist() {
                   Pre-cloning verification checklist - Mother Health, Preparation & Hygiene
                 </CardDescription>
               </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+                setIsCreateDialogOpen(open);
+                if (!open) {
+                  resetForm();
+                }
+              }}>
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
@@ -286,7 +343,9 @@ export default function CloningChecklist() {
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Create Cloning Pre-Start Checklist</DialogTitle>
+                    <DialogTitle>
+                      {editingChecklistId ? 'Edit' : 'Create'} Cloning Pre-Start Checklist
+                    </DialogTitle>
                     <DialogDescription>
                       Complete all checks before starting cloning operations
                     </DialogDescription>
@@ -495,11 +554,14 @@ export default function CloningChecklist() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                      setIsCreateDialogOpen(false);
+                      resetForm();
+                    }}>
                       Cancel
                     </Button>
                     <Button onClick={handleSubmit}>
-                      Save as Draft
+                      {editingChecklistId ? 'Update Draft' : 'Save as Draft'}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -546,12 +608,22 @@ export default function CloningChecklist() {
                       </TableCell>
                       <TableCell>
                         {checklist.status === 'draft' && (
-                          <Button
-                            size="sm"
-                            onClick={() => submitForApproval.mutate(checklist.id)}
-                          >
-                            Submit
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditChecklist(checklist)}
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => submitForApproval.mutate(checklist.id)}
+                            >
+                              Submit
+                            </Button>
+                          </div>
                         )}
                         {checklist.status === 'pending' && (
                           <Button
