@@ -54,21 +54,25 @@ export default function CloningChecklist() {
 
       if (error) throw error;
       
-      // Fetch profiles for approved_by users
+      // Fetch profiles for created_by and approved_by users
       if (data && data.length > 0) {
-        const approverIds = data
-          .map(c => c.approved_by)
-          .filter(Boolean);
+        const userIds = [
+          ...data.map(c => c.created_by),
+          ...data.map(c => c.approved_by)
+        ].filter(Boolean);
         
-        if (approverIds.length > 0) {
+        const uniqueUserIds = [...new Set(userIds)];
+        
+        if (uniqueUserIds.length > 0) {
           const { data: profiles } = await supabase
             .from('profiles')
             .select('id, full_name')
-            .in('id', approverIds);
+            .in('id', uniqueUserIds);
           
           // Add profile data to checklists
           return data.map(checklist => ({
             ...checklist,
+            created_by_profile: profiles?.find(p => p.id === checklist.created_by),
             approved_by_profile: profiles?.find(p => p.id === checklist.approved_by)
           }));
         }
@@ -81,6 +85,8 @@ export default function CloningChecklist() {
   // Create checklist mutation
   const createChecklist = useMutation({
     mutationFn: async (data: typeof formData) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       if (editingChecklistId) {
         // Update existing checklist
         const { error } = await supabase
@@ -123,6 +129,7 @@ export default function CloningChecklist() {
             work_area_rooting_powder: data.workAreaRootingPowder,
             work_surface_sterilized: data.workSurfaceSterilized,
             wearing_clean_gloves: data.wearingCleanGloves,
+            created_by: user?.id,
             status: 'draft',
           });
 
@@ -595,8 +602,12 @@ export default function CloningChecklist() {
                       <TableCell>{checklist.quantity}</TableCell>
                       <TableCell>{getChecklistSummary(checklist)}</TableCell>
                       <TableCell>{getStatusBadge(checklist.status)}</TableCell>
-                      <TableCell>You</TableCell>
-                      <TableCell>{format(new Date(checklist.created_at), 'MMM d, yyyy')}</TableCell>
+                      <TableCell>
+                        {checklist.created_by_profile?.full_name || 'Unknown'}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(checklist.created_at), 'MMM d, yyyy h:mm a')}
+                      </TableCell>
                       <TableCell>
                         {checklist.approved_by_profile?.full_name || '-'}
                       </TableCell>
