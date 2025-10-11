@@ -78,17 +78,10 @@ export type Database = {
           batch_number: string
           created_at: string | null
           created_by: string | null
-          hygiene_hands_sanitized: boolean | null
-          hygiene_ppe_worn: boolean | null
-          hygiene_workspace_clean: boolean | null
           id: string
-          mother_health_disease_free: boolean | null
-          mother_health_pest_free: boolean | null
-          mother_health_vigorous: boolean | null
           mother_id: string
-          prep_environment_clean: boolean | null
-          prep_media_ready: boolean | null
-          prep_tools_sterilized: boolean | null
+          mother_plant_fed_watered_12h: boolean | null
+          mother_plant_healthy: boolean | null
           quantity: number
           rejected_at: string | null
           rejected_by: string | null
@@ -98,6 +91,15 @@ export type Database = {
           submitted_at: string | null
           submitted_by: string | null
           updated_at: string | null
+          wearing_clean_gloves: boolean | null
+          work_area_dome_cleaned_disinfected: boolean | null
+          work_area_dome_prepared_medium: boolean | null
+          work_area_jug_clean_water: boolean | null
+          work_area_rooting_powder: boolean | null
+          work_area_sanitizer_cup: boolean | null
+          work_area_sharp_clean_blade: boolean | null
+          work_area_sharp_clean_scissors: boolean | null
+          work_surface_sterilized: boolean | null
         }
         Insert: {
           approved_at?: string | null
@@ -106,17 +108,10 @@ export type Database = {
           batch_number: string
           created_at?: string | null
           created_by?: string | null
-          hygiene_hands_sanitized?: boolean | null
-          hygiene_ppe_worn?: boolean | null
-          hygiene_workspace_clean?: boolean | null
           id?: string
-          mother_health_disease_free?: boolean | null
-          mother_health_pest_free?: boolean | null
-          mother_health_vigorous?: boolean | null
           mother_id: string
-          prep_environment_clean?: boolean | null
-          prep_media_ready?: boolean | null
-          prep_tools_sterilized?: boolean | null
+          mother_plant_fed_watered_12h?: boolean | null
+          mother_plant_healthy?: boolean | null
           quantity: number
           rejected_at?: string | null
           rejected_by?: string | null
@@ -126,6 +121,15 @@ export type Database = {
           submitted_at?: string | null
           submitted_by?: string | null
           updated_at?: string | null
+          wearing_clean_gloves?: boolean | null
+          work_area_dome_cleaned_disinfected?: boolean | null
+          work_area_dome_prepared_medium?: boolean | null
+          work_area_jug_clean_water?: boolean | null
+          work_area_rooting_powder?: boolean | null
+          work_area_sanitizer_cup?: boolean | null
+          work_area_sharp_clean_blade?: boolean | null
+          work_area_sharp_clean_scissors?: boolean | null
+          work_surface_sterilized?: boolean | null
         }
         Update: {
           approved_at?: string | null
@@ -134,17 +138,10 @@ export type Database = {
           batch_number?: string
           created_at?: string | null
           created_by?: string | null
-          hygiene_hands_sanitized?: boolean | null
-          hygiene_ppe_worn?: boolean | null
-          hygiene_workspace_clean?: boolean | null
           id?: string
-          mother_health_disease_free?: boolean | null
-          mother_health_pest_free?: boolean | null
-          mother_health_vigorous?: boolean | null
           mother_id?: string
-          prep_environment_clean?: boolean | null
-          prep_media_ready?: boolean | null
-          prep_tools_sterilized?: boolean | null
+          mother_plant_fed_watered_12h?: boolean | null
+          mother_plant_healthy?: boolean | null
           quantity?: number
           rejected_at?: string | null
           rejected_by?: string | null
@@ -154,6 +151,15 @@ export type Database = {
           submitted_at?: string | null
           submitted_by?: string | null
           updated_at?: string | null
+          wearing_clean_gloves?: boolean | null
+          work_area_dome_cleaned_disinfected?: boolean | null
+          work_area_dome_prepared_medium?: boolean | null
+          work_area_jug_clean_water?: boolean | null
+          work_area_rooting_powder?: boolean | null
+          work_area_sanitizer_cup?: boolean | null
+          work_area_sharp_clean_blade?: boolean | null
+          work_area_sharp_clean_scissors?: boolean | null
+          work_surface_sterilized?: boolean | null
         }
         Relationships: [
           {

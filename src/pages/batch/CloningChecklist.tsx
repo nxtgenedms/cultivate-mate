@@ -20,18 +20,22 @@ export default function CloningChecklist() {
     motherId: '',
     batchNumber: '',
     quantity: '',
-    // Mother Health
-    motherHealthVigorous: false,
-    motherHealthPestFree: false,
-    motherHealthDiseaseFree: false,
-    // Preparation
-    prepToolsSterilized: false,
-    prepMediaReady: false,
-    prepEnvironmentClean: false,
-    // Hygiene
-    hygieneHandsSanitized: false,
-    hygienePpeWorn: false,
-    hygieneWorkspaceClean: false,
+    // Question 1
+    motherPlantHealthy: false,
+    // Question 2
+    motherPlantFedWatered12h: false,
+    // Question 3 - Work Area Prepared
+    workAreaSharpCleanScissors: false,
+    workAreaSharpCleanBlade: false,
+    workAreaJugCleanWater: false,
+    workAreaDomeCleanedDisinfected: false,
+    workAreaDomePreparedMedium: false,
+    workAreaSanitizerCup: false,
+    workAreaRootingPowder: false,
+    // Question 4
+    workSurfaceSterilized: false,
+    // Question 5
+    wearingCleanGloves: false,
   });
   
   const { toast } = useToast();
@@ -63,15 +67,17 @@ export default function CloningChecklist() {
           mother_id: data.motherId,
           batch_number: data.batchNumber,
           quantity: parseInt(data.quantity),
-          mother_health_vigorous: data.motherHealthVigorous,
-          mother_health_pest_free: data.motherHealthPestFree,
-          mother_health_disease_free: data.motherHealthDiseaseFree,
-          prep_tools_sterilized: data.prepToolsSterilized,
-          prep_media_ready: data.prepMediaReady,
-          prep_environment_clean: data.prepEnvironmentClean,
-          hygiene_hands_sanitized: data.hygieneHandsSanitized,
-          hygiene_ppe_worn: data.hygienePpeWorn,
-          hygiene_workspace_clean: data.hygieneWorkspaceClean,
+          mother_plant_healthy: data.motherPlantHealthy,
+          mother_plant_fed_watered_12h: data.motherPlantFedWatered12h,
+          work_area_sharp_clean_scissors: data.workAreaSharpCleanScissors,
+          work_area_sharp_clean_blade: data.workAreaSharpCleanBlade,
+          work_area_jug_clean_water: data.workAreaJugCleanWater,
+          work_area_dome_cleaned_disinfected: data.workAreaDomeCleanedDisinfected,
+          work_area_dome_prepared_medium: data.workAreaDomePreparedMedium,
+          work_area_sanitizer_cup: data.workAreaSanitizerCup,
+          work_area_rooting_powder: data.workAreaRootingPowder,
+          work_surface_sterilized: data.workSurfaceSterilized,
+          wearing_clean_gloves: data.wearingCleanGloves,
           status: 'draft',
         });
 
@@ -161,15 +167,17 @@ export default function CloningChecklist() {
       motherId: '',
       batchNumber: '',
       quantity: '',
-      motherHealthVigorous: false,
-      motherHealthPestFree: false,
-      motherHealthDiseaseFree: false,
-      prepToolsSterilized: false,
-      prepMediaReady: false,
-      prepEnvironmentClean: false,
-      hygieneHandsSanitized: false,
-      hygienePpeWorn: false,
-      hygieneWorkspaceClean: false,
+      motherPlantHealthy: false,
+      motherPlantFedWatered12h: false,
+      workAreaSharpCleanScissors: false,
+      workAreaSharpCleanBlade: false,
+      workAreaJugCleanWater: false,
+      workAreaDomeCleanedDisinfected: false,
+      workAreaDomePreparedMedium: false,
+      workAreaSanitizerCup: false,
+      workAreaRootingPowder: false,
+      workSurfaceSterilized: false,
+      wearingCleanGloves: false,
     });
   };
 
@@ -202,15 +210,17 @@ export default function CloningChecklist() {
 
   const getChecklistSummary = (checklist: any) => {
     const checks = [
-      { label: 'Vigorous', value: checklist.mother_health_vigorous },
-      { label: 'Pest-free', value: checklist.mother_health_pest_free },
-      { label: 'Disease-free', value: checklist.mother_health_disease_free },
-      { label: 'Tools Sterilized', value: checklist.prep_tools_sterilized },
-      { label: 'Media Ready', value: checklist.prep_media_ready },
-      { label: 'Environment Clean', value: checklist.prep_environment_clean },
-      { label: 'Hands Sanitized', value: checklist.hygiene_hands_sanitized },
-      { label: 'PPE Worn', value: checklist.hygiene_ppe_worn },
-      { label: 'Workspace Clean', value: checklist.hygiene_workspace_clean },
+      { label: 'Mother Healthy', value: checklist.mother_plant_healthy },
+      { label: 'Fed/Watered', value: checklist.mother_plant_fed_watered_12h },
+      { label: 'Scissors', value: checklist.work_area_sharp_clean_scissors },
+      { label: 'Blade', value: checklist.work_area_sharp_clean_blade },
+      { label: 'Water Jug', value: checklist.work_area_jug_clean_water },
+      { label: 'Dome Clean', value: checklist.work_area_dome_cleaned_disinfected },
+      { label: 'Medium', value: checklist.work_area_dome_prepared_medium },
+      { label: 'Sanitizer', value: checklist.work_area_sanitizer_cup },
+      { label: 'Rooting Powder', value: checklist.work_area_rooting_powder },
+      { label: 'Surface Sterilized', value: checklist.work_surface_sterilized },
+      { label: 'Gloves', value: checklist.wearing_clean_gloves },
     ];
 
     const checkedItems = checks.filter(c => c.value);
@@ -298,132 +308,162 @@ export default function CloningChecklist() {
                       </div>
                     </div>
 
-                    {/* Mother Health Checklist */}
+                    {/* Question 1 */}
                     <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">Mother Health Checklist</h3>
-                      <div className="space-y-2">
+                      <h3 className="font-semibold">1. Is the mother plant that you're taking cuttings from healthy?</h3>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="motherPlantHealthy"
+                          checked={formData.motherPlantHealthy}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, motherPlantHealthy: checked as boolean })
+                          }
+                        />
+                        <label htmlFor="motherPlantHealthy" className="text-sm cursor-pointer">
+                          YES
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Question 2 */}
+                    <div className="space-y-3 border-t pt-4">
+                      <h3 className="font-semibold">2. Has the mother plant you are taking cuttings from been fed / watered in the last 12 hours</h3>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="motherPlantFedWatered"
+                          checked={formData.motherPlantFedWatered12h}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, motherPlantFedWatered12h: checked as boolean })
+                          }
+                        />
+                        <label htmlFor="motherPlantFedWatered" className="text-sm cursor-pointer">
+                          YES
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Question 3 - Work Area Prepared */}
+                    <div className="space-y-3 border-t pt-4">
+                      <h3 className="font-semibold">3. Is your work area prepared?</h3>
+                      <div className="space-y-2 ml-4">
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="vigorous"
-                            checked={formData.motherHealthVigorous}
+                            id="sharpScissors"
+                            checked={formData.workAreaSharpCleanScissors}
                             onCheckedChange={(checked) => 
-                              setFormData({ ...formData, motherHealthVigorous: checked as boolean })
+                              setFormData({ ...formData, workAreaSharpCleanScissors: checked as boolean })
                             }
                           />
-                          <label htmlFor="vigorous" className="text-sm cursor-pointer">
-                            Mother plant is vigorous and healthy
+                          <label htmlFor="sharpScissors" className="text-sm cursor-pointer">
+                            Sharp, clean scissors
                           </label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="pestFree"
-                            checked={formData.motherHealthPestFree}
+                            id="sharpBlade"
+                            checked={formData.workAreaSharpCleanBlade}
                             onCheckedChange={(checked) => 
-                              setFormData({ ...formData, motherHealthPestFree: checked as boolean })
+                              setFormData({ ...formData, workAreaSharpCleanBlade: checked as boolean })
                             }
                           />
-                          <label htmlFor="pestFree" className="text-sm cursor-pointer">
-                            Mother plant is pest-free
+                          <label htmlFor="sharpBlade" className="text-sm cursor-pointer">
+                            Sharp, clean blade
                           </label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id="diseaseFree"
-                            checked={formData.motherHealthDiseaseFree}
+                            id="jugWater"
+                            checked={formData.workAreaJugCleanWater}
                             onCheckedChange={(checked) => 
-                              setFormData({ ...formData, motherHealthDiseaseFree: checked as boolean })
+                              setFormData({ ...formData, workAreaJugCleanWater: checked as boolean })
                             }
                           />
-                          <label htmlFor="diseaseFree" className="text-sm cursor-pointer">
-                            Mother plant is disease-free
+                          <label htmlFor="jugWater" className="text-sm cursor-pointer">
+                            Jug with clean water
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="domeCleaned"
+                            checked={formData.workAreaDomeCleanedDisinfected}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, workAreaDomeCleanedDisinfected: checked as boolean })
+                            }
+                          />
+                          <label htmlFor="domeCleaned" className="text-sm cursor-pointer">
+                            Dome has been cleaned and disinfected
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="domePrepared"
+                            checked={formData.workAreaDomePreparedMedium}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, workAreaDomePreparedMedium: checked as boolean })
+                            }
+                          />
+                          <label htmlFor="domePrepared" className="text-sm cursor-pointer">
+                            Dome has been prepared with grow medium (Jiffy) and the correct moisture content
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="sanitizerCup"
+                            checked={formData.workAreaSanitizerCup}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, workAreaSanitizerCup: checked as boolean })
+                            }
+                          />
+                          <label htmlFor="sanitizerCup" className="text-sm cursor-pointer">
+                            Cup of sanitizer (70% alcohol content) to sterilize and equipment
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="rootingPowder"
+                            checked={formData.workAreaRootingPowder}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, workAreaRootingPowder: checked as boolean })
+                            }
+                          />
+                          <label htmlFor="rootingPowder" className="text-sm cursor-pointer">
+                            Rooting powder
                           </label>
                         </div>
                       </div>
                     </div>
 
-                    {/* Preparation Checklist */}
+                    {/* Question 4 */}
                     <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">Preparation Checklist</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="toolsSterilized"
-                            checked={formData.prepToolsSterilized}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, prepToolsSterilized: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="toolsSterilized" className="text-sm cursor-pointer">
-                            All tools are sterilized
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="mediaReady"
-                            checked={formData.prepMediaReady}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, prepMediaReady: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="mediaReady" className="text-sm cursor-pointer">
-                            Growing media is ready
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="environmentClean"
-                            checked={formData.prepEnvironmentClean}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, prepEnvironmentClean: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="environmentClean" className="text-sm cursor-pointer">
-                            Environment is clean and prepared
-                          </label>
-                        </div>
+                      <h3 className="font-semibold">4. Has your work surface area been sterilized?</h3>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="workSurfaceSterilized"
+                          checked={formData.workSurfaceSterilized}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, workSurfaceSterilized: checked as boolean })
+                          }
+                        />
+                        <label htmlFor="workSurfaceSterilized" className="text-sm cursor-pointer">
+                          YES
+                        </label>
                       </div>
                     </div>
 
-                    {/* Hygiene Checklist */}
+                    {/* Question 5 */}
                     <div className="space-y-3 border-t pt-4">
-                      <h3 className="font-semibold">Hygiene Checklist</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="handsSanitized"
-                            checked={formData.hygieneHandsSanitized}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, hygieneHandsSanitized: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="handsSanitized" className="text-sm cursor-pointer">
-                            Hands are properly sanitized
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="ppeWorn"
-                            checked={formData.hygienePpeWorn}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, hygienePpeWorn: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="ppeWorn" className="text-sm cursor-pointer">
-                            PPE (gloves, hairnet) is worn
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="workspaceClean"
-                            checked={formData.hygieneWorkspaceClean}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, hygieneWorkspaceClean: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="workspaceClean" className="text-sm cursor-pointer">
-                            Workspace is clean and organized
-                          </label>
-                        </div>
+                      <h3 className="font-semibold">5. Are you wearing clean gloves?</h3>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="wearingGloves"
+                          checked={formData.wearingCleanGloves}
+                          onCheckedChange={(checked) => 
+                            setFormData({ ...formData, wearingCleanGloves: checked as boolean })
+                          }
+                        />
+                        <label htmlFor="wearingGloves" className="text-sm cursor-pointer">
+                          YES
+                        </label>
                       </div>
                     </div>
                   </div>
