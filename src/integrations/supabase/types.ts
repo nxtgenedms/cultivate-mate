@@ -14,6 +14,226 @@ export type Database = {
   }
   public: {
     Tables: {
+      batches: {
+        Row: {
+          actual_quantity: number | null
+          batch_number: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          mother_id: string | null
+          notes: string | null
+          projected_quantity: number | null
+          stage: Database["public"]["Enums"]["batch_stage"]
+          start_date: string
+          strain_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_quantity?: number | null
+          batch_number: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          mother_id?: string | null
+          notes?: string | null
+          projected_quantity?: number | null
+          stage?: Database["public"]["Enums"]["batch_stage"]
+          start_date?: string
+          strain_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_quantity?: number | null
+          batch_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          mother_id?: string | null
+          notes?: string | null
+          projected_quantity?: number | null
+          stage?: Database["public"]["Enums"]["batch_stage"]
+          start_date?: string
+          strain_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "lookup_values"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cloning_pre_start_checklists: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          batch_id: string | null
+          batch_number: string
+          created_at: string | null
+          created_by: string | null
+          hygiene_hands_sanitized: boolean | null
+          hygiene_ppe_worn: boolean | null
+          hygiene_workspace_clean: boolean | null
+          id: string
+          mother_health_disease_free: boolean | null
+          mother_health_pest_free: boolean | null
+          mother_health_vigorous: boolean | null
+          mother_id: string
+          prep_environment_clean: boolean | null
+          prep_media_ready: boolean | null
+          prep_tools_sterilized: boolean | null
+          quantity: number
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          sof_number: string | null
+          status: Database["public"]["Enums"]["approval_status"] | null
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          batch_number: string
+          created_at?: string | null
+          created_by?: string | null
+          hygiene_hands_sanitized?: boolean | null
+          hygiene_ppe_worn?: boolean | null
+          hygiene_workspace_clean?: boolean | null
+          id?: string
+          mother_health_disease_free?: boolean | null
+          mother_health_pest_free?: boolean | null
+          mother_health_vigorous?: boolean | null
+          mother_id: string
+          prep_environment_clean?: boolean | null
+          prep_media_ready?: boolean | null
+          prep_tools_sterilized?: boolean | null
+          quantity: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          batch_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          hygiene_hands_sanitized?: boolean | null
+          hygiene_ppe_worn?: boolean | null
+          hygiene_workspace_clean?: boolean | null
+          id?: string
+          mother_health_disease_free?: boolean | null
+          mother_health_pest_free?: boolean | null
+          mother_health_vigorous?: boolean | null
+          mother_id?: string
+          prep_environment_clean?: boolean | null
+          prep_media_ready?: boolean | null
+          prep_tools_sterilized?: boolean | null
+          quantity?: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloning_pre_start_checklists_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cloning_transplant_logs: {
+        Row: {
+          actual_transplant_date: string | null
+          batch_id: string | null
+          batch_number: string
+          created_at: string | null
+          created_by: string | null
+          dome_number: string | null
+          id: string
+          mother_id: string
+          notes: string | null
+          projected_transplant_date: string | null
+          sof_number: string | null
+          strain_id: string | null
+          total_clones: number | null
+          total_transplanted: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_transplant_date?: string | null
+          batch_id?: string | null
+          batch_number: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_number?: string | null
+          id?: string
+          mother_id: string
+          notes?: string | null
+          projected_transplant_date?: string | null
+          sof_number?: string | null
+          strain_id?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_transplant_date?: string | null
+          batch_id?: string | null
+          batch_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_number?: string | null
+          id?: string
+          mother_id?: string
+          notes?: string | null
+          projected_transplant_date?: string | null
+          sof_number?: string | null
+          strain_id?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloning_transplant_logs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cloning_transplant_logs_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "lookup_values"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lookup_categories: {
         Row: {
           category_key: string
@@ -84,6 +304,74 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "lookup_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mortality_discard_records: {
+        Row: {
+          batch_id: string | null
+          batch_identifier: string
+          created_at: string | null
+          created_by: string | null
+          grower_approved_at: string | null
+          grower_approved_by: string | null
+          id: string
+          manager_approved_at: string | null
+          manager_approved_by: string | null
+          qa_approved_at: string | null
+          qa_approved_by: string | null
+          quantity_discarded: number
+          reason: string
+          record_date: string
+          sof_number: string | null
+          status: Database["public"]["Enums"]["approval_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          batch_identifier: string
+          created_at?: string | null
+          created_by?: string | null
+          grower_approved_at?: string | null
+          grower_approved_by?: string | null
+          id?: string
+          manager_approved_at?: string | null
+          manager_approved_by?: string | null
+          qa_approved_at?: string | null
+          qa_approved_by?: string | null
+          quantity_discarded: number
+          reason: string
+          record_date: string
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          batch_identifier?: string
+          created_at?: string | null
+          created_by?: string | null
+          grower_approved_at?: string | null
+          grower_approved_by?: string | null
+          id?: string
+          manager_approved_at?: string | null
+          manager_approved_by?: string | null
+          qa_approved_at?: string | null
+          qa_approved_by?: string | null
+          quantity_discarded?: number
+          reason?: string
+          record_date?: string
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mortality_discard_records_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
             referencedColumns: ["id"]
           },
         ]
@@ -177,6 +465,15 @@ export type Database = {
         | "supervisor"
         | "it_admin"
         | "business_admin"
+      approval_status: "draft" | "pending" | "approved" | "rejected"
+      batch_stage:
+        | "cloning"
+        | "rooting"
+        | "vegetation"
+        | "flowering"
+        | "harvest"
+        | "processing"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -312,6 +609,16 @@ export const Constants = {
         "supervisor",
         "it_admin",
         "business_admin",
+      ],
+      approval_status: ["draft", "pending", "approved", "rejected"],
+      batch_stage: [
+        "cloning",
+        "rooting",
+        "vegetation",
+        "flowering",
+        "harvest",
+        "processing",
+        "completed",
       ],
     },
   },
