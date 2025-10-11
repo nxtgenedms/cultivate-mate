@@ -13,10 +13,10 @@ export function BatchLayout({ children }: BatchLayoutProps) {
   const location = useLocation();
 
   const tabs = [
+    { path: '/batch/master-record', label: 'Master Record', icon: BarChart3, sof: 'HVCSOF009' },
     { path: '/batch/cloning-checklist', label: 'Cloning Pre-Start', icon: ClipboardCheck, sof: 'HVCSOF0011' },
     { path: '/batch/transplant-log', label: 'Cloning & Transplant', icon: ClipboardList, sof: 'HVCSOF0012' },
     { path: '/batch/mortality', label: 'Mortality & Discard', icon: Skull, sof: 'HVCSOF0015' },
-    { path: '/batch/master-record', label: 'Master Record', icon: BarChart3, sof: 'HVCSOF009' },
   ];
 
   return (
