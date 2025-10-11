@@ -1,0 +1,175 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Save,
+  CheckCircle2
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { HeaderInfoStep } from './steps/HeaderInfoStep';
+
+interface WizardStep {
+  id: string;
+  label: string;
+  component: React.ReactNode;
+}
+
+interface BatchLifecycleWizardProps {
+  recordId?: string;
+  onSave: (data: any, isDraft: boolean) => Promise<void>;
+}
+
+export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState<any>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const steps: WizardStep[] = [
+    { 
+      id: 'header', 
+      label: 'Batch Information', 
+      component: <HeaderInfoStep data={formData} onChange={setFormData} />
+    },
+    { id: 'cloning', label: 'Cloning & Rooting', component: null },
+    { id: 'hardening', label: 'Hardening', component: null },
+    { id: 'veg', label: 'Vegetative Stage', component: null },
+    { id: 'flowering', label: 'Flowering/Grow Room', component: null },
+    { id: 'harvest', label: 'Harvest', component: null },
+    { id: 'processing', label: 'Processing & Inspection', component: null },
+    { id: 'drying', label: 'Drying', component: null },
+    { id: 'packing', label: 'Packing', component: null },
+    { id: 'summary', label: 'Mortality Summary', component: null },
+  ];
+
+  const progress = ((currentStep + 1) / steps.length) * 100;
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(formData, true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(formData, false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Progress Bar */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="font-medium">Step {currentStep + 1} of {steps.length}</span>
+          <span className="text-muted-foreground">{Math.round(progress)}% Complete</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </div>
+
+      {/* Step Navigation */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {steps.map((step, index) => (
+          <button
+            key={step.id}
+            onClick={() => setCurrentStep(index)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
+              currentStep === index
+                ? "bg-primary text-primary-foreground"
+                : index < currentStep
+                ? "bg-muted text-foreground hover:bg-muted/80"
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            )}
+          >
+            {index < currentStep && <CheckCircle2 className="h-4 w-4" />}
+            <span>{step.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Step Content */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold">{steps[currentStep].label}</h2>
+              <p className="text-muted-foreground mt-1">
+                Complete the information for this stage
+              </p>
+            </div>
+
+            {/* Step component will be rendered here */}
+            <div className="min-h-[400px]">
+              {steps[currentStep].component || (
+                <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+                  Form content for {steps[currentStep].label} coming soon
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          disabled={currentStep === 0 || isSaving}
+        >
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Previous
+        </Button>
+
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleSaveDraft}
+            disabled={isSaving}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save Draft
+          </Button>
+
+          {currentStep === steps.length - 1 ? (
+            <Button 
+              onClick={handleSubmit}
+              disabled={isSaving}
+            >
+              Submit Record
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleNext}
+              disabled={isSaving}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
