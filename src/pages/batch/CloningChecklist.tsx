@@ -43,12 +43,7 @@ export default function CloningChecklist() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cloning_pre_start_checklists')
-        .select(`
-          *,
-          created_by_profile:profiles!cloning_pre_start_checklists_created_by_fkey(full_name),
-          submitted_by_profile:profiles!cloning_pre_start_checklists_submitted_by_fkey(full_name),
-          approved_by_profile:profiles!cloning_pre_start_checklists_approved_by_fkey(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -428,7 +423,7 @@ export default function CloningChecklist() {
                       <TableCell>{checklist.mother_id}</TableCell>
                       <TableCell>{checklist.quantity}</TableCell>
                       <TableCell>{getStatusBadge(checklist.status)}</TableCell>
-                      <TableCell>{checklist.created_by_profile?.full_name || 'Unknown'}</TableCell>
+                      <TableCell>You</TableCell>
                       <TableCell>{format(new Date(checklist.created_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell>
                         {checklist.status === 'draft' && (
