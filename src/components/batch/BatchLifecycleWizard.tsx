@@ -9,6 +9,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { InitialPhaseStep } from './steps/InitialPhaseStep';
 import { HeaderInfoStep } from './steps/HeaderInfoStep';
 
 interface BatchLifecycleWizardProps {
@@ -22,7 +23,8 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
   const [isSaving, setIsSaving] = useState(false);
 
   const stepLabels = [
-    'Batch Information',
+    'Starting Phase',
+    'Batch Details',
     'Cloning & Rooting',
     'Hardening',
     'Vegetative Stage',
@@ -69,6 +71,8 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
+        return <InitialPhaseStep data={formData} onChange={setFormData} />;
+      case 1:
         return <HeaderInfoStep data={formData} onChange={setFormData} />;
       default:
         return (
