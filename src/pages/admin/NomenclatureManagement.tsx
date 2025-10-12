@@ -58,6 +58,8 @@ const AVAILABLE_SEGMENTS = [
   { type: 'date' as const, value: 'YY', label: 'Created at (YY)' },
   { type: 'counter' as const, value: 'COUNT', label: 'ID' },
   { type: 'field' as const, value: 'strain_name_initials', label: 'strain_name_initials' },
+  { type: 'field' as const, value: 'dome_id', label: 'dome_id' },
+  { type: 'field' as const, value: 'mother_id', label: 'mother_id' },
 ];
 
 export default function NomenclatureManagement() {
@@ -100,6 +102,8 @@ export default function NomenclatureManagement() {
       if (seg.type === 'date' && seg.value === 'YYYY') return '2025';
       if (seg.type === 'counter') return '1';
       if (seg.type === 'field' && seg.value === 'strain_name_initials') return 'S';
+      if (seg.type === 'field' && seg.value === 'dome_id') return 'D1';
+      if (seg.type === 'field' && seg.value === 'mother_id') return 'M001';
       return seg.value;
     }).join('-');
   };
@@ -197,6 +201,12 @@ export default function NomenclatureManagement() {
         }
         if (value === 'strain_name_initials') {
           return { id: `seg-${idx}`, type: 'field', value, label: 'strain_name_initials' };
+        }
+        if (value === 'dome_id') {
+          return { id: `seg-${idx}`, type: 'field', value, label: 'dome_id' };
+        }
+        if (value === 'mother_id') {
+          return { id: `seg-${idx}`, type: 'field', value, label: 'mother_id' };
         }
         return { id: `seg-${idx}`, type: 'date', value, label: `Created at (${value})` };
       }
