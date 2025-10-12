@@ -103,7 +103,12 @@ export function SOFForm({ sof, onClose }: SOFFormProps) {
             onChange={(e) => setFormData({ ...formData, sof_number: e.target.value })}
             placeholder="HVCSOF001"
             required
+            disabled={!!sof?.id}
+            className={sof?.id ? 'bg-muted cursor-not-allowed' : ''}
           />
+          {sof?.id && (
+            <p className="text-xs text-muted-foreground">SOF number cannot be changed after creation</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -229,32 +234,44 @@ export function SOFForm({ sof, onClose }: SOFFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="compiled_by">Compiled By</Label>
-          <Input
-            id="compiled_by"
-            value={formData.compiled_by}
-            onChange={(e) => setFormData({ ...formData, compiled_by: e.target.value })}
-          />
+      <div className="space-y-3">
+        <div className="bg-muted/50 border border-border rounded-md p-3">
+          <p className="text-sm text-muted-foreground mb-2">
+            <strong>Note:</strong> The following fields are template metadata and should remain blank. 
+            They will be filled in by users when creating instances from this template.
+          </p>
         </div>
+        
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="compiled_by">Compiled By</Label>
+            <Input
+              id="compiled_by"
+              value={formData.compiled_by}
+              onChange={(e) => setFormData({ ...formData, compiled_by: e.target.value })}
+              placeholder="To be filled by user"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="authorised_by">Authorised By</Label>
-          <Input
-            id="authorised_by"
-            value={formData.authorised_by}
-            onChange={(e) => setFormData({ ...formData, authorised_by: e.target.value })}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="authorised_by">Authorised By</Label>
+            <Input
+              id="authorised_by"
+              value={formData.authorised_by}
+              onChange={(e) => setFormData({ ...formData, authorised_by: e.target.value })}
+              placeholder="To be filled by user"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="approved_by">Approved By</Label>
-          <Input
-            id="approved_by"
-            value={formData.approved_by}
-            onChange={(e) => setFormData({ ...formData, approved_by: e.target.value })}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="approved_by">Approved By</Label>
+            <Input
+              id="approved_by"
+              value={formData.approved_by}
+              onChange={(e) => setFormData({ ...formData, approved_by: e.target.value })}
+              placeholder="To be filled by user"
+            />
+          </div>
         </div>
       </div>
 

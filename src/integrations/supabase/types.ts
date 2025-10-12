@@ -1026,6 +1026,63 @@ export type Database = {
         }
         Relationships: []
       }
+      sof_audit_history: {
+        Row: {
+          action: string
+          change_description: string | null
+          changed_at: string
+          changed_by: string | null
+          field_id: string | null
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string
+          sof_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          change_description?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          field_id?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id: string
+          sof_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          change_description?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          field_id?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string
+          sof_id?: string | null
+          table_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sof_audit_history_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "sof_fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sof_audit_history_sof_id_fkey"
+            columns: ["sof_id"]
+            isOneToOne: false
+            referencedRelation: "sofs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sof_fields: {
         Row: {
           created_at: string | null

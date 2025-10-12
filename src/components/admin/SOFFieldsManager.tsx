@@ -6,9 +6,11 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SOFFieldForm } from '@/components/admin/SOFFieldForm';
+import { SOFAuditHistory } from '@/components/admin/SOFAuditHistory';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface SOFFieldsManagerProps {
   sof: any;
@@ -102,7 +104,14 @@ export function SOFFieldsManager({ sof, onBack }: SOFFieldsManagerProps) {
         <p className="text-muted-foreground">{sof.title}</p>
       </div>
 
-      <Card>
+      <Tabs defaultValue="fields" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="fields">Fields</TabsTrigger>
+          <TabsTrigger value="history">Audit History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="fields">
+          <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -180,6 +189,12 @@ export function SOFFieldsManager({ sof, onBack }: SOFFieldsManagerProps) {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <SOFAuditHistory sofId={sof.id} />
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
