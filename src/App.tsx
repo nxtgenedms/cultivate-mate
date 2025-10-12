@@ -14,6 +14,7 @@ import CloningChecklist from "./pages/batch/CloningChecklist";
 import TransplantLog from "./pages/batch/TransplantLog";
 import MortalityRecord from "./pages/batch/MortalityRecord";
 import MasterRecord from "./pages/batch/MasterRecord";
+import SOFManagement from "./pages/admin/SOFManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/admin/users" element={<UserManagement />} />
             <Route path="/admin/roles" element={<RoleBasedAccess />} />
             <Route path="/admin/lookups" element={<LookupManagement />} />
+            <Route path="/admin/sofs" element={<SOFManagement />} />
             <Route path="/batch/cloning-checklist" element={<CloningChecklist />} />
             <Route path="/batch/transplant-log" element={<TransplantLog />} />
             <Route path="/batch/mortality" element={<MortalityRecord />} />

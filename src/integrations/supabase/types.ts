@@ -1026,6 +1026,113 @@ export type Database = {
         }
         Relationships: []
       }
+      sof_fields: {
+        Row: {
+          created_at: string | null
+          field_group: string | null
+          field_key: string
+          field_label: string
+          field_type: Database["public"]["Enums"]["sof_field_type"]
+          id: string
+          is_required: boolean | null
+          metadata: Json | null
+          options: Json | null
+          sof_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          field_group?: string | null
+          field_key: string
+          field_label: string
+          field_type: Database["public"]["Enums"]["sof_field_type"]
+          id?: string
+          is_required?: boolean | null
+          metadata?: Json | null
+          options?: Json | null
+          sof_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          field_group?: string | null
+          field_key?: string
+          field_label?: string
+          field_type?: Database["public"]["Enums"]["sof_field_type"]
+          id?: string
+          is_required?: boolean | null
+          metadata?: Json | null
+          options?: Json | null
+          sof_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sof_fields_sof_id_fkey"
+            columns: ["sof_id"]
+            isOneToOne: false
+            referencedRelation: "sofs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sofs: {
+        Row: {
+          approved_by: string | null
+          authorised_by: string | null
+          compiled_by: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          effective_date: string | null
+          id: string
+          is_active: boolean | null
+          lifecycle_phase: Database["public"]["Enums"]["lifecycle_phase"]
+          review_date: string | null
+          revision_number: number | null
+          sof_number: string
+          supersedes: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved_by?: string | null
+          authorised_by?: string | null
+          compiled_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          lifecycle_phase: Database["public"]["Enums"]["lifecycle_phase"]
+          review_date?: string | null
+          revision_number?: number | null
+          sof_number: string
+          supersedes?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved_by?: string | null
+          authorised_by?: string | null
+          compiled_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          lifecycle_phase?: Database["public"]["Enums"]["lifecycle_phase"]
+          review_date?: string | null
+          revision_number?: number | null
+          sof_number?: string
+          supersedes?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -1095,6 +1202,26 @@ export type Database = {
         | "harvest"
         | "processing"
         | "completed"
+      lifecycle_phase:
+        | "cloning"
+        | "hardening"
+        | "vegetative"
+        | "flowering"
+        | "harvest"
+        | "processing"
+        | "drying"
+        | "packing"
+        | "mortality"
+        | "scouting"
+        | "general"
+      sof_field_type:
+        | "text"
+        | "number"
+        | "date"
+        | "checkbox"
+        | "textarea"
+        | "select"
+        | "signature"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1251,6 +1378,28 @@ export const Constants = {
         "harvest",
         "processing",
         "completed",
+      ],
+      lifecycle_phase: [
+        "cloning",
+        "hardening",
+        "vegetative",
+        "flowering",
+        "harvest",
+        "processing",
+        "drying",
+        "packing",
+        "mortality",
+        "scouting",
+        "general",
+      ],
+      sof_field_type: [
+        "text",
+        "number",
+        "date",
+        "checkbox",
+        "textarea",
+        "select",
+        "signature",
       ],
     },
   },
