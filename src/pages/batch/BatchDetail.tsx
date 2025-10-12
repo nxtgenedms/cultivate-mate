@@ -27,6 +27,7 @@ export default function BatchDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedChecklistId, setSelectedChecklistId] = useState<string | null>(null);
 
   const { data: batch, isLoading } = useQuery({
     queryKey: ['batch-detail', id],
@@ -309,8 +310,62 @@ export default function BatchDetail() {
 
           <TabsContent value="records" className="mt-6">
             <div className="space-y-4">
-              {/* Checklist */}
-              {checklist && (
+              {/* Back button when viewing details */}
+              {selectedChecklistId && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedChecklistId(null)}
+                  className="mb-4"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Records List
+                </Button>
+              )}
+
+              {/* List View */}
+              {!selectedChecklistId && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Records & Logs</CardTitle>
+                    <CardDescription>
+                      All checklists and logs associated with this batch
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {checklist ? (
+                      <div className="space-y-3">
+                        <div 
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                          onClick={() => setSelectedChecklistId(checklist.id)}
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="font-semibold">HVCSOF0011 - Cloning Pre-Start Checklist</h3>
+                              <Badge variant={checklist.status === 'approved' ? 'default' : 'secondary'}>
+                                {checklist.status}
+                              </Badge>
+                            </div>
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              <p>Completed by {(checklist as any).created_by_profile?.full_name || 'Unknown'}</p>
+                              <p>{format(new Date(checklist.created_at), 'MMM d, yyyy h:mm a')}</p>
+                              <p>Quantity: {checklist.quantity} • Dome: {checklist.dome_no}</p>
+                            </div>
+                          </div>
+                          <ArrowLeft className="h-5 w-5 rotate-180 text-muted-foreground" />
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">
+                        No records or logs found for this batch.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Detail View */}
+              {selectedChecklistId && checklist && (
                 <Card>
                   <CardHeader>
                     <CardTitle>HVCSOF0011 - Cloning Pre-Start Checklist</CardTitle>
@@ -336,6 +391,12 @@ export default function BatchDetail() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Dome No</p>
                         <p className="text-base">{checklist.dome_no}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Status</p>
+                        <Badge className={getStatusColor(checklist.status)}>
+                          {checklist.status?.toUpperCase()}
+                        </Badge>
                       </div>
                     </div>
 
@@ -420,29 +481,6 @@ export default function BatchDetail() {
                         </Badge>
                       </div>
                     </div>
-
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Status</span>
-                        <Badge className={getStatusColor(checklist.status)}>
-                          {checklist.status?.toUpperCase()}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {!checklist && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Associated Records & Logs</CardTitle>
-                    <CardDescription>View all checklists, logs, and documentation</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-center py-8">
-                      No checklist found for this batch
-                    </p>
                   </CardContent>
                 </Card>
               )}
