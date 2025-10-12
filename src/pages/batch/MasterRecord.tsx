@@ -51,13 +51,23 @@ export default function MasterRecord() {
     mutationFn: async ({ data, isDraft }: { data: any; isDraft: boolean }) => {
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Fetch lookup values to get display names
+      const { data: lookupData } = await supabase
+        .from('lookup_values')
+        .select('id, value_display')
+        .in('id', [data.strain_id, data.mother_no, data.dome_no].filter(Boolean));
+
+      const getDisplayValue = (id: string) => {
+        return lookupData?.find(l => l.id === id)?.value_display || id;
+      };
+
       // Separate checklist fields from batch lifecycle fields
       const checklistFields = {
         batch_number: data.batch_number,
-        mother_id: data.mother_no,
-        strain_id: data.strain_id,
+        mother_id: getDisplayValue(data.mother_no),
+        strain_id: getDisplayValue(data.strain_id),
         quantity: data.total_clones_plants,
-        dome_no: data.dome_no,
+        dome_no: getDisplayValue(data.dome_no),
         mother_plant_healthy: data.mother_plant_healthy,
         mother_plant_fed_watered_12h: data.mother_plant_fed_watered_12h,
         work_area_sharp_clean_scissors: data.work_area_sharp_clean_scissors,
@@ -76,9 +86,9 @@ export default function MasterRecord() {
       // Batch lifecycle record fields
       const batchFields = {
         batch_number: data.batch_number,
-        strain_id: data.strain_id,
-        mother_no: data.mother_no,
-        dome_no: data.dome_no,
+        strain_id: data.strain_id, // UUID
+        mother_no: getDisplayValue(data.mother_no),
+        dome_no: getDisplayValue(data.dome_no),
         total_clones_plants: data.total_clones_plants,
         status: isDraft ? 'draft' : 'in_progress',
         created_by: user?.id,

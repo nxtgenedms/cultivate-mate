@@ -175,7 +175,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
               </SelectTrigger>
               <SelectContent>
                 {getValuesByCategory('mother_id').map((option: any) => (
-                  <SelectItem key={option.id} value={option.value_display}>
+                  <SelectItem key={option.id} value={option.id}>
                     {option.value_display}
                   </SelectItem>
                 ))}
@@ -194,7 +194,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
               </SelectTrigger>
               <SelectContent>
                 {getValuesByCategory('strain_id').map((option: any) => (
-                  <SelectItem key={option.id} value={option.value_display}>
+                  <SelectItem key={option.id} value={option.id}>
                     {option.value_display}
                   </SelectItem>
                 ))}
@@ -224,7 +224,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
               </SelectTrigger>
               <SelectContent>
                 {getValuesByCategory('dome_no').map((option: any) => (
-                  <SelectItem key={option.id} value={option.value_display}>
+                  <SelectItem key={option.id} value={option.id}>
                     {option.value_display}
                   </SelectItem>
                 ))}
