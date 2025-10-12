@@ -145,13 +145,13 @@ export default function MasterRecord() {
             <DialogTrigger asChild>
               <Button size="lg">
                 <Plus className="h-4 w-4 mr-2" />
-                New Batch Record
+                Create New Batch
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
               <DialogHeader>
                 <DialogTitle>
-                  {editingRecordId ? 'Edit' : 'Create'} Batch Lifecycle Record
+                  {editingRecordId ? 'Edit Batch' : 'Create New Batch'}
                 </DialogTitle>
               </DialogHeader>
               <div className="overflow-y-auto flex-1 pr-2">
