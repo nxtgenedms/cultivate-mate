@@ -8,6 +8,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string()
+    .min(6, { message: "Password must be at least 6 characters" })
+});
+
+const signupSchema = z.object({
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .regex(/[A-Z]/, { message: "Must include uppercase letter" })
+    .regex(/[a-z]/, { message: "Must include lowercase letter" })
+    .regex(/[0-9]/, { message: "Must include number" }),
+  fullName: z.string()
+    .trim()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(100, { message: "Name must be less than 100 characters" })
+    .regex(/^[a-zA-Z\s'-]+$/, { message: "Name contains invalid characters" })
+});
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,20 +58,35 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signIn(loginEmail, loginPassword);
+    try {
+      const validated = loginSchema.parse({
+        email: loginEmail,
+        password: loginPassword
+      });
 
-    if (error) {
-      toast({
-        title: 'Login failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Welcome back!',
-        description: 'You have successfully logged in.',
-      });
-      navigate('/dashboard');
+      const { error } = await signIn(validated.email, validated.password);
+
+      if (error) {
+        toast({
+          title: 'Login failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Welcome back!',
+          description: 'You have successfully logged in.',
+        });
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: 'Validation Error',
+          description: error.errors[0].message,
+          variant: 'destructive',
+        });
+      }
     }
 
     setIsLoading(false);
@@ -54,30 +96,36 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (signupPassword.length < 6) {
-      toast({
-        title: 'Invalid password',
-        description: 'Password must be at least 6 characters long.',
-        variant: 'destructive',
+    try {
+      const validated = signupSchema.parse({
+        email: signupEmail,
+        password: signupPassword,
+        fullName: signupFullName
       });
-      setIsLoading(false);
-      return;
-    }
 
-    const { error } = await signUp(signupEmail, signupPassword, signupFullName);
+      const { error } = await signUp(validated.email, validated.password, validated.fullName);
 
-    if (error) {
-      toast({
-        title: 'Signup failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Account created!',
-        description: 'You can now sign in with your credentials.',
-      });
-      navigate('/dashboard');
+      if (error) {
+        toast({
+          title: 'Signup failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Account created!',
+          description: 'You can now sign in with your credentials.',
+        });
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: 'Validation Error',
+          description: error.errors[0].message,
+          variant: 'destructive',
+        });
+      }
     }
 
     setIsLoading(false);
