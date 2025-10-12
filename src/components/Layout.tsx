@@ -18,7 +18,7 @@ export function Layout({ children }: LayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', adminOnly: false },
-    { icon: Leaf, label: 'Batch Management', path: '/batch/cloning-checklist', adminOnly: false },
+    { icon: Leaf, label: 'Batch Management', path: '/batch/dashboard', adminOnly: false },
     { icon: Package, label: 'Inventory', path: '/inventory', adminOnly: false },
     { icon: Settings, label: 'Administration', path: '/admin/users', adminOnly: true },
   ];
@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
     if (path === '/admin/users') {
       return location.pathname.startsWith('/admin');
     }
-    if (path === '/batch/cloning-checklist') {
+    if (path === '/batch/dashboard') {
       return location.pathname.startsWith('/batch');
     }
     return location.pathname === path;

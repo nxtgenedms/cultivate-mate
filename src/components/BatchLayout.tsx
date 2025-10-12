@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { ClipboardCheck, ClipboardList, Skull, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, List, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BatchLayoutProps {
@@ -9,47 +9,61 @@ interface BatchLayoutProps {
 }
 
 export function BatchLayout({ children }: BatchLayoutProps) {
-  const navigate = useNavigate();
   const location = useLocation();
 
-  const tabs = [
-    { path: '/batch/master-record', label: 'Master Record', icon: BarChart3, sof: 'HVCSOF009' },
-    { path: '/batch/cloning-checklist', label: 'Cloning Pre-Start', icon: ClipboardCheck, sof: 'HVCSOF0011' },
-    { path: '/batch/transplant-log', label: 'Cloning & Transplant', icon: ClipboardList, sof: 'HVCSOF0012' },
-    { path: '/batch/mortality', label: 'Mortality & Discard', icon: Skull, sof: 'HVCSOF0015' },
+  const navItems = [
+    { 
+      path: '/batch/dashboard', 
+      label: 'Dashboard', 
+      icon: LayoutDashboard,
+      description: 'Overview & Stats' 
+    },
+    { 
+      path: '/batch/master-record', 
+      label: 'All Batches', 
+      icon: List,
+      description: 'Master Records' 
+    },
+    { 
+      path: '/batch/analytics', 
+      label: 'Analytics', 
+      icon: BarChart3,
+      description: 'Reports & Insights' 
+    },
   ];
 
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Batch Tabs */}
-        <div className="border-b">
-          <div className="flex gap-1 overflow-x-auto">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = location.pathname === tab.path;
-              
+        {/* Modern Navigation */}
+        <div className="border-b bg-card">
+          <nav className="flex space-x-1 overflow-x-auto p-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              const Icon = item.icon;
               return (
-                <button
-                  key={tab.path}
-                  onClick={() => navigate(tab.path)}
+                <Link
+                  key={item.path}
+                  to={item.path}
                   className={cn(
-                    "flex flex-col items-center gap-1 px-4 py-3 font-medium transition-colors border-b-2 whitespace-nowrap",
+                    'flex items-center gap-3 min-w-fit py-3 px-4 rounded-lg transition-all',
                     isActive
-                      ? "border-primary text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted"
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="text-sm">{tab.label}</span>
-                  <span className="text-xs text-muted-foreground">{tab.sof}</span>
-                </button>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">{item.label}</span>
+                    <span className="text-xs opacity-70">{item.description}</span>
+                  </div>
+                </Link>
               );
             })}
-          </div>
+          </nav>
         </div>
 
-        {/* Tab Content */}
+        {/* Page content */}
         {children}
       </div>
     </Layout>
