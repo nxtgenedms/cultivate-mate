@@ -21,7 +21,7 @@ export default function MasterRecord() {
   const [isDialogOpen, setIsDialogOpen] = useState(searchParams.get('create') === 'true');
   const [editingRecordId, setEditingRecordId] = useState<string | undefined>();
   const [wizardData, setWizardData] = useState<any>({});
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   const [searchQuery, setSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
