@@ -12,6 +12,7 @@ import LookupManagement from "./pages/admin/LookupManagement";
 import RoleBasedAccess from "./pages/admin/RoleBasedAccess";
 import BatchDashboard from "./pages/batch/BatchDashboard";
 import MasterRecord from "./pages/batch/MasterRecord";
+import BatchDetail from "./pages/batch/BatchDetail";
 import SOFManagement from "./pages/admin/SOFManagement";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin/sofs" element={<SOFManagement />} />
             <Route path="/batch/dashboard" element={<BatchDashboard />} />
             <Route path="/batch/master-record" element={<MasterRecord />} />
+            <Route path="/batch/detail/:id" element={<BatchDetail />} />
             <Route path="/batch/analytics" element={<BatchDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

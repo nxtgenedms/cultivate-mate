@@ -5,19 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Plus, Edit } from 'lucide-react';
+import { BarChart3, Plus, Edit, LayoutGrid, Table2, Eye } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { BatchLifecycleWizard } from '@/components/batch/BatchLifecycleWizard';
+import { BatchCard } from '@/components/batch/BatchCard';
+import { BatchFilters } from '@/components/batch/BatchFilters';
+import { getStageLabel, getStatusColor } from '@/lib/batchUtils';
 
 export default function MasterRecord() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<string | undefined>();
   const [wizardData, setWizardData] = useState<any>({});
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [stageFilter, setStageFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Fetch all batch lifecycle records
   const { data: records, isLoading } = useQuery({
@@ -92,66 +101,127 @@ export default function MasterRecord() {
     setIsDialogOpen(true);
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
-      draft: 'secondary',
-      in_progress: 'default',
-      completed: 'success',
-    };
-    return <Badge variant={variants[status] || 'default'}>{status.replace('_', ' ').toUpperCase()}</Badge>;
+  const handleView = (record: any) => {
+    navigate(`/batch/detail/${record.id}`);
   };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStageFilter('all');
+    setStatusFilter('all');
+  };
+
+  // Filter records
+  const filteredRecords = records?.filter(record => {
+    const matchesSearch = !searchQuery || 
+      record.batch_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.strain_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.mother_no?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStage = stageFilter === 'all' || record.current_stage === stageFilter;
+    const matchesStatus = statusFilter === 'all' || record.status === statusFilter;
+
+    return matchesSearch && matchesStage && matchesStatus;
+  }) || [];
 
   return (
     <BatchLayout>
       <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <BarChart3 className="h-8 w-8" />
+              All Batches
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Complete batch lifecycle master records (HVCSOF009)
+            </p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button size="lg">
+                <Plus className="h-4 w-4 mr-2" />
+                New Batch Record
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingRecordId ? 'Edit' : 'Create'} Batch Lifecycle Record
+                </DialogTitle>
+              </DialogHeader>
+              <div className="overflow-y-auto flex-1 pr-2">
+                <BatchLifecycleWizard
+                  recordId={editingRecordId}
+                  onSave={async (data, isDraft) => {
+                    return saveMutation.mutateAsync({ data, isDraft });
+                  }}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Filters and View Toggle */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Batch Lifecycle Master Record (HVCSOF009)
-                </CardTitle>
-                <CardDescription>
-                  Complete batch lifecycle tracking from cloning to packing
-                </CardDescription>
+              <div className="flex-1">
+                <BatchFilters
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  stageFilter={stageFilter}
+                  onStageFilterChange={setStageFilter}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={setStatusFilter}
+                  onClearFilters={handleClearFilters}
+                />
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Batch Record
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingRecordId ? 'Edit' : 'Create'} Batch Lifecycle Record
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="overflow-y-auto flex-1 pr-2">
-                    <BatchLifecycleWizard
-                      recordId={editingRecordId}
-                      onSave={async (data, isDraft) => {
-                        return saveMutation.mutateAsync({ data, isDraft });
-                      }}
-                    />
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div className="flex gap-2 ml-4">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'table' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('table')}
+                >
+                  <Table2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading records...</div>
-            ) : !records || records.length === 0 ? (
+            ) : filteredRecords.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>No batch lifecycle records found</p>
-                <p className="text-sm mt-2">Create your first batch record to get started</p>
+                <p>No batch records found</p>
+                <p className="text-sm mt-2">
+                  {records && records.length > 0 
+                    ? 'Try adjusting your filters' 
+                    : 'Create your first batch record to get started'}
+                </p>
+              </div>
+            ) : viewMode === 'grid' ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredRecords.map((record) => (
+                  <BatchCard
+                    key={record.id}
+                    batch={record}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                  />
+                ))}
               </div>
             ) : (
               <Table>
@@ -168,21 +238,32 @@ export default function MasterRecord() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {records.map((record) => (
+                  {filteredRecords.map((record) => (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">{record.batch_number}</TableCell>
                       <TableCell>{record.strain_id || '-'}</TableCell>
                       <TableCell>{record.mother_no || '-'}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{record.current_stage}</Badge>
+                        <Badge variant="outline">{getStageLabel(record.current_stage)}</Badge>
                       </TableCell>
-                      <TableCell>{getStatusBadge(record.status)}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(record.status)}>
+                          {record.status?.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{record.created_by_profile?.full_name || 'Unknown'}</TableCell>
                       <TableCell>
                         {format(new Date(record.created_at), 'MMM d, yyyy h:mm a')}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleView(record)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
