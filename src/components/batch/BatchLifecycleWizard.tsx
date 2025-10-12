@@ -23,7 +23,7 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
   const [isSaving, setIsSaving] = useState(false);
 
   const stepLabels = [
-    'Starting Phase',
+    'Cloning Source',
     'Batch Details',
     'Cloning & Rooting',
     'Hardening',

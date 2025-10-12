@@ -18,8 +18,8 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
     onChange({ ...data, [field]: value });
   };
 
-  const isCloning = data?.starting_phase === 'cloning';
-  const isScouting = data?.starting_phase === 'scouting';
+  const isCloning = data?.starting_phase === 'mother_plant';
+  const isScouting = data?.starting_phase === 'seed';
 
   // Cloning Pre-Start Checklist (HVCSOF0011)
   if (isCloning) {
@@ -215,7 +215,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
     return (
       <div className="space-y-6">
         <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
-          <h3 className="font-semibold text-primary mb-1">Scouting Phase - Basic Information</h3>
+          <h3 className="font-semibold text-primary mb-1">Seed Phase - Basic Information</h3>
           <p className="text-sm text-muted-foreground">Enter batch details and location information</p>
         </div>
 
@@ -236,16 +236,6 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
               id="strain_id"
               value={data?.strain_id || ''}
               onChange={(e) => handleChange('strain_id', e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mother_no">Mother ID *</Label>
-            <Input
-              id="mother_no"
-              value={data?.mother_no || ''}
-              onChange={(e) => handleChange('mother_no', e.target.value)}
               required
             />
           </div>
