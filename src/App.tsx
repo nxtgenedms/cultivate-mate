@@ -15,6 +15,7 @@ import MasterRecord from "./pages/batch/MasterRecord";
 import BatchDetail from "./pages/batch/BatchDetail";
 import SOFManagement from "./pages/admin/SOFManagement";
 import NomenclatureManagement from "./pages/admin/NomenclatureManagement";
+import TaskManagement from "./pages/TaskManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/batch/dashboard" element={<BatchDashboard />} />
             <Route path="/batch/master-record" element={<MasterRecord />} />
             <Route path="/batch/detail/:id" element={<BatchDetail />} />
+            <Route path="/tasks" element={<TaskManagement />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
