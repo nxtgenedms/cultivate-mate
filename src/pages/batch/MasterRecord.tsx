@@ -46,6 +46,22 @@ export default function MasterRecord() {
     },
   });
 
+  // Fetch lookup values for display
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values-all'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, value_display');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getDisplayValue = (id: string) => {
+    return lookupValues?.find(v => v.id === id)?.value_display || id;
+  };
+
   // Save/Update mutation
   const saveMutation = useMutation({
     mutationFn: async ({ data, isDraft }: { data: any; isDraft: boolean }) => {
@@ -174,9 +190,10 @@ export default function MasterRecord() {
 
   // Filter records
   const filteredRecords = records?.filter(record => {
+    const strainDisplay = getDisplayValue(record.strain_id || '');
     const matchesSearch = !searchQuery || 
       record.batch_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.strain_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      strainDisplay?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.mother_no?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStage = stageFilter === 'all' || record.current_stage === stageFilter;
@@ -306,7 +323,7 @@ export default function MasterRecord() {
                   {filteredRecords.map((record) => (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">{record.batch_number}</TableCell>
-                      <TableCell>{record.strain_id || '-'}</TableCell>
+                      <TableCell>{getDisplayValue(record.strain_id || '') || '-'}</TableCell>
                       <TableCell>{record.mother_no || '-'}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{getStageLabel(record.current_stage)}</Badge>
