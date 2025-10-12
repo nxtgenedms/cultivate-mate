@@ -85,23 +85,14 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
 
   return (
     <div className="space-y-6">
-      {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-medium">Step {currentStep + 1} of {stepLabels.length}</span>
-          <span className="text-muted-foreground">{Math.round(progress)}% Complete</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </div>
-
       {/* Step Content */}
       <Card>
         <CardContent className="p-6">
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold">{stepLabels[currentStep]}</h2>
+              <h2 className="text-2xl font-bold">New Batch: Source & Checklist</h2>
               <p className="text-muted-foreground mt-1">
-                Complete the information for this stage
+                Complete the initial batch information
               </p>
             </div>
 
