@@ -94,27 +94,6 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Step Navigation */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-        {stepLabels.map((label, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentStep(index)}
-            className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors text-center justify-center",
-              currentStep === index
-                ? "bg-primary text-primary-foreground"
-                : index < currentStep
-                ? "bg-muted text-foreground hover:bg-muted/80"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted"
-            )}
-          >
-            {index < currentStep && <CheckCircle2 className="h-3 w-3 flex-shrink-0" />}
-            <span className="line-clamp-1">{label}</span>
-          </button>
-        ))}
-      </div>
-
       {/* Step Content */}
       <Card>
         <CardContent className="p-6">
