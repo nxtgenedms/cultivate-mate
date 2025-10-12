@@ -56,7 +56,7 @@ const AVAILABLE_SEGMENTS = [
   { type: 'date' as const, value: 'Weeknumber', label: 'Created at (Weeknumber)' },
   { type: 'date' as const, value: 'YYYY', label: 'Created at (YYYY)' },
   { type: 'date' as const, value: 'YY', label: 'Created at (YY)' },
-  { type: 'counter' as const, value: 'COUNT', label: 'ID' },
+  { type: 'counter' as const, value: 'SEQ', label: 'SEQ' },
   { type: 'field' as const, value: 'strain_name_initials', label: 'strain_name_initials' },
   { type: 'field' as const, value: 'dome_id', label: 'dome_id' },
   { type: 'field' as const, value: 'mother_id', label: 'mother_id' },
@@ -88,7 +88,7 @@ export default function NomenclatureManagement() {
     return segments.map(seg => {
       if (seg.type === 'literal') return seg.value;
       if (seg.type === 'date') return `{${seg.value}}`;
-      if (seg.type === 'counter') return '{id}';
+      if (seg.type === 'counter') return '{seq}';
       if (seg.type === 'field') return `{${seg.value}}`;
       return '';
     }).join('-');
@@ -196,8 +196,8 @@ export default function NomenclatureManagement() {
     return parts.map((part, idx) => {
       if (part.startsWith('{') && part.endsWith('}')) {
         const value = part.slice(1, -1);
-        if (value === 'id') {
-          return { id: `seg-${idx}`, type: 'counter', value: 'COUNT', label: 'ID' };
+        if (value === 'id' || value === 'seq') {
+          return { id: `seg-${idx}`, type: 'counter', value: 'SEQ', label: 'SEQ' };
         }
         if (value === 'strain_name_initials') {
           return { id: `seg-${idx}`, type: 'field', value, label: 'strain_name_initials' };
