@@ -90,6 +90,52 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
   const isCloning = data?.starting_phase === 'mother_plant';
   const isScouting = data?.starting_phase === 'seed';
 
+  // Show source selection if no starting phase is set
+  if (!data?.starting_phase) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <Label className="text-base font-semibold">Select Batch Source *</Label>
+          <RadioGroup
+            value={data?.starting_phase || ''}
+            onValueChange={(value) => handleChange('starting_phase', value)}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <div className={cn(
+              "flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all",
+              data?.starting_phase === 'mother_plant' 
+                ? "border-primary bg-primary/5" 
+                : "border-border hover:border-primary/50"
+            )}>
+              <RadioGroupItem value="mother_plant" id="source-mother" className="mt-1" />
+              <Label htmlFor="source-mother" className="cursor-pointer flex-1">
+                <div className="font-semibold mb-1">Clone from Mother Plant</div>
+                <div className="text-sm text-muted-foreground">
+                  Start batch by cloning from an existing mother plant
+                </div>
+              </Label>
+            </div>
+
+            <div className={cn(
+              "flex items-start space-x-3 p-4 border-2 rounded-lg cursor-pointer transition-all",
+              data?.starting_phase === 'seed' 
+                ? "border-primary bg-primary/5" 
+                : "border-border hover:border-primary/50"
+            )}>
+              <RadioGroupItem value="seed" id="source-seed" className="mt-1" />
+              <Label htmlFor="source-seed" className="cursor-pointer flex-1">
+                <div className="font-semibold mb-1">Seed</div>
+                <div className="text-sm text-muted-foreground">
+                  Start batch from seed germination
+                </div>
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
+      </div>
+    );
+  }
+
   // Cloning Pre-Start Checklist (HVCSOF0011)
   if (isCloning) {
     return (
@@ -616,9 +662,6 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
     );
   }
 
-  return (
-    <div className="flex items-center justify-center h-[400px]">
-      <p className="text-muted-foreground">Please select a starting phase in the previous step</p>
-    </div>
-  );
+  // This should never be reached now that we have source selection
+  return null;
 }
