@@ -683,6 +683,7 @@ export type Database = {
           batch_number: string
           created_at: string | null
           created_by: string | null
+          dome_no: string | null
           id: string
           mother_id: string
           mother_plant_fed_watered_12h: boolean | null
@@ -693,6 +694,7 @@ export type Database = {
           rejection_reason: string | null
           sof_number: string | null
           status: Database["public"]["Enums"]["approval_status"] | null
+          strain_id: string | null
           submitted_at: string | null
           submitted_by: string | null
           updated_at: string | null
@@ -713,6 +715,7 @@ export type Database = {
           batch_number: string
           created_at?: string | null
           created_by?: string | null
+          dome_no?: string | null
           id?: string
           mother_id: string
           mother_plant_fed_watered_12h?: boolean | null
@@ -723,6 +726,7 @@ export type Database = {
           rejection_reason?: string | null
           sof_number?: string | null
           status?: Database["public"]["Enums"]["approval_status"] | null
+          strain_id?: string | null
           submitted_at?: string | null
           submitted_by?: string | null
           updated_at?: string | null
@@ -743,6 +747,7 @@ export type Database = {
           batch_number?: string
           created_at?: string | null
           created_by?: string | null
+          dome_no?: string | null
           id?: string
           mother_id?: string
           mother_plant_fed_watered_12h?: boolean | null
@@ -753,6 +758,7 @@ export type Database = {
           rejection_reason?: string | null
           sof_number?: string | null
           status?: Database["public"]["Enums"]["approval_status"] | null
+          strain_id?: string | null
           submitted_at?: string | null
           submitted_by?: string | null
           updated_at?: string | null

@@ -9,8 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, FileText, CheckCircle2, XCircle, Clock, Check, Edit } from 'lucide-react';
 import { format } from 'date-fns';
@@ -20,13 +20,14 @@ export default function CloningChecklist() {
   const [editingChecklistId, setEditingChecklistId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     motherId: '',
+    strainId: '',
+    domeNo: '',
     batchNumber: '',
     quantity: '',
-    // Question 1
+    // Mother Plant Checks
     motherPlantHealthy: false,
-    // Question 2
     motherPlantFedWatered12h: false,
-    // Question 3 - Work Area Prepared
+    // Work Area Preparation
     workAreaSharpCleanScissors: false,
     workAreaSharpCleanBlade: false,
     workAreaJugCleanWater: false,
@@ -34,14 +35,44 @@ export default function CloningChecklist() {
     workAreaDomePreparedMedium: false,
     workAreaSanitizerCup: false,
     workAreaRootingPowder: false,
-    // Question 4
     workSurfaceSterilized: false,
-    // Question 5
+    // Personal Protection
     wearingCleanGloves: false,
   });
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch lookup categories for dropdowns
+  const { data: lookupCategories } = useQuery({
+    queryKey: ['lookup-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_categories')
+        .select('*')
+        .in('category_key', ['strain_id', 'dome_no']);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('*')
+        .order('sort_order');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getValuesByCategory = (categoryKey: string) => {
+    const category = lookupCategories?.find(c => c.category_key === categoryKey);
+    if (!category) return [];
+    return lookupValues?.filter(v => v.category_id === category.id) || [];
+  };
 
   // Fetch checklists
   const { data: checklists, isLoading } = useQuery({
@@ -93,6 +124,8 @@ export default function CloningChecklist() {
           .from('cloning_pre_start_checklists')
           .update({
             mother_id: data.motherId,
+            strain_id: data.strainId,
+            dome_no: data.domeNo,
             batch_number: data.batchNumber,
             quantity: parseInt(data.quantity),
             mother_plant_healthy: data.motherPlantHealthy,
@@ -116,6 +149,8 @@ export default function CloningChecklist() {
           .from('cloning_pre_start_checklists')
           .insert({
             mother_id: data.motherId,
+            strain_id: data.strainId,
+            dome_no: data.domeNo,
             batch_number: data.batchNumber,
             quantity: parseInt(data.quantity),
             mother_plant_healthy: data.motherPlantHealthy,
@@ -221,6 +256,8 @@ export default function CloningChecklist() {
   const resetForm = () => {
     setFormData({
       motherId: '',
+      strainId: '',
+      domeNo: '',
       batchNumber: '',
       quantity: '',
       motherPlantHealthy: false,
@@ -241,6 +278,8 @@ export default function CloningChecklist() {
   const handleEditChecklist = (checklist: any) => {
     setFormData({
       motherId: checklist.mother_id,
+      strainId: checklist.strain_id || '',
+      domeNo: checklist.dome_no || '',
       batchNumber: checklist.batch_number,
       quantity: checklist.quantity.toString(),
       motherPlantHealthy: checklist.mother_plant_healthy,
@@ -260,10 +299,10 @@ export default function CloningChecklist() {
   };
 
   const handleSubmit = () => {
-    if (!formData.motherId || !formData.batchNumber || !formData.quantity) {
+    if (!formData.strainId || !formData.quantity || !formData.domeNo) {
       toast({
         title: 'Missing fields',
-        description: 'Please fill in all required fields.',
+        description: 'Please fill in Strain ID, Quantity, and Dome No.',
         variant: 'destructive',
       });
       return;
@@ -357,207 +396,273 @@ export default function CloningChecklist() {
                       Complete all checks before starting cloning operations
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    {/* Basic Information */}
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Batch Information</h3>
-                      <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-6 py-4">
+                    {/* Header Information */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="strainId">Strain ID *</Label>
+                        <Select 
+                          value={formData.strainId} 
+                          onValueChange={(value) => setFormData({ ...formData, strainId: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select strain" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getValuesByCategory('strain_id').map((value) => (
+                              <SelectItem key={value.id} value={value.value_display}>
+                                {value.value_display}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="quantity">Quantity *</Label>
+                        <Input
+                          id="quantity"
+                          type="number"
+                          value={formData.quantity}
+                          onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                          placeholder="100"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="domeNo">Dome No *</Label>
+                      <Select 
+                        value={formData.domeNo} 
+                        onValueChange={(value) => setFormData({ ...formData, domeNo: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select dome" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getValuesByCategory('dome_no').map((value) => (
+                            <SelectItem key={value.id} value={value.value_display}>
+                              {value.value_display}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Mother Plant Checks */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="font-semibold">Mother Plant Checks</h3>
+                      
+                      <div className="space-y-3">
                         <div className="space-y-2">
-                          <Label htmlFor="motherId">Mother ID *</Label>
-                          <Input
-                            id="motherId"
-                            value={formData.motherId}
-                            onChange={(e) => setFormData({ ...formData, motherId: e.target.value })}
-                            placeholder="M-001"
-                          />
+                          <Label className="text-sm">Mother plant is healthy and disease-free</Label>
+                          <RadioGroup
+                            value={formData.motherPlantHealthy ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, motherPlantHealthy: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="mother-healthy-yes" />
+                              <Label htmlFor="mother-healthy-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="mother-healthy-no" />
+                              <Label htmlFor="mother-healthy-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
+
                         <div className="space-y-2">
-                          <Label htmlFor="batchNumber">Batch Number *</Label>
-                          <Input
-                            id="batchNumber"
-                            value={formData.batchNumber}
-                            onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-                            placeholder="B-2025-001"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="quantity">Quantity *</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            value={formData.quantity}
-                            onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                            placeholder="100"
-                          />
+                          <Label className="text-sm">Mother plant fed and watered 12 hours prior</Label>
+                          <RadioGroup
+                            value={formData.motherPlantFedWatered12h ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, motherPlantFedWatered12h: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="mother-fed-yes" />
+                              <Label htmlFor="mother-fed-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="mother-fed-no" />
+                              <Label htmlFor="mother-fed-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
                       </div>
                     </div>
 
-                    {/* Question 1 */}
-                    <div className="space-y-2 border-t pt-3">
-                      <h3 className="font-semibold text-sm">1. Is the mother plant that you're taking cuttings from healthy?</h3>
-                      <RadioGroup
-                        value={formData.motherPlantHealthy ? "yes" : "no"}
-                        onValueChange={(value) => setFormData({ ...formData, motherPlantHealthy: value === "yes" })}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="q1-yes" />
-                          <Label htmlFor="q1-yes" className="cursor-pointer">YES</Label>
+                    {/* Work Area Preparation */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="font-semibold">Work Area Preparation</h3>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm">Sharp, clean scissors</Label>
+                          <RadioGroup
+                            value={formData.workAreaSharpCleanScissors ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaSharpCleanScissors: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="scissors-yes" />
+                              <Label htmlFor="scissors-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="scissors-no" />
+                              <Label htmlFor="scissors-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="q1-no" />
-                          <Label htmlFor="q1-no" className="cursor-pointer">NO</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
 
-                    {/* Question 2 */}
-                    <div className="space-y-2 border-t pt-3">
-                      <h3 className="font-semibold text-sm">2. Has the mother plant been fed/watered in the last 12 hours?</h3>
-                      <RadioGroup
-                        value={formData.motherPlantFedWatered12h ? "yes" : "no"}
-                        onValueChange={(value) => setFormData({ ...formData, motherPlantFedWatered12h: value === "yes" })}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="q2-yes" />
-                          <Label htmlFor="q2-yes" className="cursor-pointer">YES</Label>
+                        <div className="space-y-2">
+                          <Label className="text-sm">Sharp, clean blade</Label>
+                          <RadioGroup
+                            value={formData.workAreaSharpCleanBlade ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaSharpCleanBlade: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="blade-yes" />
+                              <Label htmlFor="blade-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="blade-no" />
+                              <Label htmlFor="blade-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="q2-no" />
-                          <Label htmlFor="q2-no" className="cursor-pointer">NO</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
 
-                    {/* Question 3 - Work Area Prepared */}
-                    <div className="space-y-2 border-t pt-3">
-                      <h3 className="font-semibold text-sm">3. Is your work area prepared?</h3>
-                      <div className="grid grid-cols-2 gap-2 ml-4">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="sharpScissors"
-                            checked={formData.workAreaSharpCleanScissors}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaSharpCleanScissors: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="sharpScissors" className="text-sm cursor-pointer">
-                            Sharp, clean scissors
-                          </label>
+                        <div className="space-y-2">
+                          <Label className="text-sm">Jug with clean water</Label>
+                          <RadioGroup
+                            value={formData.workAreaJugCleanWater ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaJugCleanWater: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="jug-yes" />
+                              <Label htmlFor="jug-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="jug-no" />
+                              <Label htmlFor="jug-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="sharpBlade"
-                            checked={formData.workAreaSharpCleanBlade}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaSharpCleanBlade: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="sharpBlade" className="text-sm cursor-pointer">
-                            Sharp, clean blade
-                          </label>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Dome cleaned and disinfected</Label>
+                          <RadioGroup
+                            value={formData.workAreaDomeCleanedDisinfected ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaDomeCleanedDisinfected: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="dome-clean-yes" />
+                              <Label htmlFor="dome-clean-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="dome-clean-no" />
+                              <Label htmlFor="dome-clean-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="jugWater"
-                            checked={formData.workAreaJugCleanWater}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaJugCleanWater: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="jugWater" className="text-sm cursor-pointer">
-                            Jug with clean water
-                          </label>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Dome with prepared medium</Label>
+                          <RadioGroup
+                            value={formData.workAreaDomePreparedMedium ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaDomePreparedMedium: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="dome-prep-yes" />
+                              <Label htmlFor="dome-prep-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="dome-prep-no" />
+                              <Label htmlFor="dome-prep-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="domeCleaned"
-                            checked={formData.workAreaDomeCleanedDisinfected}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaDomeCleanedDisinfected: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="domeCleaned" className="text-sm cursor-pointer">
-                            Dome has been cleaned and disinfected
-                          </label>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Cup with sanitizer</Label>
+                          <RadioGroup
+                            value={formData.workAreaSanitizerCup ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaSanitizerCup: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="sanitizer-yes" />
+                              <Label htmlFor="sanitizer-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="sanitizer-no" />
+                              <Label htmlFor="sanitizer-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="domePrepared"
-                            checked={formData.workAreaDomePreparedMedium}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaDomePreparedMedium: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="domePrepared" className="text-sm cursor-pointer">
-                            Dome has been prepared with grow medium (Jiffy) and the correct moisture content
-                          </label>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Rooting powder/gel</Label>
+                          <RadioGroup
+                            value={formData.workAreaRootingPowder ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workAreaRootingPowder: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="rooting-yes" />
+                              <Label htmlFor="rooting-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="rooting-no" />
+                              <Label htmlFor="rooting-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="sanitizerCup"
-                            checked={formData.workAreaSanitizerCup}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaSanitizerCup: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="sanitizerCup" className="text-sm cursor-pointer">
-                            Cup of sanitizer (70% alcohol content) to sterilize and equipment
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="rootingPowder"
-                            checked={formData.workAreaRootingPowder}
-                            onCheckedChange={(checked) => 
-                              setFormData({ ...formData, workAreaRootingPowder: checked as boolean })
-                            }
-                          />
-                          <label htmlFor="rootingPowder" className="text-sm cursor-pointer">
-                            Rooting powder
-                          </label>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Work surface sterilized</Label>
+                          <RadioGroup
+                            value={formData.workSurfaceSterilized ? "yes" : "no"}
+                            onValueChange={(value) => setFormData({ ...formData, workSurfaceSterilized: value === "yes" })}
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="surface-yes" />
+                              <Label htmlFor="surface-yes" className="cursor-pointer font-normal">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="surface-no" />
+                              <Label htmlFor="surface-no" className="cursor-pointer font-normal">No</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
                       </div>
                     </div>
 
-                    {/* Question 4 */}
-                    <div className="space-y-2 border-t pt-3">
-                      <h3 className="font-semibold text-sm">4. Has your work surface area been sterilized?</h3>
-                      <RadioGroup
-                        value={formData.workSurfaceSterilized ? "yes" : "no"}
-                        onValueChange={(value) => setFormData({ ...formData, workSurfaceSterilized: value === "yes" })}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="q4-yes" />
-                          <Label htmlFor="q4-yes" className="cursor-pointer">YES</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="q4-no" />
-                          <Label htmlFor="q4-no" className="cursor-pointer">NO</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    {/* Question 5 */}
-                    <div className="space-y-2 border-t pt-3">
-                      <h3 className="font-semibold text-sm">5. Are you wearing clean gloves?</h3>
-                      <RadioGroup
-                        value={formData.wearingCleanGloves ? "yes" : "no"}
-                        onValueChange={(value) => setFormData({ ...formData, wearingCleanGloves: value === "yes" })}
-                        className="flex gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="q5-yes" />
-                          <Label htmlFor="q5-yes" className="cursor-pointer">YES</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="q5-no" />
-                          <Label htmlFor="q5-no" className="cursor-pointer">NO</Label>
-                        </div>
-                      </RadioGroup>
+                    {/* Personal Protection */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="font-semibold">Personal Protection</h3>
+                      
+                      <div className="space-y-2">
+                        <Label className="text-sm">Wearing clean gloves</Label>
+                        <RadioGroup
+                          value={formData.wearingCleanGloves ? "yes" : "no"}
+                          onValueChange={(value) => setFormData({ ...formData, wearingCleanGloves: value === "yes" })}
+                          className="flex gap-6"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="gloves-yes" />
+                            <Label htmlFor="gloves-yes" className="cursor-pointer font-normal">Yes</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="gloves-no" />
+                            <Label htmlFor="gloves-no" className="cursor-pointer font-normal">No</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
                     </div>
                   </div>
                   <DialogFooter>
