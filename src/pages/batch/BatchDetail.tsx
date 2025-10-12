@@ -42,6 +42,23 @@ export default function BatchDetail() {
     },
   });
 
+  // Fetch lookup values for display
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values-display'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, value_display');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getDisplayValue = (id: string) => {
+    if (!id) return 'N/A';
+    return lookupValues?.find(v => v.id === id)?.value_display || id;
+  };
+
   if (isLoading) {
     return (
       <BatchLayout>
@@ -131,7 +148,7 @@ export default function BatchDetail() {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{batch.strain_id || 'N/A'}</div>
+              <div className="text-2xl font-bold">{getDisplayValue(batch.strain_id || '')}</div>
             </CardContent>
           </Card>
 
@@ -198,7 +215,7 @@ export default function BatchDetail() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Strain:</span>
-                    <span className="font-medium">{batch.strain_id || 'N/A'}</span>
+                    <span className="font-medium">{getDisplayValue(batch.strain_id || '')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Mother No:</span>
