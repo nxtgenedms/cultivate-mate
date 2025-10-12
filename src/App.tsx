@@ -14,6 +14,7 @@ import BatchDashboard from "./pages/batch/BatchDashboard";
 import MasterRecord from "./pages/batch/MasterRecord";
 import BatchDetail from "./pages/batch/BatchDetail";
 import SOFManagement from "./pages/admin/SOFManagement";
+import NomenclatureManagement from "./pages/admin/NomenclatureManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/admin/roles" element={<RoleBasedAccess />} />
             <Route path="/admin/lookups" element={<LookupManagement />} />
             <Route path="/admin/sofs" element={<SOFManagement />} />
+            <Route path="/admin/nomenclature" element={<NomenclatureManagement />} />
             <Route path="/batch/dashboard" element={<BatchDashboard />} />
             <Route path="/batch/master-record" element={<MasterRecord />} />
             <Route path="/batch/detail/:id" element={<BatchDetail />} />

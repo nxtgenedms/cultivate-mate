@@ -987,6 +987,39 @@ export type Database = {
           },
         ]
       }
+      nomenclature_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          entity_type: string
+          format_pattern: string
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          entity_type: string
+          format_pattern: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          entity_type?: string
+          format_pattern?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1219,6 +1252,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_batch_number: {
+        Args: { creation_date?: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

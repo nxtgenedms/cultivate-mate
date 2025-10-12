@@ -1,12 +1,15 @@
+import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface HeaderInfoStepProps {
   data: any;
@@ -14,9 +17,35 @@ interface HeaderInfoStepProps {
 }
 
 export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
+  const { toast } = useToast();
+
   const handleChange = (field: string, value: any) => {
     onChange({ ...data, [field]: value });
   };
+
+  const generateBatchNumber = async () => {
+    try {
+      const { data: result, error } = await supabase.rpc('generate_batch_number');
+      
+      if (error) throw error;
+      
+      handleChange('batch_number', result);
+      toast({ title: 'Batch ID generated successfully' });
+    } catch (error: any) {
+      toast({
+        title: 'Failed to generate Batch ID',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Auto-generate batch number if not already set
+    if (!data?.batch_number) {
+      generateBatchNumber();
+    }
+  }, []);
 
   const isCloning = data?.starting_phase === 'mother_plant';
   const isScouting = data?.starting_phase === 'seed';
@@ -32,13 +61,29 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batch_number">Batch Number *</Label>
-            <Input
-              id="batch_number"
-              value={data?.batch_number || ''}
-              onChange={(e) => handleChange('batch_number', e.target.value)}
-              required
-            />
+            <Label htmlFor="batch_number">Batch ID *</Label>
+            <div className="flex gap-2">
+              <Input
+                id="batch_number"
+                value={data?.batch_number || ''}
+                onChange={(e) => handleChange('batch_number', e.target.value)}
+                required
+                readOnly
+                className="bg-muted"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={generateBatchNumber}
+                title="Generate new Batch ID"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Format: [YYYYMMDD]-[COUNT] (auto-generated from creation date)
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -222,12 +267,28 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-2">
             <Label htmlFor="batch_number">Batch ID *</Label>
-            <Input
-              id="batch_number"
-              value={data?.batch_number || ''}
-              onChange={(e) => handleChange('batch_number', e.target.value)}
-              required
-            />
+            <div className="flex gap-2">
+              <Input
+                id="batch_number"
+                value={data?.batch_number || ''}
+                onChange={(e) => handleChange('batch_number', e.target.value)}
+                required
+                readOnly
+                className="bg-muted"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={generateBatchNumber}
+                title="Generate new Batch ID"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Format: [YYYYMMDD]-[COUNT] (auto-generated from creation date)
+            </p>
           </div>
 
           <div className="space-y-2">
