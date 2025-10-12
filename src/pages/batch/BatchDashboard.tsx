@@ -68,7 +68,7 @@ export default function BatchDashboard() {
           </div>
           <Button onClick={handleCreateBatch} size="lg">
             <Plus className="h-4 w-4 mr-2" />
-            New Batch
+            Create New Batch
           </Button>
         </div>
 
@@ -182,7 +182,7 @@ export default function BatchDashboard() {
                 <p className="text-sm mt-2">Create your first batch to get started</p>
                 <Button className="mt-4" onClick={handleCreateBatch}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Batch
+                  Create New Batch
                 </Button>
               </div>
             ) : (
