@@ -1,15 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 
 interface HeaderInfoStepProps {
   data: any;
@@ -18,6 +20,43 @@ interface HeaderInfoStepProps {
 
 export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
   const { toast } = useToast();
+
+  // Fetch lookup values for dropdowns
+  const { data: lookupCategories } = useQuery({
+    queryKey: ['lookup-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_categories')
+        .select('id, category_key')
+        .in('category_key', ['strain_id', 'mother_id', 'dome_no']);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values', lookupCategories],
+    enabled: !!lookupCategories,
+    queryFn: async () => {
+      if (!lookupCategories) return [];
+      const categoryIds = lookupCategories.map(c => c.id);
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, category_id, value_key, value_display, lookup_categories(category_key)')
+        .in('category_id', categoryIds)
+        .eq('is_active', true)
+        .order('sort_order');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getValuesByCategory = (categoryKey: string) => {
+    if (!lookupValues) return [];
+    return lookupValues.filter(
+      (v: any) => v.lookup_categories?.category_key === categoryKey
+    );
+  };
 
   const handleChange = (field: string, value: any) => {
     onChange({ ...data, [field]: value });
@@ -88,21 +127,40 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
           <div className="space-y-2">
             <Label htmlFor="mother_no">Mother ID *</Label>
-            <Input
-              id="mother_no"
+            <Select
               value={data?.mother_no || ''}
-              onChange={(e) => handleChange('mother_no', e.target.value)}
-              required
-            />
+              onValueChange={(value) => handleChange('mother_no', value)}
+            >
+              <SelectTrigger id="mother_no">
+                <SelectValue placeholder="Select Mother ID" />
+              </SelectTrigger>
+              <SelectContent>
+                {getValuesByCategory('mother_id').map((option: any) => (
+                  <SelectItem key={option.id} value={option.value_display}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="strain_id">Strain ID</Label>
-            <Input
-              id="strain_id"
+            <Label htmlFor="strain_id">Strain ID *</Label>
+            <Select
               value={data?.strain_id || ''}
-              onChange={(e) => handleChange('strain_id', e.target.value)}
-            />
+              onValueChange={(value) => handleChange('strain_id', value)}
+            >
+              <SelectTrigger id="strain_id">
+                <SelectValue placeholder="Select Strain ID" />
+              </SelectTrigger>
+              <SelectContent>
+                {getValuesByCategory('strain_id').map((option: any) => (
+                  <SelectItem key={option.id} value={option.value_display}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -117,12 +175,22 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dome_no">Dome No</Label>
-            <Input
-              id="dome_no"
+            <Label htmlFor="dome_no">Dome No *</Label>
+            <Select
               value={data?.dome_no || ''}
-              onChange={(e) => handleChange('dome_no', e.target.value)}
-            />
+              onValueChange={(value) => handleChange('dome_no', value)}
+            >
+              <SelectTrigger id="dome_no">
+                <SelectValue placeholder="Select Dome No" />
+              </SelectTrigger>
+              <SelectContent>
+                {getValuesByCategory('dome_no').map((option: any) => (
+                  <SelectItem key={option.id} value={option.value_display}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -293,12 +361,21 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
           <div className="space-y-2">
             <Label htmlFor="strain_id">Strain ID *</Label>
-            <Input
-              id="strain_id"
+            <Select
               value={data?.strain_id || ''}
-              onChange={(e) => handleChange('strain_id', e.target.value)}
-              required
-            />
+              onValueChange={(value) => handleChange('strain_id', value)}
+            >
+              <SelectTrigger id="strain_id">
+                <SelectValue placeholder="Select Strain ID" />
+              </SelectTrigger>
+              <SelectContent>
+                {getValuesByCategory('strain_id').map((option: any) => (
+                  <SelectItem key={option.id} value={option.value_display}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
