@@ -67,6 +67,10 @@ export function BatchCard({ batch, onView, onEdit }: BatchCardProps) {
             <p className="text-sm font-medium">{batch.mother_no || 'N/A'}</p>
           </div>
           <div>
+            <p className="text-xs text-muted-foreground">Dome No</p>
+            <p className="text-sm font-medium">{batch.dome_no || 'N/A'}</p>
+          </div>
+          <div>
             <p className="text-xs text-muted-foreground">Plants</p>
             <p className="text-sm font-medium flex items-center gap-1">
               {batch.total_clones_plants || 0}

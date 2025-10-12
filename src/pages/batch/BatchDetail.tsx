@@ -54,6 +54,34 @@ export default function BatchDetail() {
     },
   });
 
+  // Fetch checklist data
+  const { data: checklist } = useQuery({
+    queryKey: ['batch-checklist', batch?.batch_number],
+    enabled: !!batch?.batch_number,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cloning_pre_start_checklists')
+        .select('*')
+        .eq('batch_number', batch.batch_number)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      // Get creator profile if exists
+      if (data && data.created_by) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', data.created_by)
+          .single();
+        
+        return { ...data, created_by_profile: profile };
+      }
+      
+      return data;
+    },
+  });
+
   const getDisplayValue = (id: string) => {
     if (!id) return 'N/A';
     return lookupValues?.find(v => v.id === id)?.value_display || id;
@@ -280,17 +308,145 @@ export default function BatchDetail() {
           </TabsContent>
 
           <TabsContent value="records" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Associated Records & Logs</CardTitle>
-                <CardDescription>View all checklists, logs, and documentation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Records integration coming soon...
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              {/* Checklist */}
+              {checklist && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>HVCSOF0011 - Cloning Pre-Start Checklist</CardTitle>
+                    <CardDescription>
+                      Completed by {(checklist as any).created_by_profile?.full_name || 'Unknown'} on{' '}
+                      {format(new Date(checklist.created_at), 'MMM d, yyyy h:mm a')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Mother ID</p>
+                        <p className="text-base">{checklist.mother_id}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Strain ID</p>
+                        <p className="text-base">{checklist.strain_id}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Quantity</p>
+                        <p className="text-base">{checklist.quantity}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Dome No</p>
+                        <p className="text-base">{checklist.dome_no}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-3">Mother Plant Checks</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Mother plant healthy and disease-free</span>
+                          <Badge variant={checklist.mother_plant_healthy ? "default" : "destructive"}>
+                            {checklist.mother_plant_healthy ? 'Yes' : 'No'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Mother plant fed and watered 12h prior</span>
+                          <Badge variant={checklist.mother_plant_fed_watered_12h ? "default" : "destructive"}>
+                            {checklist.mother_plant_fed_watered_12h ? 'Yes' : 'No'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-3">Work Area Preparation</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_sharp_clean_scissors ? "default" : "secondary"}>
+                            {checklist.work_area_sharp_clean_scissors ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Sharp, clean scissors</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_sharp_clean_blade ? "default" : "secondary"}>
+                            {checklist.work_area_sharp_clean_blade ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Sharp, clean blade</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_jug_clean_water ? "default" : "secondary"}>
+                            {checklist.work_area_jug_clean_water ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Jug with clean water</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_dome_cleaned_disinfected ? "default" : "secondary"}>
+                            {checklist.work_area_dome_cleaned_disinfected ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Dome cleaned/disinfected</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_dome_prepared_medium ? "default" : "secondary"}>
+                            {checklist.work_area_dome_prepared_medium ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Dome with prepared medium</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_sanitizer_cup ? "default" : "secondary"}>
+                            {checklist.work_area_sanitizer_cup ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Cup with sanitizer</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_area_rooting_powder ? "default" : "secondary"}>
+                            {checklist.work_area_rooting_powder ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Rooting powder/gel</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={checklist.work_surface_sterilized ? "default" : "secondary"}>
+                            {checklist.work_surface_sterilized ? '✓' : '✗'}
+                          </Badge>
+                          <span className="text-sm">Work surface sterilized</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-3">Personal Protection</h4>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Wearing clean gloves</span>
+                        <Badge variant={checklist.wearing_clean_gloves ? "default" : "destructive"}>
+                          {checklist.wearing_clean_gloves ? 'Yes' : 'No'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Status</span>
+                        <Badge className={getStatusColor(checklist.status)}>
+                          {checklist.status?.toUpperCase()}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {!checklist && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Associated Records & Logs</CardTitle>
+                    <CardDescription>View all checklists, logs, and documentation</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-center py-8">
+                      No checklist found for this batch
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-6">

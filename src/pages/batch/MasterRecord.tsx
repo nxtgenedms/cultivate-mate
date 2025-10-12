@@ -313,6 +313,7 @@ export default function MasterRecord() {
                     <TableHead>Batch Number</TableHead>
                     <TableHead>Strain ID</TableHead>
                     <TableHead>Mother No</TableHead>
+                    <TableHead>Dome No</TableHead>
                     <TableHead>Current Stage</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Created By</TableHead>
@@ -320,7 +321,7 @@ export default function MasterRecord() {
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-                 <TableBody>
+                <TableBody>
                   {filteredRecords.map((record) => (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">
@@ -333,6 +334,7 @@ export default function MasterRecord() {
                       </TableCell>
                       <TableCell>{getDisplayValue(record.strain_id || '') || '-'}</TableCell>
                       <TableCell>{record.mother_no || '-'}</TableCell>
+                      <TableCell>{getDisplayValue(record.dome_no || '') || '-'}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{getStageLabel(record.current_stage)}</Badge>
                       </TableCell>
