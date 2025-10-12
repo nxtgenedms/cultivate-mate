@@ -93,21 +93,21 @@ export default function SOFManagement() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Standard Operating Forms</CardTitle>
-                <CardDescription>
-                  Create and manage SOFs used across different lifecycle phases
-                </CardDescription>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Standard Operating Forms</CardTitle>
+                  <CardDescription>
+                    Create and manage SOFs used across different lifecycle phases
+                  </CardDescription>
+                </div>
+                <Button onClick={() => setIsDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add SOF
+                </Button>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add SOF
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+              
+              {/* Always show search box */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -117,12 +117,30 @@ export default function SOFManagement() {
                   className="pl-10"
                 />
               </div>
-
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
               {isLoading ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
                     <Skeleton key={i} className="h-20 w-full" />
                   ))}
+                </div>
+              ) : !sofs || sofs.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No SOFs Created Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Get started by creating your first Standard Operating Form
+                  </p>
+                  <Button
+                    onClick={() => setIsDialogOpen(true)}
+                    size="lg"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First SOF
+                  </Button>
                 </div>
               ) : filteredSOFs && filteredSOFs.length > 0 ? (
                 <div className="space-y-3">
@@ -175,16 +193,30 @@ export default function SOFManagement() {
                     </Card>
                   ))}
                 </div>
-              ) : (
+              ) : searchTerm ? (
                 <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    {searchTerm ? 'No SOFs found matching your search' : 'No SOFs created yet'}
+                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    No SOFs found matching "{searchTerm}"
                   </p>
                   <Button
                     variant="outline"
+                    onClick={() => setSearchTerm('')}
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No SOFs Created Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Get started by creating your first Standard Operating Form
+                  </p>
+                  <Button
                     onClick={() => setIsDialogOpen(true)}
-                    className="mt-4"
+                    size="lg"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create First SOF
