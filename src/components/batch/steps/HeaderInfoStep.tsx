@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
@@ -196,127 +196,212 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
         <div className="space-y-4 pt-4 border-t">
           <h4 className="font-semibold">Mother Plant Checks</h4>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="mother_plant_healthy"
-                checked={data?.mother_plant_healthy || false}
-                onCheckedChange={(checked) => handleChange('mother_plant_healthy', checked)}
-              />
-              <Label htmlFor="mother_plant_healthy" className="font-normal cursor-pointer">
-                Mother plant is healthy and disease-free
-              </Label>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Mother plant is healthy and disease-free</Label>
+              <RadioGroup
+                value={data?.mother_plant_healthy === true ? "yes" : data?.mother_plant_healthy === false ? "no" : ""}
+                onValueChange={(value) => handleChange('mother_plant_healthy', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="mother-healthy-yes" />
+                  <Label htmlFor="mother-healthy-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="mother-healthy-no" />
+                  <Label htmlFor="mother-healthy-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="mother_plant_fed_watered_12h"
-                checked={data?.mother_plant_fed_watered_12h || false}
-                onCheckedChange={(checked) => handleChange('mother_plant_fed_watered_12h', checked)}
-              />
-              <Label htmlFor="mother_plant_fed_watered_12h" className="font-normal cursor-pointer">
-                Mother plant fed and watered 12 hours prior
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Mother plant fed and watered 12 hours prior</Label>
+              <RadioGroup
+                value={data?.mother_plant_fed_watered_12h === true ? "yes" : data?.mother_plant_fed_watered_12h === false ? "no" : ""}
+                onValueChange={(value) => handleChange('mother_plant_fed_watered_12h', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="mother-fed-yes" />
+                  <Label htmlFor="mother-fed-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="mother-fed-no" />
+                  <Label htmlFor="mother-fed-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         </div>
 
         <div className="space-y-4 pt-4 border-t">
           <h4 className="font-semibold">Work Area Preparation</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_sharp_clean_scissors"
-                checked={data?.work_area_sharp_clean_scissors || false}
-                onCheckedChange={(checked) => handleChange('work_area_sharp_clean_scissors', checked)}
-              />
-              <Label htmlFor="work_area_sharp_clean_scissors" className="font-normal cursor-pointer">
-                Sharp, clean scissors
-              </Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Sharp, clean scissors</Label>
+              <RadioGroup
+                value={data?.work_area_sharp_clean_scissors === true ? "yes" : data?.work_area_sharp_clean_scissors === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_sharp_clean_scissors', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="scissors-yes" />
+                  <Label htmlFor="scissors-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="scissors-no" />
+                  <Label htmlFor="scissors-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_sharp_clean_blade"
-                checked={data?.work_area_sharp_clean_blade || false}
-                onCheckedChange={(checked) => handleChange('work_area_sharp_clean_blade', checked)}
-              />
-              <Label htmlFor="work_area_sharp_clean_blade" className="font-normal cursor-pointer">
-                Sharp, clean blade
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Sharp, clean blade</Label>
+              <RadioGroup
+                value={data?.work_area_sharp_clean_blade === true ? "yes" : data?.work_area_sharp_clean_blade === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_sharp_clean_blade', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="blade-yes" />
+                  <Label htmlFor="blade-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="blade-no" />
+                  <Label htmlFor="blade-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_jug_clean_water"
-                checked={data?.work_area_jug_clean_water || false}
-                onCheckedChange={(checked) => handleChange('work_area_jug_clean_water', checked)}
-              />
-              <Label htmlFor="work_area_jug_clean_water" className="font-normal cursor-pointer">
-                Jug with clean water
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Jug with clean water</Label>
+              <RadioGroup
+                value={data?.work_area_jug_clean_water === true ? "yes" : data?.work_area_jug_clean_water === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_jug_clean_water', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="jug-yes" />
+                  <Label htmlFor="jug-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="jug-no" />
+                  <Label htmlFor="jug-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_dome_cleaned_disinfected"
-                checked={data?.work_area_dome_cleaned_disinfected || false}
-                onCheckedChange={(checked) => handleChange('work_area_dome_cleaned_disinfected', checked)}
-              />
-              <Label htmlFor="work_area_dome_cleaned_disinfected" className="font-normal cursor-pointer">
-                Dome cleaned and disinfected
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Dome cleaned and disinfected</Label>
+              <RadioGroup
+                value={data?.work_area_dome_cleaned_disinfected === true ? "yes" : data?.work_area_dome_cleaned_disinfected === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_dome_cleaned_disinfected', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="dome-clean-yes" />
+                  <Label htmlFor="dome-clean-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="dome-clean-no" />
+                  <Label htmlFor="dome-clean-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_dome_prepared_medium"
-                checked={data?.work_area_dome_prepared_medium || false}
-                onCheckedChange={(checked) => handleChange('work_area_dome_prepared_medium', checked)}
-              />
-              <Label htmlFor="work_area_dome_prepared_medium" className="font-normal cursor-pointer">
-                Dome with prepared medium
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Dome with prepared medium</Label>
+              <RadioGroup
+                value={data?.work_area_dome_prepared_medium === true ? "yes" : data?.work_area_dome_prepared_medium === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_dome_prepared_medium', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="dome-prep-yes" />
+                  <Label htmlFor="dome-prep-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="dome-prep-no" />
+                  <Label htmlFor="dome-prep-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_sanitizer_cup"
-                checked={data?.work_area_sanitizer_cup || false}
-                onCheckedChange={(checked) => handleChange('work_area_sanitizer_cup', checked)}
-              />
-              <Label htmlFor="work_area_sanitizer_cup" className="font-normal cursor-pointer">
-                Cup with sanitizer
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Cup with sanitizer</Label>
+              <RadioGroup
+                value={data?.work_area_sanitizer_cup === true ? "yes" : data?.work_area_sanitizer_cup === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_sanitizer_cup', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="sanitizer-yes" />
+                  <Label htmlFor="sanitizer-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="sanitizer-no" />
+                  <Label htmlFor="sanitizer-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_area_rooting_powder"
-                checked={data?.work_area_rooting_powder || false}
-                onCheckedChange={(checked) => handleChange('work_area_rooting_powder', checked)}
-              />
-              <Label htmlFor="work_area_rooting_powder" className="font-normal cursor-pointer">
-                Rooting powder/gel
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Rooting powder/gel</Label>
+              <RadioGroup
+                value={data?.work_area_rooting_powder === true ? "yes" : data?.work_area_rooting_powder === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_area_rooting_powder', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="rooting-yes" />
+                  <Label htmlFor="rooting-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="rooting-no" />
+                  <Label htmlFor="rooting-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="work_surface_sterilized"
-                checked={data?.work_surface_sterilized || false}
-                onCheckedChange={(checked) => handleChange('work_surface_sterilized', checked)}
-              />
-              <Label htmlFor="work_surface_sterilized" className="font-normal cursor-pointer">
-                Work surface sterilized
-              </Label>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Work surface sterilized</Label>
+              <RadioGroup
+                value={data?.work_surface_sterilized === true ? "yes" : data?.work_surface_sterilized === false ? "no" : ""}
+                onValueChange={(value) => handleChange('work_surface_sterilized', value === "yes")}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="surface-yes" />
+                  <Label htmlFor="surface-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="surface-no" />
+                  <Label htmlFor="surface-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         </div>
 
         <div className="space-y-4 pt-4 border-t">
           <h4 className="font-semibold">Personal Protection</h4>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="wearing_clean_gloves"
-              checked={data?.wearing_clean_gloves || false}
-              onCheckedChange={(checked) => handleChange('wearing_clean_gloves', checked)}
-            />
-            <Label htmlFor="wearing_clean_gloves" className="font-normal cursor-pointer">
-              Wearing clean gloves
-            </Label>
+          <div className="space-y-2">
+            <Label className="text-sm">Wearing clean gloves</Label>
+            <RadioGroup
+              value={data?.wearing_clean_gloves === true ? "yes" : data?.wearing_clean_gloves === false ? "no" : ""}
+              onValueChange={(value) => handleChange('wearing_clean_gloves', value === "yes")}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id="gloves-yes" />
+                <Label htmlFor="gloves-yes" className="cursor-pointer font-normal">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id="gloves-no" />
+                <Label htmlFor="gloves-no" className="cursor-pointer font-normal">No</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
       </div>
