@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, MoreVertical, ArrowLeft, RefreshCw, X as XIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, MoreVertical, ArrowLeft, RefreshCw, X as XIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
@@ -241,6 +241,20 @@ export default function NomenclatureManagement() {
     setSegments(segments.map(seg => seg.id === id ? { ...seg, value } : seg));
   };
 
+  const moveSegmentUp = (index: number) => {
+    if (index === 0) return;
+    const newSegments = [...segments];
+    [newSegments[index - 1], newSegments[index]] = [newSegments[index], newSegments[index - 1]];
+    setSegments(newSegments);
+  };
+
+  const moveSegmentDown = (index: number) => {
+    if (index === segments.length - 1) return;
+    const newSegments = [...segments];
+    [newSegments[index], newSegments[index + 1]] = [newSegments[index + 1], newSegments[index]];
+    setSegments(newSegments);
+  };
+
   const filteredSegments = AVAILABLE_SEGMENTS.filter(seg =>
     seg.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -389,6 +403,26 @@ export default function NomenclatureManagement() {
                               ) : (
                                 <span className="text-sm">{seg.label}</span>
                               )}
+                              <div className="flex flex-col">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-4 w-4 p-0"
+                                  onClick={() => moveSegmentUp(idx)}
+                                  disabled={idx === 0}
+                                >
+                                  <ChevronUp className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-4 w-4 p-0"
+                                  onClick={() => moveSegmentDown(idx)}
+                                  disabled={idx === segments.length - 1}
+                                >
+                                  <ChevronDown className="h-3 w-3" />
+                                </Button>
+                              </div>
                               <Button
                                 variant="ghost"
                                 size="icon"
