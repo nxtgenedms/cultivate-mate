@@ -44,7 +44,7 @@ export default function BatchDashboard() {
   };
 
   const handleCreateBatch = () => {
-    navigate('/batch/master-record');
+    navigate('/batch/master-record?create=true');
   };
 
   const handleViewBatch = (batch: any) => {

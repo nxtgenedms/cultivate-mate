@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BatchLayout } from '@/components/BatchLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BatchLifecycleWizard } from '@/components/batch/BatchLifecycleWizard';
 import { BatchCard } from '@/components/batch/BatchCard';
 import { BatchFilters } from '@/components/batch/BatchFilters';
 import { getStageLabel, getStatusColor } from '@/lib/batchUtils';
 
 export default function MasterRecord() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isDialogOpen, setIsDialogOpen] = useState(searchParams.get('create') === 'true');
   const [editingRecordId, setEditingRecordId] = useState<string | undefined>();
   const [wizardData, setWizardData] = useState<any>({});
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -94,6 +95,13 @@ export default function MasterRecord() {
     setWizardData({});
     setEditingRecordId(undefined);
   };
+
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setIsDialogOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleEdit = (record: any) => {
     setEditingRecordId(record.id);
