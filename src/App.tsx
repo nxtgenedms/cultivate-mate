@@ -36,7 +36,6 @@ const App = () => (
             <Route path="/batch/dashboard" element={<BatchDashboard />} />
             <Route path="/batch/master-record" element={<MasterRecord />} />
             <Route path="/batch/detail/:id" element={<BatchDetail />} />
-            <Route path="/batch/analytics" element={<BatchDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

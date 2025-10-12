@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { LayoutDashboard, List, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BatchLayoutProps {
@@ -23,12 +23,6 @@ export function BatchLayout({ children }: BatchLayoutProps) {
       label: 'All Batches', 
       icon: List,
       description: 'Master Records' 
-    },
-    { 
-      path: '/batch/analytics', 
-      label: 'Analytics', 
-      icon: BarChart3,
-      description: 'Reports & Insights' 
     },
   ];
 
