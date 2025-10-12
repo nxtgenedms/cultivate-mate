@@ -228,7 +228,12 @@ export default function SOFManagement() {
         </Card>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          setEditingSOF(null);
+        }
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -236,6 +241,7 @@ export default function SOFManagement() {
             </DialogTitle>
           </DialogHeader>
           <SOFForm 
+            key={editingSOF?.id || 'new-sof'}
             sof={editingSOF} 
             onClose={handleCloseDialog}
           />
