@@ -1,54 +1,18 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Save,
-  CheckCircle2
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { InitialPhaseStep } from './steps/InitialPhaseStep';
+import { Save, CheckCircle2, X } from 'lucide-react';
 import { HeaderInfoStep } from './steps/HeaderInfoStep';
 
 interface BatchLifecycleWizardProps {
   recordId?: string;
   onSave: (data: any, isDraft: boolean) => Promise<void>;
+  onCancel: () => void;
 }
 
-export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecycleWizardProps) {
   const [formData, setFormData] = useState<any>({});
   const [isSaving, setIsSaving] = useState(false);
-
-  const stepLabels = [
-    'Cloning Source',
-    'Batch Details',
-    'Cloning & Rooting',
-    'Hardening',
-    'Vegetative Stage',
-    'Flowering/Grow Room',
-    'Harvest',
-    'Processing & Inspection',
-    'Drying',
-    'Packing',
-    'Mortality Summary',
-  ];
-
-  const progress = ((currentStep + 1) / stepLabels.length) * 100;
-
-  const handleNext = () => {
-    if (currentStep < stepLabels.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
 
   const handleSaveDraft = async () => {
     setIsSaving(true);
@@ -68,19 +32,8 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return <InitialPhaseStep data={formData} onChange={setFormData} />;
-      case 1:
-        return <HeaderInfoStep data={formData} onChange={setFormData} />;
-      default:
-        return (
-          <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-            Form content for {stepLabels[currentStep]} coming soon
-          </div>
-        );
-    }
+  const handleCancel = () => {
+    onCancel();
   };
 
   return (
@@ -96,52 +49,41 @@ export function BatchLifecycleWizard({ recordId, onSave }: BatchLifecycleWizardP
               </p>
             </div>
 
-            {/* Step component will be rendered here */}
+            {/* Consolidated form content */}
             <div className="min-h-[400px]">
-              {renderStepContent()}
+              <HeaderInfoStep data={formData} onChange={setFormData} />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-3">
         <Button
           variant="outline"
-          onClick={handlePrevious}
-          disabled={currentStep === 0 || isSaving}
+          onClick={handleCancel}
+          disabled={isSaving}
         >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Previous
+          <X className="h-4 w-4 mr-2" />
+          Cancel
         </Button>
 
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleSaveDraft}
-            disabled={isSaving}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Draft
-          </Button>
+        <Button 
+          variant="outline" 
+          onClick={handleSaveDraft}
+          disabled={isSaving}
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save as Draft
+        </Button>
 
-          {currentStep === stepLabels.length - 1 ? (
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSaving}
-            >
-              Submit Record
-            </Button>
-          ) : (
-            <Button 
-              onClick={handleNext}
-              disabled={isSaving}
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
+        <Button 
+          onClick={handleSubmit}
+          disabled={isSaving}
+        >
+          <CheckCircle2 className="h-4 w-4 mr-2" />
+          Submit
+        </Button>
       </div>
     </div>
   );

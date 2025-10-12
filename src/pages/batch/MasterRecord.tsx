@@ -168,6 +168,10 @@ export default function MasterRecord() {
                   onSave={async (data, isDraft) => {
                     return saveMutation.mutateAsync({ data, isDraft });
                   }}
+                  onCancel={() => {
+                    setIsDialogOpen(false);
+                    resetForm();
+                  }}
                 />
               </div>
             </DialogContent>
