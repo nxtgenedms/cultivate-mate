@@ -209,11 +209,11 @@ export default function MasterRecord() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <BarChart3 className="h-8 w-8" />
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <BarChart3 className="h-6 w-6" />
               All Batches
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Complete batch lifecycle master records (HVCSOF009)
             </p>
           </div>
