@@ -112,7 +112,7 @@ export default function BatchDashboard() {
         {/* Stage Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>Batches by Stage</CardTitle>
+            <CardTitle className="text-xl">Batches by Stage</CardTitle>
             <CardDescription>Current distribution across lifecycle stages</CardDescription>
           </CardHeader>
           <CardContent>
@@ -147,7 +147,7 @@ export default function BatchDashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Recent Batches</CardTitle>
+                <CardTitle className="text-xl">Recent Batches</CardTitle>
                 <CardDescription>Latest batch activities and updates</CardDescription>
               </div>
               <div className="flex gap-2">
@@ -214,7 +214,7 @@ export default function BatchDashboard() {
         {/* Activity Feed */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="text-xl">Recent Activity</CardTitle>
             <CardDescription>Latest batch lifecycle events</CardDescription>
           </CardHeader>
           <CardContent>
