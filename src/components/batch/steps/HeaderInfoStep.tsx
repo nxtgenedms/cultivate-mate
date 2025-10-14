@@ -92,8 +92,8 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
-        <h3 className="font-semibold text-primary mb-1">HVCSOF0011 - Batch Pre-Start Checklist</h3>
+      <div className="bg-primary/5 p-3 rounded-lg border border-primary/20 flex items-center gap-4">
+        <h3 className="text-sm font-semibold text-primary">HVCSOF0011 - Batch Pre-Start Checklist</h3>
         <p className="text-sm text-muted-foreground">Complete all checklist items before proceeding</p>
       </div>
 

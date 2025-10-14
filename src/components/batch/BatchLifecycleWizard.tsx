@@ -42,9 +42,9 @@ export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecy
       <Card>
         <CardContent className="p-6">
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold">New Batch: Source & Checklist</h2>
-              <p className="text-muted-foreground mt-1">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold">New Batch: Source & Checklist</h2>
+              <p className="text-sm text-muted-foreground">
                 Complete the initial batch information
               </p>
             </div>
