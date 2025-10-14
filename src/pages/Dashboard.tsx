@@ -4,12 +4,31 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUserRoles } from '@/hooks/useUserRoles';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 import { Loader2, Users, Settings, Leaf } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const { data: roles, isLoading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
+
+  // Fetch user profile
+  const { data: profile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user!.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -42,13 +61,16 @@ export default function Dashboard() {
     return roles?.map(r => roleMap[r]).join(', ') || 'No roles assigned';
   };
 
+  const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
+  const userName = profile?.full_name || user?.email?.split('@')[0] || 'User';
+
   return (
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome to VitaCore CMS - Cannabis Cultivation Management System
+          <h1 className="text-xl font-bold">Welcome {userName}, {currentDate}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            VitaCore CMS - Cannabis Cultivation Management System
           </p>
         </div>
 
@@ -89,7 +111,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
+            <CardTitle className="text-xl">Getting Started</CardTitle>
             <CardDescription>
               Phase 1 - Foundation & Administration is now complete
             </CardDescription>
