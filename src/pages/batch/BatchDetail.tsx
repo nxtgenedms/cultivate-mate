@@ -127,13 +127,13 @@ export default function BatchDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold">{formatBatchNumber(batch.batch_number)}</h1>
-                <span className="text-3xl">{getStageIcon(batch.current_stage)}</span>
+                <h1 className="text-xl font-bold">{formatBatchNumber(batch.batch_number)}</h1>
+                <span className="text-xl">{getStageIcon(batch.current_stage)}</span>
                 <Badge className={cn("border", getStatusColor(batch.status))}>
                   {batch.status?.replace('_', ' ').toUpperCase()}
                 </Badge>
               </div>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Created by {batch.created_by_profile?.full_name || 'Unknown'} • {format(new Date(batch.created_at), 'MMM d, yyyy')}
               </p>
             </div>
