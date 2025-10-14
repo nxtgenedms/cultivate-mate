@@ -61,8 +61,8 @@ export default function BatchDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Batch Management Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold">Batch Management Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
               Complete lifecycle tracking and analytics
             </p>
           </div>
