@@ -235,7 +235,7 @@ export default function BatchDetail() {
               {/* Batch Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Batch Information</CardTitle>
+                  <CardTitle className="text-xl">Batch Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
@@ -264,7 +264,7 @@ export default function BatchDetail() {
               {/* Dates & Timeline */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Important Dates</CardTitle>
+                  <CardTitle className="text-xl">Important Dates</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {batch.clone_germination_date && (
@@ -327,7 +327,7 @@ export default function BatchDetail() {
               {!selectedChecklistId && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Records & Logs</CardTitle>
+                    <CardTitle className="text-xl">Records & Logs</CardTitle>
                     <CardDescription>
                       All checklists and logs associated with this batch
                     </CardDescription>
@@ -368,7 +368,7 @@ export default function BatchDetail() {
               {selectedChecklistId && checklist && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>HVCSOF0011 - Cloning Pre-Start Checklist</CardTitle>
+                    <CardTitle className="text-xl">HVCSOF0011 - Cloning Pre-Start Checklist</CardTitle>
                     <CardDescription>
                       Completed by {(checklist as any).created_by_profile?.full_name || 'Unknown'} on{' '}
                       {format(new Date(checklist.created_at), 'MMM d, yyyy h:mm a')}
@@ -490,7 +490,7 @@ export default function BatchDetail() {
           <TabsContent value="analytics" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Batch Analytics</CardTitle>
+                <CardTitle className="text-xl">Batch Analytics</CardTitle>
                 <CardDescription>Performance metrics and insights</CardDescription>
               </CardHeader>
               <CardContent>
