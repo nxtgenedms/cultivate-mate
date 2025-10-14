@@ -40,23 +40,14 @@ export default function Index() {
                 Go to Dashboard
               </Button>
             ) : (
-              <>
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/auth')}
-                  className="shadow-[var(--shadow-strong)]"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  onClick={() => navigate('/auth')}
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                >
-                  Get Started
-                </Button>
-              </>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => navigate('/auth')}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                Get Started
+              </Button>
             )}
           </div>
         </div>
