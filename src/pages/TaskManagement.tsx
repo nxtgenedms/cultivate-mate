@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Calendar, User, Search } from "lucide-react";
+import { Plus, Calendar, User, Search, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { format } from "date-fns";
@@ -76,6 +76,21 @@ export default function TaskManagement() {
     },
     onError: (error) => {
       toast.error("Failed to delete task: " + error.message);
+    },
+  });
+
+  const triggerSOF12Mutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("create-daily-sof12-tasks");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success(`Created ${data.tasksCreated || 0} SOF12 tasks successfully`);
+    },
+    onError: (error) => {
+      toast.error("Failed to create SOF12 tasks: " + error.message);
     },
   });
 
@@ -225,10 +240,22 @@ export default function TaskManagement() {
               Manage and track your tasks
             </p>
           </div>
-          <Button onClick={handleNewTask}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Task
-          </Button>
+          <div className="flex gap-2">
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => triggerSOF12Mutation.mutate()}
+                disabled={triggerSOF12Mutation.isPending}
+              >
+                <PlayCircle className="mr-2 h-4 w-4" />
+                {triggerSOF12Mutation.isPending ? "Creating..." : "Run SOF12 Job"}
+              </Button>
+            )}
+            <Button onClick={handleNewTask}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Task
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-4">
