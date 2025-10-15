@@ -1,1 +1,4 @@
 project_id = "mypfhpxtesqdjeytygkp"
+
+[functions.create-daily-sof12-tasks]
+verify_jwt = false

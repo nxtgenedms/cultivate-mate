@@ -128,6 +128,7 @@ export type Database = {
           rack_no: string | null
           status: string | null
           strain_id: string | null
+          tags: string[] | null
           total_clones_plants: number | null
           total_dry_weight: number | null
           total_plants_processed: number | null
@@ -256,6 +257,7 @@ export type Database = {
           rack_no?: string | null
           status?: string | null
           strain_id?: string | null
+          tags?: string[] | null
           total_clones_plants?: number | null
           total_dry_weight?: number | null
           total_plants_processed?: number | null
@@ -384,6 +386,7 @@ export type Database = {
           rack_no?: string | null
           status?: string | null
           strain_id?: string | null
+          tags?: string[] | null
           total_clones_plants?: number | null
           total_dry_weight?: number | null
           total_plants_processed?: number | null
@@ -1232,6 +1235,7 @@ export type Database = {
       tasks: {
         Row: {
           assignee: string | null
+          batch_id: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1244,6 +1248,7 @@ export type Database = {
         }
         Insert: {
           assignee?: string | null
+          batch_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1256,6 +1261,7 @@ export type Database = {
         }
         Update: {
           assignee?: string | null
+          batch_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1272,6 +1278,13 @@ export type Database = {
             columns: ["assignee"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batch_lifecycle_records"
             referencedColumns: ["id"]
           },
           {
