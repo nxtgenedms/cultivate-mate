@@ -22,6 +22,7 @@ import {
 } from '@/lib/batchUtils';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { PhaseChangeButton } from '@/components/batch/PhaseChangeButton';
 
 export default function BatchDetail() {
   const { id } = useParams();
@@ -138,10 +139,19 @@ export default function BatchDetail() {
               </p>
             </div>
           </div>
-          <Button onClick={() => navigate('/batch/master-record')}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Batch
-          </Button>
+          <div className="flex gap-2">
+            <PhaseChangeButton
+              batchId={batch.id}
+              batchNumber={batch.batch_number}
+              currentStage={batch.current_stage}
+              responsiblePersonId={batch.created_by}
+              disabled={batch.status !== 'in_progress'}
+            />
+            <Button onClick={() => navigate('/batch/master-record')}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Batch
+            </Button>
+          </div>
         </div>
 
         {/* Current Stage Card */}

@@ -1175,6 +1175,77 @@ export type Database = {
           },
         ]
       }
+      sof03_phase_gate_submissions: {
+        Row: {
+          all_checks_passed: boolean | null
+          batch_id: string
+          batch_number: string
+          clones_healthy: boolean
+          created_at: string | null
+          documentation_complete: boolean
+          environmental_conditions_met: boolean
+          id: string
+          no_disease_present: boolean
+          no_pest_infestation: boolean
+          notes: string | null
+          phase_change_approved: boolean | null
+          quality_check_passed: boolean
+          rework_task_id: string | null
+          root_development_adequate: boolean
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          all_checks_passed?: boolean | null
+          batch_id: string
+          batch_number: string
+          clones_healthy?: boolean
+          created_at?: string | null
+          documentation_complete?: boolean
+          environmental_conditions_met?: boolean
+          id?: string
+          no_disease_present?: boolean
+          no_pest_infestation?: boolean
+          notes?: string | null
+          phase_change_approved?: boolean | null
+          quality_check_passed?: boolean
+          rework_task_id?: string | null
+          root_development_adequate?: boolean
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          all_checks_passed?: boolean | null
+          batch_id?: string
+          batch_number?: string
+          clones_healthy?: boolean
+          created_at?: string | null
+          documentation_complete?: boolean
+          environmental_conditions_met?: boolean
+          id?: string
+          no_disease_present?: boolean
+          no_pest_infestation?: boolean
+          notes?: string | null
+          phase_change_approved?: boolean | null
+          quality_check_passed?: boolean
+          rework_task_id?: string | null
+          root_development_adequate?: boolean
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sof03_phase_gate_submissions_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batch_lifecycle_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sofs: {
         Row: {
           approved_by: string | null
