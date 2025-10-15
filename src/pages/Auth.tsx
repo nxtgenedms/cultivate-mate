@@ -82,17 +82,17 @@ export default function Auth() {
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       </div>
-      <Card className="w-full max-w-md relative z-10 bg-card/95 backdrop-blur-sm border-2">
+      <Card className="w-full max-w-md relative z-10 bg-primary/90 backdrop-blur-sm border-2 border-primary-foreground/20 text-white">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">VitaCore CMS</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-3xl font-bold text-center text-white">VitaCore CMS</CardTitle>
+          <CardDescription className="text-center text-white/80">
             Cannabis Cultivation Management System
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="login-email">Email</Label>
+              <Label htmlFor="login-email" className="text-white">Email</Label>
               <Input
                 id="login-email"
                 type="email"
@@ -101,10 +101,11 @@ export default function Auth() {
                 onChange={(e) => setLoginEmail(e.target.value)}
                 required
                 disabled={isLoading}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="login-password">Password</Label>
+              <Label htmlFor="login-password" className="text-white">Password</Label>
               <Input
                 id="login-password"
                 type="password"
@@ -112,6 +113,7 @@ export default function Auth() {
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
                 disabled={isLoading}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
