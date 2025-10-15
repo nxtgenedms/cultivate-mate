@@ -14,9 +14,10 @@ interface SimplePhaseChangeDialogProps {
   onOpenChange: (open: boolean) => void;
   batchNumber: string;
   currentStage: string;
+  nextStage: string;
   currentQuantity?: number;
   currentDome?: string;
-  onSubmit: (data: { stage: string; quantity: number; dome: string }) => void;
+  onSubmit: (data: { quantity: number; dome: string }) => void;
   isSubmitting?: boolean;
 }
 
@@ -25,12 +26,12 @@ export function SimplePhaseChangeDialog({
   onOpenChange,
   batchNumber,
   currentStage,
+  nextStage,
   currentQuantity,
   currentDome,
   onSubmit,
   isSubmitting = false
 }: SimplePhaseChangeDialogProps) {
-  const [stage, setStage] = useState(currentStage);
   const [quantity, setQuantity] = useState(currentQuantity?.toString() || '');
   const [dome, setDome] = useState(currentDome || '');
 
@@ -66,24 +67,23 @@ export function SimplePhaseChangeDialog({
 
   useEffect(() => {
     if (open) {
-      setStage(currentStage);
       setQuantity(currentQuantity?.toString() || '');
       setDome(currentDome || '');
     }
-  }, [open, currentStage, currentQuantity, currentDome]);
+  }, [open, currentQuantity, currentDome]);
 
   const handleSubmit = () => {
     const qty = parseInt(quantity) || 0;
-    onSubmit({ stage, quantity: qty, dome });
+    onSubmit({ quantity: qty, dome });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Batch Phase</DialogTitle>
+          <DialogTitle>Update Batch Phase - Move to {STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS]}</DialogTitle>
           <DialogDescription>
-            Update the phase and quantity for batch {batchNumber}
+            Update quantity and dome for batch {batchNumber}
             {currentQuantity && (
               <span className="block mt-1 text-sm font-medium text-foreground">
                 Current Total Plants: {currentQuantity}
@@ -93,22 +93,6 @@ export function SimplePhaseChangeDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="stage">Current Phase</Label>
-            <Select value={stage} onValueChange={setStage}>
-              <SelectTrigger id="stage">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {Object.values(BATCH_STAGES).map((stageKey) => (
-                  <SelectItem key={stageKey} value={stageKey}>
-                    {STAGE_LABELS[stageKey as keyof typeof STAGE_LABELS]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="dome">Dome Number</Label>
             <Select value={dome} onValueChange={setDome}>

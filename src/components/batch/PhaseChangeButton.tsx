@@ -42,14 +42,14 @@ export function PhaseChangeButton({
   const nextStage = getNextStage();
   const buttonLabel = `Move to ${STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || 'Next Phase'}`;
 
-  const handleSubmit = async (data: { stage: string; quantity: number; dome: string }) => {
+  const handleSubmit = async (data: { quantity: number; dome: string }) => {
     setIsSubmitting(true);
     try {
       // Update batch stage, quantity, and dome
       const { error: updateError } = await supabase
         .from('batch_lifecycle_records')
         .update({ 
-          current_stage: data.stage as any,
+          current_stage: nextStage as any,
           veg_number_plants: data.quantity,
           dome_no: data.dome
         })
@@ -104,6 +104,7 @@ export function PhaseChangeButton({
         onOpenChange={setDialogOpen}
         batchNumber={batchNumber}
         currentStage={currentStage}
+        nextStage={nextStage}
         currentQuantity={currentQuantity}
         currentDome={currentDome}
         onSubmit={handleSubmit}
