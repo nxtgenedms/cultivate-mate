@@ -184,10 +184,11 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in create-weekly-batch-tasks:', error);
+    const err = error as Error;
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        details: error.toString()
+        error: err.message || 'Unknown error',
+        details: err.toString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
