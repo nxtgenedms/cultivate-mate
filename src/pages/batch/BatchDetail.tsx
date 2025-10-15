@@ -168,7 +168,7 @@ export default function BatchDetail() {
                   batchId={batch.id}
                   batchNumber={batch.batch_number}
                   currentStage={batch.current_stage}
-                  responsiblePersonId={batch.created_by}
+                  currentQuantity={batch.veg_number_plants}
                   disabled={batch.status !== 'in_progress'}
                 />
               </div>
