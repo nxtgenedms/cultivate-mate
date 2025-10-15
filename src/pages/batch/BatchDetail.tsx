@@ -332,7 +332,15 @@ export default function BatchDetail() {
           </TabsContent>
 
           <TabsContent value="lifecycle" className="mt-6">
-            <BatchProgressTimeline currentStage={batch.current_stage} />
+            <BatchProgressTimeline 
+              currentStage={batch.current_stage}
+              stageCompletionDates={{
+                cloning: batch.clone_germination_date,
+                vegetative: batch.move_to_veg_date,
+                flowering: batch.move_to_flowering_date,
+                harvest: batch.harvest_date
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="records" className="mt-6">

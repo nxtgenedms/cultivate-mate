@@ -3,14 +3,50 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STAGE_ORDER, getStageLabel, getStageIcon, getStageColor } from '@/lib/batchUtils';
+import { format } from 'date-fns';
 
 interface BatchProgressTimelineProps {
   currentStage: string;
   completedStages?: string[];
+  stageCompletionDates?: {
+    cloning?: string | null;
+    vegetative?: string | null;
+    flowering?: string | null;
+    harvest?: string | null;
+  };
 }
 
-export function BatchProgressTimeline({ currentStage, completedStages = [] }: BatchProgressTimelineProps) {
+export function BatchProgressTimeline({ currentStage, completedStages = [], stageCompletionDates = {} }: BatchProgressTimelineProps) {
   const currentIndex = STAGE_ORDER.indexOf(currentStage as any);
+
+  const getCompletionDate = (stage: string) => {
+    let dateValue: string | null | undefined;
+    
+    switch (stage) {
+      case 'cloning':
+        // Cloning is completed when moved to veg
+        dateValue = stageCompletionDates.vegetative;
+        break;
+      case 'vegetative':
+        dateValue = stageCompletionDates.flowering;
+        break;
+      case 'flowering':
+        dateValue = stageCompletionDates.harvest;
+        break;
+      case 'harvest':
+        dateValue = stageCompletionDates.harvest;
+        break;
+    }
+
+    if (dateValue) {
+      try {
+        return format(new Date(dateValue), 'MMM d, yyyy');
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
 
   return (
     <Card>
@@ -28,6 +64,7 @@ export function BatchProgressTimeline({ currentStage, completedStages = [] }: Ba
               const isCompleted = completedStages.includes(stage) || index < currentIndex;
               const isCurrent = stage === currentStage;
               const isFuture = index > currentIndex;
+              const completionDate = getCompletionDate(stage);
 
               return (
                 <div key={stage} className="relative flex items-center gap-4">
@@ -78,7 +115,9 @@ export function BatchProgressTimeline({ currentStage, completedStages = [] }: Ba
                       isFuture ? 'text-muted-foreground' : 'text-foreground'
                     )}>
                       {isCompleted
-                        ? 'Stage completed successfully'
+                        ? completionDate 
+                          ? `Completed on ${completionDate}`
+                          : 'Stage completed successfully'
                         : isCurrent
                         ? 'In progress'
                         : 'Upcoming stage'}

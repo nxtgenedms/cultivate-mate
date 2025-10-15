@@ -45,14 +45,29 @@ export function PhaseChangeButton({
   const handleSubmit = async (data: { quantity: number; dome: string }) => {
     setIsSubmitting(true);
     try {
+      const updateData: any = { 
+        current_stage: nextStage as any,
+        veg_number_plants: data.quantity,
+        dome_no: data.dome
+      };
+
+      // Set the appropriate date field based on the next stage
+      switch (nextStage) {
+        case 'vegetative':
+          updateData.move_to_veg_date = new Date().toISOString().split('T')[0];
+          break;
+        case 'flowering':
+          updateData.move_to_flowering_date = new Date().toISOString().split('T')[0];
+          break;
+        case 'harvest':
+          updateData.harvest_date = new Date().toISOString().split('T')[0];
+          break;
+      }
+
       // Update batch stage, quantity, and dome
       const { error: updateError } = await supabase
         .from('batch_lifecycle_records')
-        .update({ 
-          current_stage: nextStage as any,
-          veg_number_plants: data.quantity,
-          dome_no: data.dome
-        })
+        .update(updateData)
         .eq('id', batchId);
 
       if (updateError) throw updateError;
