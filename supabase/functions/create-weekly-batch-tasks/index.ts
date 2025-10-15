@@ -5,14 +5,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface Database {
-  public: {
-    Tables: {
-      batch_lifecycle_records: any;
-      tasks: any;
-      nomenclature_templates: any;
-    };
-  };
+interface Batch {
+  id: string;
+  batch_number: string;
+  created_by: string;
+  current_stage: string;
+}
+
+interface Task {
+  id: string;
+  name: string;
+  batch_id: string;
+  created_at: string;
 }
 
 Deno.serve(async (req) => {
@@ -26,7 +30,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get current week info (ISO week format for consistency)
     const now = new Date();
@@ -41,7 +45,7 @@ Deno.serve(async (req) => {
       .from('batch_lifecycle_records')
       .select('id, batch_number, created_by, current_stage')
       .neq('current_stage', 'harvest')
-      .eq('status', 'in_progress');
+      .eq('status', 'in_progress') as { data: Batch[] | null; error: any };
 
     if (batchError) {
       console.error('Error fetching batches:', batchError);
@@ -80,7 +84,7 @@ Deno.serve(async (req) => {
         .select('id, name')
         .eq('batch_id', batch.id)
         .or(`name.ilike.%SOF40:%,name.ilike.%SOF03:%`)
-        .gte('created_at', getStartOfWeek(now).toISOString());
+        .gte('created_at', getStartOfWeek(now).toISOString()) as { data: Task[] | null; error: any };
 
       if (taskCheckError) {
         console.error(`Error checking existing tasks for batch ${batch.batch_number}:`, taskCheckError);
