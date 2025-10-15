@@ -116,6 +116,22 @@ export default function BatchDetail() {
   const daysInStage = batch.created_at ? calculateDaysInStage(batch.created_at) : 0;
   const stageProgress = getStageProgress(batch.current_stage);
 
+  // Get current quantity based on stage
+  const getCurrentQuantity = () => {
+    switch (batch.current_stage) {
+      case 'cloning':
+        return batch.total_clones_plants;
+      case 'vegetative':
+        return batch.veg_number_plants;
+      case 'flowering':
+        return batch.flowering_number_plants;
+      case 'harvest':
+        return batch.harvest_number_plants;
+      default:
+        return batch.total_clones_plants;
+    }
+  };
+
   return (
     <BatchLayout>
       <div className="space-y-6">
@@ -168,7 +184,7 @@ export default function BatchDetail() {
                   batchId={batch.id}
                   batchNumber={batch.batch_number}
                   currentStage={batch.current_stage}
-                  currentQuantity={batch.veg_number_plants}
+                  currentQuantity={getCurrentQuantity()}
                   currentDome={batch.dome_no}
                   disabled={batch.status !== 'in_progress'}
                 />
