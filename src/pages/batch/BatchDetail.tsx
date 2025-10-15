@@ -139,26 +139,17 @@ export default function BatchDetail() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <PhaseChangeButton
-              batchId={batch.id}
-              batchNumber={batch.batch_number}
-              currentStage={batch.current_stage}
-              responsiblePersonId={batch.created_by}
-              disabled={batch.status !== 'in_progress'}
-            />
-            <Button onClick={() => navigate('/batch/master-record')}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Batch
-            </Button>
-          </div>
+          <Button onClick={() => navigate('/batch/master-record')}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Batch
+          </Button>
         </div>
 
         {/* Current Stage Card */}
         <Card className="border-2 border-primary/20">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <CardTitle className="flex items-center gap-2">
                   <Badge className={cn("border text-base py-1 px-3", getStageColor(batch.current_stage))}>
                     {getStageLabel(batch.current_stage)}
@@ -168,9 +159,18 @@ export default function BatchDetail() {
                   {daysInStage} days in current stage
                 </CardDescription>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-primary">{Math.round(stageProgress)}%</p>
-                <p className="text-sm text-muted-foreground">Complete</p>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                  <p className="text-sm text-muted-foreground">Complete</p>
+                </div>
+                <PhaseChangeButton
+                  batchId={batch.id}
+                  batchNumber={batch.batch_number}
+                  currentStage={batch.current_stage}
+                  responsiblePersonId={batch.created_by}
+                  disabled={batch.status !== 'in_progress'}
+                />
               </div>
             </div>
           </CardHeader>
