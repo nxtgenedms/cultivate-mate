@@ -84,6 +84,11 @@ export function SimplePhaseChangeDialog({
           <DialogTitle>Update Batch Phase</DialogTitle>
           <DialogDescription>
             Update the phase and quantity for batch {batchNumber}
+            {currentQuantity && (
+              <span className="block mt-1 text-sm font-medium text-foreground">
+                Current Quantity: {currentQuantity}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
