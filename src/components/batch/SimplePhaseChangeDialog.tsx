@@ -13,7 +13,8 @@ interface SimplePhaseChangeDialogProps {
   batchNumber: string;
   currentStage: string;
   currentQuantity?: number;
-  onSubmit: (data: { stage: string; quantity: number }) => void;
+  currentDome?: string;
+  onSubmit: (data: { stage: string; quantity: number; dome: string }) => void;
   isSubmitting?: boolean;
 }
 
@@ -23,22 +24,25 @@ export function SimplePhaseChangeDialog({
   batchNumber,
   currentStage,
   currentQuantity,
+  currentDome,
   onSubmit,
   isSubmitting = false
 }: SimplePhaseChangeDialogProps) {
   const [stage, setStage] = useState(currentStage);
   const [quantity, setQuantity] = useState(currentQuantity?.toString() || '');
+  const [dome, setDome] = useState(currentDome || '');
 
   useEffect(() => {
     if (open) {
       setStage(currentStage);
       setQuantity(currentQuantity?.toString() || '');
+      setDome(currentDome || '');
     }
-  }, [open, currentStage, currentQuantity]);
+  }, [open, currentStage, currentQuantity, currentDome]);
 
   const handleSubmit = () => {
     const qty = parseInt(quantity) || 0;
-    onSubmit({ stage, quantity: qty });
+    onSubmit({ stage, quantity: qty, dome });
   };
 
   return (
@@ -66,6 +70,17 @@ export function SimplePhaseChangeDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dome">Dome Number</Label>
+            <Input
+              id="dome"
+              type="text"
+              value={dome}
+              onChange={(e) => setDome(e.target.value)}
+              placeholder="Enter dome number"
+            />
           </div>
 
           <div className="space-y-2">
