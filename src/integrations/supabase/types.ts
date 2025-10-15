@@ -1351,16 +1351,7 @@ export type Database = {
         | "it_admin"
         | "business_admin"
       approval_status: "draft" | "pending" | "approved" | "rejected"
-      batch_lifecycle_stage:
-        | "cloning"
-        | "hardening"
-        | "veg"
-        | "flowering"
-        | "harvest"
-        | "processing"
-        | "drying"
-        | "packing"
-        | "completed"
+      batch_lifecycle_stage: "cloning" | "vegetative" | "flowering" | "harvest"
       batch_stage:
         | "cloning"
         | "rooting"
@@ -1526,17 +1517,7 @@ export const Constants = {
         "business_admin",
       ],
       approval_status: ["draft", "pending", "approved", "rejected"],
-      batch_lifecycle_stage: [
-        "cloning",
-        "hardening",
-        "veg",
-        "flowering",
-        "harvest",
-        "processing",
-        "drying",
-        "packing",
-        "completed",
-      ],
+      batch_lifecycle_stage: ["cloning", "vegetative", "flowering", "harvest"],
       batch_stage: [
         "cloning",
         "rooting",

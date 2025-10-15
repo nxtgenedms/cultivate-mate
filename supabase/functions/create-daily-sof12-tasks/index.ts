@@ -38,11 +38,12 @@ Deno.serve(async (req) => {
 
     console.log(`Processing batches for date: ${today}`)
 
-    // Get all batches that are in progress (not draft or completed)
+    // Get all batches that are in progress and NOT in Harvest stage
     const { data: activeBatches, error: batchError } = await supabaseAdmin
       .from('batch_lifecycle_records')
       .select('id, batch_number, created_by, current_stage')
       .eq('status', 'in_progress')
+      .neq('current_stage', 'harvest')
       .not('created_by', 'is', null)
 
     if (batchError) {
@@ -50,7 +51,7 @@ Deno.serve(async (req) => {
       throw batchError
     }
 
-    console.log(`Found ${activeBatches?.length || 0} active batches`)
+    console.log(`Found ${activeBatches?.length || 0} active batches (excluding Harvest stage)`)
 
     let tasksCreated = 0
     let tasksSkipped = 0

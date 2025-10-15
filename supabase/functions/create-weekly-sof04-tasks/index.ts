@@ -49,12 +49,12 @@ Deno.serve(async (req) => {
 
     console.log(`Processing batches for week: ${weekStart.toISOString()} to ${weekEnd.toISOString()}`)
 
-    // Get all batches in Cloning or Rooting stage that are in progress
+    // Get all batches in Cloning stage only that are in progress
     const { data: activeBatches, error: batchError } = await supabaseAdmin
       .from('batch_lifecycle_records')
       .select('id, batch_number, created_by, current_stage')
       .eq('status', 'in_progress')
-      .in('current_stage', ['cloning', 'rooting'])
+      .eq('current_stage', 'cloning')
       .not('created_by', 'is', null)
 
     if (batchError) {
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       throw batchError
     }
 
-    console.log(`Found ${activeBatches?.length || 0} batches in Cloning/Rooting phase`)
+    console.log(`Found ${activeBatches?.length || 0} batches in Cloning phase`)
 
     let tasksCreated = 0
     let tasksSkipped = 0
@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
       batchesProcessed: activeBatches?.length || 0,
       tasksCreated,
       tasksSkipped,
-      message: `Successfully processed ${activeBatches?.length || 0} batches in Cloning/Rooting phase: ${tasksCreated} tasks created, ${tasksSkipped} tasks skipped (already exist)`
+      message: `Successfully processed ${activeBatches?.length || 0} batches in Cloning phase: ${tasksCreated} tasks created, ${tasksSkipped} tasks skipped (already exist)`
     }
 
     console.log('Weekly task creation completed:', result)
