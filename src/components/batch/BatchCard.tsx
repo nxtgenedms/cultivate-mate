@@ -36,9 +36,9 @@ export function BatchCard({ batch, onView, onEdit }: BatchCardProps) {
               </h3>
               <span className="text-2xl">{getStageIcon(batch.current_stage)}</span>
             </div>
-            {batch.strain_id && (
+            {(batch.strainDisplay || batch.strain_id) && (
               <Badge variant="outline" className="text-xs">
-                Strain: {batch.strain_id}
+                Strain: {batch.strainDisplay || batch.strain_id}
               </Badge>
             )}
           </div>

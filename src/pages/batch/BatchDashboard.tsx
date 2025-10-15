@@ -31,6 +31,25 @@ export default function BatchDashboard() {
     },
   });
 
+  // Fetch lookup values for strain display
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values-strains'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, value_display, value_key')
+        .order('value_display');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const getStrainDisplay = (strainId: string) => {
+    if (!strainId) return 'N/A';
+    const strain = lookupValues?.find(v => v.id === strainId);
+    return strain?.value_display || strainId;
+  };
+
   // Calculate statistics
   const stats = {
     totalActive: batches?.filter(b => b.status === 'in_progress').length || 0,
@@ -40,7 +59,10 @@ export default function BatchDashboard() {
       acc[stage] = (acc[stage] || 0) + 1;
       return acc;
     }, {} as Record<string, number>) || {},
-    recentBatches: batches?.slice(0, 6) || [],
+    recentBatches: batches?.slice(0, 6).map(batch => ({
+      ...batch,
+      strainDisplay: getStrainDisplay(batch.strain_id)
+    })) || [],
   };
 
   const handleCreateBatch = () => {
