@@ -82,10 +82,10 @@ export default function Auth() {
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       </div>
-      <Card className="w-full max-w-md relative z-10 bg-green-900/80 backdrop-blur-sm border-2 border-green-700/50 text-white shadow-2xl">
+      <Card className="w-full max-w-md relative z-10 bg-[#4a5446]/95 backdrop-blur-sm border-2 border-[#3a4436]/50 text-white shadow-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-bold text-center text-white">VitaCore CMS</CardTitle>
-          <CardDescription className="text-center text-white/80">
+          <CardDescription className="text-center text-white/90">
             Cannabis Cultivation Management System
           </CardDescription>
         </CardHeader>
@@ -101,7 +101,7 @@ export default function Auth() {
                 onChange={(e) => setLoginEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-[#3a4436]/50 border-[#2a3426] text-white placeholder:text-white/50"
               />
             </div>
             <div className="space-y-2">
@@ -113,10 +113,10 @@ export default function Auth() {
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                className="bg-[#3a4436]/50 border-[#2a3426] text-white placeholder:text-white/50"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-[#c4d96f] hover:bg-[#b5ca5f] text-[#2a3426] font-semibold" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
