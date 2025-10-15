@@ -86,7 +86,7 @@ export function SimplePhaseChangeDialog({
             Update the phase and quantity for batch {batchNumber}
             {currentQuantity && (
               <span className="block mt-1 text-sm font-medium text-foreground">
-                Current Quantity: {currentQuantity}
+                Current Total Plants: {currentQuantity}
               </span>
             )}
           </DialogDescription>
@@ -126,13 +126,13 @@ export function SimplePhaseChangeDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity</Label>
+            <Label htmlFor="quantity">Total Plants</Label>
             <Input
               id="quantity"
               type="number"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Enter quantity"
+              placeholder="Enter total plants"
               min="0"
             />
           </div>
