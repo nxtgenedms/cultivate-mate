@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BATCH_STAGES, STAGE_LABELS } from '@/lib/batchUtils';
 import { Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SimplePhaseChangeDialogProps {
   open: boolean;
@@ -31,6 +33,36 @@ export function SimplePhaseChangeDialog({
   const [stage, setStage] = useState(currentStage);
   const [quantity, setQuantity] = useState(currentQuantity?.toString() || '');
   const [dome, setDome] = useState(currentDome || '');
+
+  // Fetch dome lookup values
+  const { data: lookupCategories } = useQuery({
+    queryKey: ['lookup-categories-dome'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_categories')
+        .select('id, category_key')
+        .eq('category_key', 'dome_no')
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: domeValues } = useQuery({
+    queryKey: ['lookup-values-dome', lookupCategories?.id],
+    enabled: !!lookupCategories?.id,
+    queryFn: async () => {
+      if (!lookupCategories?.id) return [];
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, value_display')
+        .eq('category_id', lookupCategories.id)
+        .eq('is_active', true)
+        .order('sort_order');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
     if (open) {
@@ -62,7 +94,7 @@ export function SimplePhaseChangeDialog({
               <SelectTrigger id="stage">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background z-50">
                 {Object.values(BATCH_STAGES).map((stageKey) => (
                   <SelectItem key={stageKey} value={stageKey}>
                     {STAGE_LABELS[stageKey as keyof typeof STAGE_LABELS]}
@@ -74,13 +106,18 @@ export function SimplePhaseChangeDialog({
 
           <div className="space-y-2">
             <Label htmlFor="dome">Dome Number</Label>
-            <Input
-              id="dome"
-              type="text"
-              value={dome}
-              onChange={(e) => setDome(e.target.value)}
-              placeholder="Enter dome number"
-            />
+            <Select value={dome} onValueChange={setDome}>
+              <SelectTrigger id="dome">
+                <SelectValue placeholder="Select Dome No" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {domeValues?.map((option: any) => (
+                  <SelectItem key={option.id} value={option.value_display}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
