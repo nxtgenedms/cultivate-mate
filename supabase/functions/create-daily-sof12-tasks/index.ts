@@ -38,11 +38,11 @@ Deno.serve(async (req) => {
 
     console.log(`Processing batches for date: ${today}`)
 
-    // Get all active batches with creators
+    // Get all batches that are in progress (not draft or completed)
     const { data: activeBatches, error: batchError } = await supabaseAdmin
       .from('batch_lifecycle_records')
       .select('id, batch_number, created_by, current_stage')
-      .eq('status', 'active')
+      .eq('status', 'in_progress')
       .not('created_by', 'is', null)
 
     if (batchError) {
