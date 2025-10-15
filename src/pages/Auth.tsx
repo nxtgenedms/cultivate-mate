@@ -82,7 +82,7 @@ export default function Auth() {
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       </div>
-      <Card className="w-full max-w-md relative z-10 bg-green-900/80 backdrop-blur-md border-2 border-green-700/50 text-white shadow-2xl">
+      <Card className="w-full max-w-md relative z-10 bg-green-900/80 backdrop-blur-sm border-2 border-green-700/50 text-white shadow-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-3xl font-bold text-center text-white">VitaCore CMS</CardTitle>
           <CardDescription className="text-center text-white/80">
