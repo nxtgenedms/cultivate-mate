@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -225,7 +224,7 @@ const InventoryReceiptDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {receipt ? 'Edit Receipt' : 'Add Inventory Receipt'}
@@ -236,8 +235,8 @@ const InventoryReceiptDialog = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Header Info */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Header Info - 3 columns */}
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="responsible_person_id">Responsible Person</Label>
               <Select
@@ -270,35 +269,34 @@ const InventoryReceiptDialog = ({
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="receipt_type">Receipt Type *</Label>
+              <Select
+                value={formData.receipt_type}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, receipt_type: value })
+                }
+              >
+                <SelectTrigger className="bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="chemical">Chemical</SelectItem>
+                  <SelectItem value="fertilizer">Fertilizer</SelectItem>
+                  <SelectItem value="seeds">Seeds</SelectItem>
+                  <SelectItem value="growing_media">Growing Media</SelectItem>
+                  <SelectItem value="packaging">Packaging</SelectItem>
+                  <SelectItem value="equipment">Equipment</SelectItem>
+                  <SelectItem value="harvest_output">Harvest Output</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* Receipt Type */}
-          <div className="space-y-2">
-            <Label htmlFor="receipt_type">Receipt Type *</Label>
-            <Select
-              value={formData.receipt_type}
-              onValueChange={(value) =>
-                setFormData({ ...formData, receipt_type: value })
-              }
-            >
-              <SelectTrigger className="bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                <SelectItem value="chemical">Chemical</SelectItem>
-                <SelectItem value="fertilizer">Fertilizer</SelectItem>
-                <SelectItem value="seeds">Seeds</SelectItem>
-                <SelectItem value="growing_media">Growing Media</SelectItem>
-                <SelectItem value="packaging">Packaging</SelectItem>
-                <SelectItem value="equipment">Equipment</SelectItem>
-                <SelectItem value="harvest_output">Harvest Output</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Date, Time, Product, Supplier - 4 columns */}
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>Date *</Label>
               <Popover>
@@ -312,9 +310,9 @@ const InventoryReceiptDialog = ({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.receipt_date ? (
-                      format(formData.receipt_date, 'PPP')
+                      format(formData.receipt_date, 'MMM dd')
                     ) : (
-                      <span>Pick a date</span>
+                      <span>Pick date</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -344,10 +342,7 @@ const InventoryReceiptDialog = ({
                 required
               />
             </div>
-          </div>
 
-          {/* Product Details */}
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="product_name">Product Name *</Label>
               <Input
@@ -373,8 +368,8 @@ const InventoryReceiptDialog = ({
             </div>
           </div>
 
-          {/* Quantity */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Quantity, Unit, Received By, Receiver Signature - 4 columns */}
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity *</Label>
               <Input
@@ -412,10 +407,7 @@ const InventoryReceiptDialog = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {/* People */}
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="received_by_id">Received By *</Label>
               <Select
@@ -459,8 +451,8 @@ const InventoryReceiptDialog = ({
             </div>
           </div>
 
-          {/* Usage Area & Batch */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Usage Area, Batch Number, Notes - combined row */}
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="usage_area">Usage Area</Label>
               <Input
@@ -474,7 +466,7 @@ const InventoryReceiptDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="batch_number">Batch Number (if applicable)</Label>
+              <Label htmlFor="batch_number">Batch Number</Label>
               <Input
                 id="batch_number"
                 value={formData.batch_number}
@@ -483,19 +475,18 @@ const InventoryReceiptDialog = ({
                 }
               />
             </div>
-          </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-              rows={3}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Input
+                id="notes"
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
+                placeholder="Additional notes"
+              />
+            </div>
           </div>
 
           {/* File Upload */}
