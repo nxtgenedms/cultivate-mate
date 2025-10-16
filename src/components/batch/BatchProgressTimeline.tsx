@@ -102,7 +102,7 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
                   </div>
 
                   {/* Stage Info */}
-                  <div className="w-full">
+                  <div className="w-full flex flex-col h-full">
                     <div className="flex flex-col items-center gap-1 mb-2">
                       <span className="text-xl">{getStageIcon(stage)}</span>
                       <h4 className={cn(
@@ -125,7 +125,7 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
                     </div>
                     
                     {/* Stage Details */}
-                    <div className="space-y-1 text-xs">
+                    <div className="space-y-1 text-xs flex-1 flex flex-col">
                       {isCompleted && completionDate && (
                         <p className="text-muted-foreground">
                           {completionDate}
@@ -139,16 +139,18 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
                       )}
                       
                       {/* Dome and Plants Info */}
-                      {(dome || plants !== undefined) && (
-                        <div className="mt-2 p-2 bg-muted/50 rounded space-y-0.5">
-                          {dome && (
-                            <p className="font-medium">Dome: {dome}</p>
-                          )}
-                          {plants !== undefined && (
-                            <p className="font-medium">Plants: {plants}</p>
-                          )}
-                        </div>
-                      )}
+                      <div className="mt-auto">
+                        {(dome || plants !== undefined) && (
+                          <div className="p-2 bg-muted/50 rounded space-y-0.5">
+                            {dome && (
+                              <p className="font-medium">Dome: {dome}</p>
+                            )}
+                            {plants !== undefined && (
+                              <p className="font-medium">Plants: {plants}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
