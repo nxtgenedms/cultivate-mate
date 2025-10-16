@@ -309,7 +309,7 @@ export default function TaskManagement() {
             {hasItems && progress.total > 0 && (
               <div className="mb-3">
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-xs text-muted-foreground">Progress</span>
+                  <span className="text-xs text-muted-foreground font-semibold">Progress</span>
                   <Progress value={progressPercent} className="h-2 flex-1" />
                   <span className="text-xs font-medium">{Math.round(progressPercent)}%</span>
                 </div>
@@ -371,14 +371,14 @@ export default function TaskManagement() {
               {task.batch?.batch_number && (
                 <div className="flex items-center gap-2">
                   <FileCheck className="h-4 w-4 text-muted-foreground" />
-                  <span>Batch: {task.batch.batch_number}</span>
+                  <span><span className="font-semibold">Batch:</span> {task.batch.batch_number}</span>
                 </div>
               )}
               {task.due_date && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    Due: {format(new Date(task.due_date), "PPP")}
+                    <span className="font-semibold">Due:</span> {format(new Date(task.due_date), "PPP")}
                   </span>
                 </div>
               )}
