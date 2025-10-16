@@ -293,7 +293,7 @@ export default function TaskManagement() {
               Manage and track your tasks
             </p>
           </div>
-          <Button variant="outline" onClick={() => setIsChecklistDialogOpen(true)}>
+          <Button onClick={() => setIsChecklistDialogOpen(true)}>
             <FileCheck className="mr-2 h-4 w-4" />
             Create Checklist
           </Button>
