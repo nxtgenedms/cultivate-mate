@@ -138,7 +138,7 @@ export function TaskDialog({
           section: item.section_name,
           is_required: item.is_required,
           completed: false,
-          completed_date: "",
+          notes: "",
           sort_order: index
         }));
 
@@ -300,10 +300,10 @@ export function TaskDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="due_date">Due Date</Label>
+            <Label htmlFor="due_date">Due Date & Time</Label>
             <Input
               id="due_date"
-              type="date"
+              type="datetime-local"
               value={formData.due_date}
               onChange={(e) =>
                 setFormData({ ...formData, due_date: e.target.value })

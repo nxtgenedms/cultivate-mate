@@ -3,8 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle } from "lucide-react";
@@ -16,7 +15,7 @@ interface TaskItem {
   section?: string;
   is_required: boolean;
   completed: boolean;
-  completed_date?: string;
+  notes: string;
   sort_order: number;
 }
 
@@ -61,9 +60,9 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
     ));
   };
 
-  const handleDateChange = (itemId: string, completed_date: string) => {
+  const handleNotesChange = (itemId: string, notes: string) => {
     setItems(items.map(item =>
-      item.id === itemId ? { ...item, completed_date } : item
+      item.id === itemId ? { ...item, notes } : item
     ));
   };
 
@@ -124,18 +123,13 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                           <Badge variant="outline" className="ml-2">Required</Badge>
                         )}
                       </label>
-                      <div className="space-y-1">
-                        <Label htmlFor={`date-${item.id}`} className="text-xs text-muted-foreground">
-                          Completion Date & Time
-                        </Label>
-                        <Input
-                          id={`date-${item.id}`}
-                          type="datetime-local"
-                          value={item.completed_date || ""}
-                          onChange={(e) => handleDateChange(item.id, e.target.value)}
-                          className="text-sm"
-                        />
-                      </div>
+                      <Textarea
+                        placeholder="Add notes..."
+                        value={item.notes}
+                        onChange={(e) => handleNotesChange(item.id, e.target.value)}
+                        rows={2}
+                        className="text-sm"
+                      />
                     </div>
                   </div>
                 </div>
