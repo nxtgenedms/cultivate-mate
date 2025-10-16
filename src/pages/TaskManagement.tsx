@@ -359,6 +359,16 @@ export default function TaskManagement() {
                 </div>
               </div>
               <div className="flex gap-2">
+                {hasItems && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleManageItems(task)}
+                  >
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    Manage Items
+                  </Button>
+                )}
                 {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
                   <Button
                     variant="default"
@@ -367,6 +377,7 @@ export default function TaskManagement() {
                       setTaskToSubmit(task.id);
                       setShowSubmitDialog(true);
                     }}
+                    disabled={hasItems && progress.completed < progress.total}
                   >
                     Submit for Approval
                   </Button>
@@ -378,16 +389,6 @@ export default function TaskManagement() {
                     currentStage={task.current_approval_stage || 0}
                     totalStages={getApprovalWorkflow(task.task_category).totalStages}
                   />
-                )}
-                {hasItems && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleManageItems(task)}
-                  >
-                    <ListChecks className="mr-2 h-4 w-4" />
-                    Manage Items
-                  </Button>
                 )}
                 <Button
                   variant="destructive"
