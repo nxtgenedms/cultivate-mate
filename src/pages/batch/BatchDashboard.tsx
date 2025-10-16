@@ -79,136 +79,179 @@ export default function BatchDashboard() {
 
   return (
     <BatchLayout>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="space-y-4">
+        {/* Compact Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Batch Management Dashboard</h1>
-            <p className="text-sm text-muted-foreground">
-              Complete lifecycle tracking and analytics
-            </p>
+            <h1 className="text-lg font-bold">Batch Dashboard</h1>
+            <p className="text-xs text-muted-foreground">Lifecycle tracking and analytics</p>
           </div>
-          <Button onClick={handleCreateBatch} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Batch
+          <Button onClick={handleCreateBatch}>
+            <Plus className="h-4 w-4 mr-1" />
+            Create Batch
           </Button>
         </div>
 
         {/* Stats Cards */}
         {isLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
+              <Skeleton key={i} className="h-24" />
             ))}
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <BatchStatsCard
               title="Active Batches"
               value={stats.totalActive}
-              description="Currently in progress"
+              description="In progress"
               icon={Leaf}
               trend={{ value: 12, isPositive: true }}
             />
             <BatchStatsCard
               title="Completed"
               value={stats.totalCompleted}
-              description="All lifecycle stages done"
+              description="All stages done"
               icon={Package}
             />
             <BatchStatsCard
               title="In Flowering"
               value={stats.byStage[BATCH_STAGES.FLOWERING] || 0}
-              description="Critical growth stage"
+              description="Critical stage"
               icon={TrendingUp}
             />
             <BatchStatsCard
               title="Need Attention"
               value={0}
-              description="Overdue or issues"
+              description="Overdue"
               icon={AlertCircle}
             />
           </div>
         )}
 
-        {/* Stage Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Batches by Stage</CardTitle>
-            <CardDescription>Current distribution across lifecycle stages</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(stats.byStage).map(([stage, count]) => (
-                  <div key={stage} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="min-w-[120px]">
-                        {getStageLabel(stage)}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {count} {count === 1 ? 'batch' : 'batches'}
+        {/* Two Column Layout for Stage Distribution and Activity */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Stage Distribution */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Batches by Stage</CardTitle>
+              <CardDescription className="text-xs">Distribution across stages</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {isLoading ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {Object.entries(stats.byStage).map(([stage, count]) => (
+                    <div key={stage} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {getStageLabel(stage)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {count} {count === 1 ? 'batch' : 'batches'}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-primary">{count}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Activity Feed */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Recent Activity</CardTitle>
+              <CardDescription className="text-xs">Latest batch events</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {isLoading ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : batches && batches.length > 0 ? (
+                <div className="space-y-2">
+                  {batches.slice(0, 5).map((batch) => (
+                    <div 
+                      key={batch.id} 
+                      className="flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => handleViewBatch(batch)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <div>
+                          <p className="text-sm font-medium">{batch.batch_number}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {getStageLabel(batch.current_stage)} • {batch.status}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(batch.created_at), 'MMM d')}
                       </span>
                     </div>
-                    <div className="text-2xl font-bold text-primary">{count}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground text-sm py-6">No recent activity</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Recent Batches */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl">Recent Batches</CardTitle>
-                <CardDescription>Latest batch activities and updates</CardDescription>
+                <CardTitle className="text-base">Recent Batches</CardTitle>
+                <CardDescription className="text-xs">Latest batch activities</CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3 w-3" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('list')}
                 >
-                  <Table2 className="h-4 w-4" />
+                  <Table2 className="h-3 w-3" />
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {isLoading ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-64" />
+                  <Skeleton key={i} className="h-48" />
                 ))}
               </div>
             ) : stats.recentBatches.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Leaf className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>No batches found</p>
-                <p className="text-sm mt-2">Create your first batch to get started</p>
-                <Button className="mt-4" onClick={handleCreateBatch}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Batch
+              <div className="text-center py-8 text-muted-foreground">
+                <Leaf className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">No batches found</p>
+                <p className="text-xs mt-1">Create your first batch to get started</p>
+                <Button className="mt-3" size="sm" onClick={handleCreateBatch}>
+                  <Plus className="h-3 w-3 mr-1" />
+                  Create Batch
                 </Button>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {stats.recentBatches.map((batch) => (
                   <BatchCard
                     key={batch.id}
@@ -221,56 +264,15 @@ export default function BatchDashboard() {
             )}
             
             {stats.recentBatches.length > 0 && (
-              <div className="mt-6 text-center">
+              <div className="mt-4 text-center">
                 <Button 
-                  variant="outline" 
+                  variant="outline"
+                  size="sm"
                   onClick={() => navigate('/batch/master-record')}
                 >
                   View All Batches
                 </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Activity Feed */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Recent Activity</CardTitle>
-            <CardDescription>Latest batch lifecycle events</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : batches && batches.length > 0 ? (
-              <div className="space-y-3">
-                {batches.slice(0, 5).map((batch) => (
-                  <div 
-                    key={batch.id} 
-                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => handleViewBatch(batch)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                      <div>
-                        <p className="font-medium">{batch.batch_number}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {getStageLabel(batch.current_stage)} • {batch.status}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(batch.created_at), 'MMM d, h:mm a')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">No recent activity</p>
             )}
           </CardContent>
         </Card>
