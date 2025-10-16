@@ -8,15 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, FileText } from "lucide-react";
+import { Edit, FileText, List } from "lucide-react";
 import { format } from "date-fns";
 
 interface ChecklistTemplateListProps {
   templates: any[];
   onEdit: (template: any) => void;
+  onManageItems: (template: any) => void;
 }
 
-const ChecklistTemplateList = ({ templates, onEdit }: ChecklistTemplateListProps) => {
+const ChecklistTemplateList = ({ templates, onEdit, onManageItems }: ChecklistTemplateListProps) => {
   const getFrequencyBadge = (frequency: string) => {
     const colors: Record<string, string> = {
       daily: "bg-blue-500",
@@ -74,13 +75,22 @@ const ChecklistTemplateList = ({ templates, onEdit }: ChecklistTemplateListProps
               {format(new Date(template.created_at), 'MMM dd, yyyy')}
             </TableCell>
             <TableCell className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onEdit(template)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onManageItems(template)}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEdit(template)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

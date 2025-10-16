@@ -8,10 +8,13 @@ import { Plus, FileText, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChecklistTemplateDialog from "@/components/checklists/ChecklistTemplateDialog";
 import ChecklistTemplateList from "@/components/checklists/ChecklistTemplateList";
+import ChecklistTemplateItemsManager from "@/components/checklists/ChecklistTemplateItemsManager";
 
 const ChecklistManagement = () => {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [managingItems, setManagingItems] = useState(false);
+  const [templateForItems, setTemplateForItems] = useState<any>(null);
 
   const { data: templates, isLoading } = useQuery({
     queryKey: ['checklist-templates'],
@@ -35,6 +38,27 @@ const ChecklistManagement = () => {
     setSelectedTemplate(null);
     setTemplateDialogOpen(true);
   };
+
+  const handleManageItems = (template: any) => {
+    setTemplateForItems(template);
+    setManagingItems(true);
+  };
+
+  const handleBackFromItems = () => {
+    setManagingItems(false);
+    setTemplateForItems(null);
+  };
+
+  if (managingItems && templateForItems) {
+    return (
+      <AdminLayout>
+        <ChecklistTemplateItemsManager
+          template={templateForItems}
+          onBack={handleBackFromItems}
+        />
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -81,6 +105,7 @@ const ChecklistManagement = () => {
                   <ChecklistTemplateList
                     templates={templates}
                     onEdit={handleEditTemplate}
+                    onManageItems={handleManageItems}
                   />
                 ) : (
                   <div className="text-center py-8">
