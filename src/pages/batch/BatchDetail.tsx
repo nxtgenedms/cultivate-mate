@@ -86,8 +86,8 @@ export default function BatchDetail() {
 
   // Fetch tasks related to this batch
   const { data: batchTasks } = useQuery({
-    queryKey: ['batch-tasks', batch?.batch_id],
-    enabled: !!batch?.batch_id,
+    queryKey: ['batch-tasks', batch?.id],
+    enabled: !!batch?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tasks')
@@ -96,7 +96,7 @@ export default function BatchDetail() {
           creator:profiles!tasks_created_by_fkey(full_name),
           assigned_to:profiles!tasks_assignee_fkey(full_name)
         `)
-        .eq('batch_id', batch.batch_id)
+        .eq('batch_id', batch.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
