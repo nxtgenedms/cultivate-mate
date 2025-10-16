@@ -453,13 +453,7 @@ export default function TaskManagement() {
   return (
     <Layout>
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold">Task Management</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage and track your tasks
-            </p>
-          </div>
+        <div className="flex justify-end">
           <Button onClick={() => setIsChecklistDialogOpen(true)}>
             <FileCheck className="mr-2 h-4 w-4" />
             Create Checklist
