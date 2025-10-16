@@ -303,8 +303,8 @@ export default function TaskManagement() {
             )}
 
             {/* Inline Edit Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
-              <div className="space-y-2">
+            <div className="flex flex-wrap items-end gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+              <div className="flex-1 min-w-[150px] space-y-1">
                 <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground">Status</Label>
                 <Select
                   value={task.status}
@@ -322,7 +322,7 @@ export default function TaskManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex-1 min-w-[150px] space-y-1">
                 <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground">Assignee</Label>
                 <Select
                   value={task.assignee || "unassigned"}
@@ -342,7 +342,7 @@ export default function TaskManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex-1 min-w-[150px] space-y-1">
                 <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground">Due Date</Label>
                 <Input
                   id={`due-date-${task.id}`}
