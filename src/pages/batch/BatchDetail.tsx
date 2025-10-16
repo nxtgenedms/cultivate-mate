@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BatchProgressTimeline } from '@/components/batch/BatchProgressTimeline';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package } from 'lucide-react';
+import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { 
@@ -80,6 +80,26 @@ export default function BatchDetail() {
         return { ...data, created_by_profile: profile };
       }
       
+      return data;
+    },
+  });
+
+  // Fetch tasks related to this batch
+  const { data: batchTasks } = useQuery({
+    queryKey: ['batch-tasks', batch?.batch_id],
+    enabled: !!batch?.batch_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(`
+          *,
+          creator:profiles!tasks_created_by_fkey(full_name),
+          assigned_to:profiles!tasks_assignee_fkey(full_name)
+        `)
+        .eq('batch_id', batch.batch_id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
       return data;
     },
   });
@@ -254,6 +274,7 @@ export default function BatchDetail() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="lifecycle">Lifecycle Timeline</TabsTrigger>
             <TabsTrigger value="records">Records & Logs</TabsTrigger>
+            <TabsTrigger value="tasks">Batch Tasks</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -538,6 +559,111 @@ export default function BatchDetail() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="tasks" className="mt-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Batch Tasks</CardTitle>
+                <CardDescription className="text-xs">
+                  All tasks associated with this batch
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {batchTasks && batchTasks.length > 0 ? (
+                  <div className="space-y-3">
+                    {batchTasks.map((task) => {
+                      const hasItems = task.checklist_items && Array.isArray(task.checklist_items) && task.checklist_items.length > 0;
+                      const progress = (task.completion_progress as any) || { completed: 0, total: 0 };
+                      const progressPercent = progress.total > 0 
+                        ? (progress.completed / progress.total) * 100 
+                        : 0;
+
+                      const getStatusColor = (status: string) => {
+                        switch (status) {
+                          case "completed":
+                            return "bg-success text-success-foreground";
+                          case "in_progress":
+                            return "bg-warning text-warning-foreground";
+                          case "cancelled":
+                            return "bg-destructive text-destructive-foreground";
+                          default:
+                            return "bg-muted text-muted-foreground";
+                        }
+                      };
+
+                      return (
+                        <Card key={task.id} className="hover:shadow-sm transition-shadow">
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between items-start gap-4">
+                              <div className="space-y-1 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <CardTitle className="text-base">{task.name}</CardTitle>
+                                  <Badge className={cn("text-xs", getStatusColor(task.status))}>
+                                    {task.status.replace('_', ' ').toUpperCase()}
+                                  </Badge>
+                                  {hasItems && (
+                                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                                      <ListChecks className="h-3 w-3" />
+                                      {progress.completed}/{progress.total} items
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <span>{task.task_number}</span>
+                                  {task.description && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="line-clamp-1">{task.description}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="pt-0 space-y-3">
+                            {hasItems && progress.total > 0 && (
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Progress</span>
+                                  <span className="font-medium">{Math.round(progressPercent)}%</span>
+                                </div>
+                                <Progress value={progressPercent} className="h-2" />
+                              </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <p className="text-muted-foreground">Created By</p>
+                                <p className="font-medium">{task.creator?.full_name || 'N/A'}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Assigned To</p>
+                                <p className="font-medium">{task.assigned_to?.full_name || 'Unassigned'}</p>
+                              </div>
+                              {task.due_date && (
+                                <div>
+                                  <p className="text-muted-foreground">Due Date</p>
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    <p className="font-medium">
+                                      {format(new Date(task.due_date), 'MMM d, yyyy')}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground text-sm py-6">
+                    No tasks found for this batch.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-4">
