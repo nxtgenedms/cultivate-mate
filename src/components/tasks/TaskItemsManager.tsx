@@ -7,8 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface TaskItem {
   id: string;
@@ -29,6 +34,11 @@ interface TaskItemsManagerProps {
 
 export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
   const [items, setItems] = useState<TaskItem[]>(task.checklist_items || []);
+  const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
+  const [tempDate, setTempDate] = useState<Date | undefined>();
+  const [tempHour, setTempHour] = useState<string>("12");
+  const [tempMinute, setTempMinute] = useState<string>("00");
+  const [tempPeriod, setTempPeriod] = useState<"AM" | "PM">("AM");
   const queryClient = useQueryClient();
 
   // Fetch template items to get item_type information
@@ -107,6 +117,42 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
     ));
   };
 
+  const handleDateTimeSelect = (itemId: string) => {
+    if (!tempDate) return;
+    
+    let hour = parseInt(tempHour);
+    if (tempPeriod === "PM" && hour !== 12) hour += 12;
+    if (tempPeriod === "AM" && hour === 12) hour = 0;
+    
+    const dateTime = new Date(tempDate);
+    dateTime.setHours(hour, parseInt(tempMinute));
+    
+    const formattedDateTime = format(dateTime, "yyyy-MM-dd'T'HH:mm");
+    handleResponseValueChange(itemId, formattedDateTime);
+    setDatePickerOpen(null);
+    setTempDate(undefined);
+  };
+
+  const openDatePicker = (itemId: string, currentValue?: string) => {
+    setDatePickerOpen(itemId);
+    if (currentValue) {
+      const date = new Date(currentValue);
+      setTempDate(date);
+      let hours = date.getHours();
+      const period: "AM" | "PM" = hours >= 12 ? "PM" : "AM";
+      if (hours > 12) hours -= 12;
+      if (hours === 0) hours = 12;
+      setTempHour(hours.toString().padStart(2, "0"));
+      setTempMinute(date.getMinutes().toString().padStart(2, "0"));
+      setTempPeriod(period);
+    } else {
+      setTempDate(new Date());
+      setTempHour("12");
+      setTempMinute("00");
+      setTempPeriod("AM");
+    }
+  };
+
   const groupedItems = items.reduce((acc, item) => {
     const section = item.section || "General";
     if (!acc[section]) acc[section] = [];
@@ -167,12 +213,99 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                       
                       {/* Render input based on item type */}
                       {item.item_type === 'date' && (
-                        <Input
-                          type="datetime-local"
-                          value={item.response_value || ""}
-                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
-                          className="text-sm"
-                        />
+                        <Popover open={datePickerOpen === item.id} onOpenChange={(open) => {
+                          if (open) {
+                            openDatePicker(item.id, item.response_value);
+                          } else {
+                            setDatePickerOpen(null);
+                          }
+                        }}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !item.response_value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {item.response_value ? (
+                                format(new Date(item.response_value), "PPP 'at' p")
+                              ) : (
+                                <span>Pick date and time</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <div className="p-4 space-y-4">
+                              <Calendar
+                                mode="single"
+                                selected={tempDate}
+                                onSelect={setTempDate}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                              <div className="space-y-2">
+                                <div className="text-sm font-medium">Time</div>
+                                <div className="flex gap-2">
+                                  <Select value={tempHour} onValueChange={setTempHour}>
+                                    <SelectTrigger className="w-20">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {Array.from({ length: 12 }, (_, i) => {
+                                        const hour = (i + 1).toString().padStart(2, "0");
+                                        return (
+                                          <SelectItem key={hour} value={hour}>
+                                            {hour}
+                                          </SelectItem>
+                                        );
+                                      })}
+                                    </SelectContent>
+                                  </Select>
+                                  <span className="flex items-center">:</span>
+                                  <Select value={tempMinute} onValueChange={setTempMinute}>
+                                    <SelectTrigger className="w-20">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {["00", "15", "30", "45"].map((min) => (
+                                        <SelectItem key={min} value={min}>
+                                          {min}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Select value={tempPeriod} onValueChange={(v) => setTempPeriod(v as "AM" | "PM")}>
+                                    <SelectTrigger className="w-20">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="AM">AM</SelectItem>
+                                      <SelectItem value="PM">PM</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  className="flex-1"
+                                  onClick={() => setDatePickerOpen(null)}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  className="flex-1"
+                                  onClick={() => handleDateTimeSelect(item.id)}
+                                  disabled={!tempDate}
+                                >
+                                  Select
+                                </Button>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       )}
                       {item.item_type === 'number' && (
                         <Input
