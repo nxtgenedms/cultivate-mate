@@ -148,6 +148,21 @@ export default function TaskManagement() {
   };
 
   const handleStatusChange = (taskId: string, newStatus: string) => {
+    // Prevent marking as completed if checklist items are not all done
+    if (newStatus === 'completed') {
+      const task = tasks?.find(t => t.id === taskId);
+      if (task?.checklist_items) {
+        const items = task.checklist_items as any[];
+        const progress = task.completion_progress as any;
+        if (items.length > 0 && progress?.completed < progress?.total) {
+          toast.error("Cannot mark as completed", {
+            description: "Please complete all items by clicking on the Manage Items button."
+          });
+          return;
+        }
+      }
+    }
+    
     updateTaskMutation.mutate({ taskId, updates: { status: newStatus } });
   };
 
