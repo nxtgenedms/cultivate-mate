@@ -210,18 +210,25 @@ export function TaskDialog({
       return;
     }
 
-    const submitData = {
-      name: formData.name,
-      description: formData.description || null,
-      due_date: formData.due_date || null,
-      assignee: formData.assignee || null,
-      status: formData.status,
-      template_id: formData.template_id || null,
-    };
-
     if (task) {
-      updateMutation.mutate(submitData);
+      // For updates, don't include template_id as it's not a field in the tasks table
+      const updateData = {
+        name: formData.name,
+        description: formData.description || null,
+        due_date: formData.due_date || null,
+        assignee: formData.assignee || null,
+        status: formData.status,
+      };
+      updateMutation.mutate(updateData);
     } else {
+      const submitData = {
+        name: formData.name,
+        description: formData.description || null,
+        due_date: formData.due_date || null,
+        assignee: formData.assignee || null,
+        status: formData.status,
+        template_id: formData.template_id || null,
+      };
       createMutation.mutate(submitData);
     }
   };
