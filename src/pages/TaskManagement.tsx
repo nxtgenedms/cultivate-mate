@@ -148,6 +148,27 @@ export default function TaskManagement() {
     },
   });
 
+  const submitForApprovalMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          approval_status: 'pending_approval',
+          current_approval_stage: 1,
+          status: 'in_progress'
+        })
+        .eq("id", taskId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task submitted for approval");
+    },
+    onError: (error) => {
+      toast.error("Failed to submit task: " + error.message);
+    },
+  });
+
   const handleEdit = (task: any) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
@@ -311,6 +332,16 @@ export default function TaskManagement() {
                 </div>
               </div>
               <div className="flex gap-2">
+                {task.task_category && task.approval_status === 'draft' && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => submitForApprovalMutation.mutate(task.id)}
+                    disabled={submitForApprovalMutation.isPending}
+                  >
+                    Submit for Approval
+                  </Button>
+                )}
                 {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && task.approval_status === 'pending_approval' && (
                   <TaskApprovalActions
                     taskId={task.id}
