@@ -295,8 +295,8 @@ const InventoryReceiptDialog = ({
             </div>
           </div>
 
-          {/* Date, Time, Product, Supplier - 4 columns */}
-          <div className="grid grid-cols-4 gap-4">
+          {/* Date and Time */}
+          <div className="grid grid-cols-6 gap-4">
             <div className="space-y-2">
               <Label>Date *</Label>
               <Popover>
@@ -343,7 +343,7 @@ const InventoryReceiptDialog = ({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="product_name">Product Name *</Label>
               <Input
                 id="product_name"
@@ -355,7 +355,7 @@ const InventoryReceiptDialog = ({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="supplier_name">Supplier *</Label>
               <Input
                 id="supplier_name"
