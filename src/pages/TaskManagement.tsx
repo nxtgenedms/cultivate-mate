@@ -40,10 +40,9 @@ export default function TaskManagement() {
   const { user } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
 
-  const { data: tasks, isLoading, error: tasksError } = useQuery({
+  const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      console.log("Fetching tasks...");
       const { data, error } = await supabase
         .from("tasks")
         .select(`
@@ -54,20 +53,10 @@ export default function TaskManagement() {
         `)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Tasks query error:", error);
-        throw error;
-      }
-      console.log("Tasks fetched:", data?.length);
+      if (error) throw error;
       return data;
     },
   });
-
-  // Log any query errors
-  if (tasksError) {
-    console.error("Tasks query failed:", tasksError);
-    toast.error("Failed to load tasks: " + (tasksError as Error).message);
-  }
 
   const { data: profiles } = useQuery({
     queryKey: ["profiles"],
