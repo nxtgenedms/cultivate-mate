@@ -234,7 +234,6 @@ export default function TaskManagement() {
     // Group tasks by status
     const tasksByStatus = {
       in_progress: taskList.filter(task => task.status === 'in_progress'),
-      draft: taskList.filter(task => task.status === 'draft'),
       completed: taskList.filter(task => task.status === 'completed'),
       cancelled: taskList.filter(task => task.status === 'cancelled'),
     };
@@ -314,7 +313,6 @@ export default function TaskManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="in_progress">In Progress</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -400,21 +398,6 @@ export default function TaskManagement() {
             </div>
             <div className="grid gap-4">
               {tasksByStatus.in_progress.map(renderTaskCard)}
-            </div>
-          </div>
-        )}
-
-        {/* Draft Tasks */}
-        {tasksByStatus.draft.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold">Draft</h3>
-              <Badge variant="secondary">
-                {tasksByStatus.draft.length}
-              </Badge>
-            </div>
-            <div className="grid gap-4">
-              {tasksByStatus.draft.map(renderTaskCard)}
             </div>
           </div>
         )}
