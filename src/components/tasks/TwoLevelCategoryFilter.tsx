@@ -19,25 +19,25 @@ export const TwoLevelCategoryFilter = ({
     if (group === "all") {
       onCategoryChange("all");
     }
+    // Don't auto-select a category, just show the group's categories
   };
 
   const handleCategoryClick = (category: TaskCategory) => {
     onCategoryChange(category);
   };
 
-  // Determine which group is active based on selected category
-  const getActiveGroup = (): CategoryGroup | "all" => {
-    if (selectedCategory === "all") return "all";
+  // Sync selectedGroup with selectedCategory
+  const activeGroup = (() => {
+    if (selectedCategory === "all") return selectedGroup;
     
+    // If a specific category is selected, highlight its parent group
     for (const [groupKey, groupData] of Object.entries(CATEGORY_GROUPS)) {
       if (groupData.categories.includes(selectedCategory)) {
         return groupKey as CategoryGroup;
       }
     }
-    return "all";
-  };
-
-  const activeGroup = getActiveGroup();
+    return selectedGroup;
+  })();
 
   return (
     <Card className="p-4">
@@ -66,9 +66,9 @@ export const TwoLevelCategoryFilter = ({
         </div>
 
         {/* Level 2: Category Pills (shown when a group is selected) */}
-        {activeGroup !== "all" && (
+        {selectedGroup !== "all" && (
           <div className="flex flex-wrap gap-2 pt-2 border-t">
-            {CATEGORY_GROUPS[activeGroup].categories.map((category) => (
+            {CATEGORY_GROUPS[selectedGroup].categories.map((category) => (
               <Badge
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
