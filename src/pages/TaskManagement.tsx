@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, FileCheck, Calendar, User, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
@@ -41,6 +43,20 @@ export default function TaskManagement() {
           batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number)
         `)
         .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: profiles } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("is_active", true)
+        .order("full_name");
 
       if (error) throw error;
       return data;
@@ -94,6 +110,24 @@ export default function TaskManagement() {
     return formatPattern;
   };
 
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, updates }: { taskId: string; updates: any }) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update(updates)
+        .eq("id", taskId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update task: " + error.message);
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (taskId: string) => {
       const { error } = await supabase.from("tasks").delete().eq("id", taskId);
@@ -111,6 +145,24 @@ export default function TaskManagement() {
   const handleEdit = (task: any) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
+  };
+
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    updateTaskMutation.mutate({ taskId, updates: { status: newStatus } });
+  };
+
+  const handleAssigneeChange = (taskId: string, newAssignee: string) => {
+    updateTaskMutation.mutate({ 
+      taskId, 
+      updates: { assignee: newAssignee || null } 
+    });
+  };
+
+  const handleDueDateChange = (taskId: string, newDueDate: string) => {
+    updateTaskMutation.mutate({ 
+      taskId, 
+      updates: { due_date: newDueDate || null } 
+    });
   };
 
   const handleManageItems = (task: any) => {
@@ -197,7 +249,7 @@ export default function TaskManagement() {
       return (
         <Card key={task.id} className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start gap-4">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
                   <CardTitle className="text-xl">{task.name}</CardTitle>
@@ -224,13 +276,6 @@ export default function TaskManagement() {
                   </Button>
                 )}
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(task)}
-                >
-                  Edit
-                </Button>
-                <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(task.id)}
@@ -256,6 +301,58 @@ export default function TaskManagement() {
                 <Progress value={progressPercent} className="h-2" />
               </div>
             )}
+
+            {/* Inline Edit Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-muted/50 rounded-lg">
+              <div className="space-y-2">
+                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground">Status</Label>
+                <Select
+                  value={task.status}
+                  onValueChange={(value) => handleStatusChange(task.id, value)}
+                >
+                  <SelectTrigger id={`status-${task.id}`} className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground">Assignee</Label>
+                <Select
+                  value={task.assignee || "unassigned"}
+                  onValueChange={(value) => handleAssigneeChange(task.id, value === "unassigned" ? "" : value)}
+                >
+                  <SelectTrigger id={`assignee-${task.id}`} className="h-9">
+                    <SelectValue placeholder="Select assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {profiles?.map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground">Due Date</Label>
+                <Input
+                  id={`due-date-${task.id}`}
+                  type="date"
+                  value={task.due_date || ""}
+                  onChange={(e) => handleDueDateChange(task.id, e.target.value)}
+                  className="h-9"
+                />
+              </div>
+            </div>
 
             <div className="flex flex-wrap gap-4 text-sm">
               {task.batch?.batch_number && (
