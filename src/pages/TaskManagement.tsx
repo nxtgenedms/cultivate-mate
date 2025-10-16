@@ -303,14 +303,14 @@ export default function TaskManagement() {
             )}
 
             {/* Inline Edit Controls */}
-            <div className="flex flex-wrap items-end gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
-              <div className="flex-1 min-w-[150px] space-y-1">
-                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground">Status</Label>
+            <div className="flex items-center gap-3 mb-3 p-2 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2 flex-1">
+                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Status</Label>
                 <Select
                   value={task.status}
                   onValueChange={(value) => handleStatusChange(task.id, value)}
                 >
-                  <SelectTrigger id={`status-${task.id}`} className="h-9">
+                  <SelectTrigger id={`status-${task.id}`} className="h-8">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -322,13 +322,13 @@ export default function TaskManagement() {
                 </Select>
               </div>
 
-              <div className="flex-1 min-w-[150px] space-y-1">
-                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground">Assignee</Label>
+              <div className="flex items-center gap-2 flex-1">
+                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Assignee</Label>
                 <Select
                   value={task.assignee || "unassigned"}
                   onValueChange={(value) => handleAssigneeChange(task.id, value === "unassigned" ? "" : value)}
                 >
-                  <SelectTrigger id={`assignee-${task.id}`} className="h-9">
+                  <SelectTrigger id={`assignee-${task.id}`} className="h-8">
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
@@ -342,14 +342,14 @@ export default function TaskManagement() {
                 </Select>
               </div>
 
-              <div className="flex-1 min-w-[150px] space-y-1">
-                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground">Due Date</Label>
+              <div className="flex items-center gap-2 flex-1">
+                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Due Date</Label>
                 <Input
                   id={`due-date-${task.id}`}
                   type="date"
                   value={task.due_date || ""}
                   onChange={(e) => handleDueDateChange(task.id, e.target.value)}
-                  className="h-9"
+                  className="h-8"
                 />
               </div>
             </div>
