@@ -293,12 +293,12 @@ export default function TaskManagement() {
           </CardHeader>
           <CardContent>
             {hasItems && progress.total > 0 && (
-              <div className="mb-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{Math.round(progressPercent)}%</span>
+              <div className="mb-3">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-xs text-muted-foreground">Progress</span>
+                  <Progress value={progressPercent} className="h-2 flex-1" />
+                  <span className="text-xs font-medium">{Math.round(progressPercent)}%</span>
                 </div>
-                <Progress value={progressPercent} className="h-2" />
               </div>
             )}
 
