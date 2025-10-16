@@ -155,7 +155,7 @@ export default function TaskManagement() {
         .update({
           approval_status: 'pending_approval',
           current_approval_stage: 1,
-          status: 'in_progress'
+          status: 'pending_approval'
         })
         .eq("id", taskId);
       if (error) throw error;
@@ -227,6 +227,8 @@ export default function TaskManagement() {
     switch (status) {
       case "completed":
         return "bg-success text-success-foreground";
+      case "pending_approval":
+        return "bg-blue-500 text-white";
       case "in_progress":
         return "bg-warning text-warning-foreground";
       case "cancelled":
@@ -237,7 +239,14 @@ export default function TaskManagement() {
   };
 
   const getStatusLabel = (status: string) => {
-    return status.replace("_", " ").toUpperCase();
+    switch (status) {
+      case "pending_approval":
+        return "PENDING APPROVAL";
+      case "in_progress":
+        return "IN PROGRESS";
+      default:
+        return status.replace("_", " ").toUpperCase();
+    }
   };
 
   const filteredTasks = useMemo(() => {
@@ -253,8 +262,7 @@ export default function TaskManagement() {
       const matchesDate = !dateFilter || 
         (task.due_date && task.due_date.startsWith(dateFilter));
       
-  const matchesCategory = selectedCategory === "all" || task.task_category === selectedCategory;
-      console.log("Filtering task:", task.task_number, "Category:", task.task_category, "Selected:", selectedCategory, "Matches:", matchesCategory);
+      const matchesCategory = selectedCategory === "all" || task.task_category === selectedCategory;
       
       return matchesSearch && matchesDate && matchesCategory;
     });
@@ -388,12 +396,14 @@ export default function TaskManagement() {
                 <Select
                   value={task.status}
                   onValueChange={(value) => handleStatusChange(task.id, value)}
+                  disabled={task.status === 'pending_approval'}
                 >
                   <SelectTrigger id={`status-${task.id}`} className="h-8">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="pending_approval">Pending Approval</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>

@@ -349,6 +349,7 @@ export function TaskDialog({
               <SelectContent>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="pending_approval">Pending Approval</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>

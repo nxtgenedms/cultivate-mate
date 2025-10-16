@@ -68,7 +68,7 @@ export const TaskApprovalActions = ({
         .update({
           current_approval_stage: newStage,
           approval_status: isFullyApproved ? "approved" : "pending_approval",
-          status: isFullyApproved ? "completed" : "in_progress",
+          status: isFullyApproved ? "completed" : "pending_approval",
           approval_history: newHistory,
         })
         .eq("id", taskId);

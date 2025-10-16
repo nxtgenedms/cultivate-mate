@@ -15,15 +15,12 @@ export const TwoLevelCategoryFilter = ({
   const [selectedGroup, setSelectedGroup] = useState<CategoryGroup | "all">("all");
 
   const handleGroupClick = (group: CategoryGroup | "all") => {
-    console.log("Group clicked:", group);
-    console.log("Resetting category to 'all'");
     setSelectedGroup(group);
     // Always reset category to "all" when switching groups
     onCategoryChange("all");
   };
 
   const handleCategoryClick = (category: TaskCategory) => {
-    console.log("Category clicked:", category);
     onCategoryChange(category);
   };
 
