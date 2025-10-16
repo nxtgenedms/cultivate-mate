@@ -78,12 +78,12 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
       const completed = items.filter(item => item.completed).length;
       const total = items.length;
 
-        const { error } = await supabase
+      const { error } = await supabase
         .from("tasks")
         .update({
           checklist_items: items as any,
           completion_progress: { completed, total } as any,
-          status: completed === total && total > 0 ? "completed" : task.status,
+          // Don't auto-change status - user must manually submit for approval
         })
         .eq("id", task.id);
 
