@@ -1713,6 +1713,7 @@ export type Database = {
           name: string
           status: string
           task_number: string
+          template_item_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1727,6 +1728,7 @@ export type Database = {
           name: string
           status?: string
           task_number: string
+          template_item_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1741,6 +1743,7 @@ export type Database = {
           name?: string
           status?: string
           task_number?: string
+          template_item_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1770,6 +1773,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_template_item_id_fkey"
+            columns: ["template_item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_template_items"
             referencedColumns: ["id"]
           },
         ]

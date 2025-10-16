@@ -6,14 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, FileCheck } from "lucide-react";
+import { Plus, Search, FileCheck, Calendar, User } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
+import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
 import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
-import { TaskTreeView } from "@/components/tasks/TaskTreeView";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -150,14 +150,68 @@ export default function TaskManagement() {
     return (
       <div className="grid gap-4">
         {taskList.map((task) => (
-          <TaskTreeView
-            key={task.id}
-            task={task}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            getStatusColor={getStatusColor}
-            getStatusLabel={getStatusLabel}
-          />
+          <Card key={task.id} className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="space-y-1 flex-1">
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-xl">{task.name}</CardTitle>
+                    <Badge className={getStatusColor(task.status)}>
+                      {getStatusLabel(task.status)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {task.task_number}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(task)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {task.description && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  {task.description}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-4 text-sm">
+                {task.due_date && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>
+                      Due: {format(new Date(task.due_date), "PPP")}
+                    </span>
+                  </div>
+                )}
+                {task.creator && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span>Created by: {task.creator.full_name}</span>
+                  </div>
+                )}
+                {task.assigned_to && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span>Assigned to: {task.assigned_to.full_name}</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
