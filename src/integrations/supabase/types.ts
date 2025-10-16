@@ -1032,6 +1032,7 @@ export type Database = {
             | Database["public"]["Enums"]["batch_lifecycle_stage"]
             | null
           sof_number: string
+          task_category: Database["public"]["Enums"]["task_category"] | null
           template_name: string
           updated_at: string
         }
@@ -1047,6 +1048,7 @@ export type Database = {
             | Database["public"]["Enums"]["batch_lifecycle_stage"]
             | null
           sof_number: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
           template_name: string
           updated_at?: string
         }
@@ -1062,6 +1064,7 @@ export type Database = {
             | Database["public"]["Enums"]["batch_lifecycle_stage"]
             | null
           sof_number?: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
           template_name?: string
           updated_at?: string
         }
@@ -1700,8 +1703,48 @@ export type Database = {
         }
         Relationships: []
       }
+      task_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
+          approval_history: Json | null
+          approval_status: string | null
           assignee: string | null
           batch_id: string | null
           checklist_id: string | null
@@ -1709,16 +1752,22 @@ export type Database = {
           completion_progress: Json | null
           created_at: string
           created_by: string | null
+          current_approval_stage: number | null
           description: string | null
           due_date: string | null
           id: string
           name: string
+          priority_level: Database["public"]["Enums"]["task_priority"] | null
+          rejection_reason: string | null
           status: string
+          task_category: Database["public"]["Enums"]["task_category"] | null
           task_number: string
           template_item_id: string | null
           updated_at: string
         }
         Insert: {
+          approval_history?: Json | null
+          approval_status?: string | null
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
@@ -1726,16 +1775,22 @@ export type Database = {
           completion_progress?: Json | null
           created_at?: string
           created_by?: string | null
+          current_approval_stage?: number | null
           description?: string | null
           due_date?: string | null
           id?: string
           name: string
+          priority_level?: Database["public"]["Enums"]["task_priority"] | null
+          rejection_reason?: string | null
           status?: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
           task_number: string
           template_item_id?: string | null
           updated_at?: string
         }
         Update: {
+          approval_history?: Json | null
+          approval_status?: string | null
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
@@ -1743,11 +1798,15 @@ export type Database = {
           completion_progress?: Json | null
           created_at?: string
           created_by?: string | null
+          current_approval_stage?: number | null
           description?: string | null
           due_date?: string | null
           id?: string
           name?: string
+          priority_level?: Database["public"]["Enums"]["task_priority"] | null
+          rejection_reason?: string | null
           status?: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
           task_number?: string
           template_item_id?: string | null
           updated_at?: string
@@ -1883,6 +1942,22 @@ export type Database = {
         | "textarea"
         | "select"
         | "signature"
+      task_category:
+        | "daily_cloning_transplant"
+        | "mortality_discard"
+        | "weekly_cultivation"
+        | "clonator_weekly"
+        | "soil_moisture"
+        | "scouting_corrective"
+        | "chemical_delivery"
+        | "fertigation_application"
+        | "ipm_chemical_mixing"
+        | "hygiene_check"
+        | "cultivation_cleaning"
+        | "processing_cleaning"
+        | "pre_harvest"
+        | "final_harvest"
+      task_priority: "low" | "medium" | "high" | "critical"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2062,6 +2137,23 @@ export const Constants = {
         "select",
         "signature",
       ],
+      task_category: [
+        "daily_cloning_transplant",
+        "mortality_discard",
+        "weekly_cultivation",
+        "clonator_weekly",
+        "soil_moisture",
+        "scouting_corrective",
+        "chemical_delivery",
+        "fertigation_application",
+        "ipm_chemical_mixing",
+        "hygiene_check",
+        "cultivation_cleaning",
+        "processing_cleaning",
+        "pre_harvest",
+        "final_harvest",
+      ],
+      task_priority: ["low", "medium", "high", "critical"],
     },
   },
 } as const
