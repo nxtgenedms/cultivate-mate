@@ -504,7 +504,9 @@ export default function TaskManagement() {
         {isLoading ? (
           <div className="text-center py-12">Loading tasks...</div>
         ) : isAdmin ? (
-          <Tabs defaultValue="my-tasks" className="w-full">
+          <Tabs defaultValue="my-tasks" className="w-full" onValueChange={() => {
+            setSelectedCategory("all");
+          }}>
             <div className="flex items-center justify-between gap-4">
               <TabsList className="grid w-full max-w-md grid-cols-2">
                 <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
