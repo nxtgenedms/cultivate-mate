@@ -16,6 +16,7 @@ import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
 import { TaskCategoryFilter } from "@/components/tasks/TaskCategoryFilter";
 import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
+import { ApprovalProgressBadge } from "@/components/tasks/ApprovalProgressBadge";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
@@ -284,15 +285,17 @@ export default function TaskManagement() {
                       {TASK_CATEGORIES[task.task_category as TaskCategory]}
                     </Badge>
                   )}
+                  {task.task_category && (
+                    <ApprovalProgressBadge
+                      category={task.task_category}
+                      currentStage={task.current_approval_stage || 0}
+                      approvalStatus={task.approval_status || "draft"}
+                    />
+                  )}
                   {hasItems && (
                     <Badge variant="outline" className="flex items-center gap-1">
                       <ListChecks className="h-3 w-3" />
                       {progress.completed}/{progress.total} items
-                    </Badge>
-                  )}
-                  {task.task_category && task.approval_status === 'pending_approval' && (
-                    <Badge variant="secondary">
-                      Stage {(task.current_approval_stage || 0) + 1}/{getApprovalWorkflow(task.task_category).totalStages}
                     </Badge>
                   )}
                 </div>
@@ -532,6 +535,13 @@ export default function TaskManagement() {
               />
             </div>
 
+            <div className="mt-4">
+              <TaskCategoryFilter
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            </div>
+
             <TabsContent value="my-tasks" className="mt-6">
               {renderTaskList(myTasks)}
             </TabsContent>
@@ -547,7 +557,7 @@ export default function TaskManagement() {
                 Create Checklist
               </Button>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -563,6 +573,12 @@ export default function TaskManagement() {
                 onChange={(e) => setDateFilter(e.target.value)}
                 className="w-48"
                 placeholder="Filter by date"
+              />
+            </div>
+            <div className="mb-4">
+              <TaskCategoryFilter
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
               />
             </div>
             {renderTaskList(myTasks)}
