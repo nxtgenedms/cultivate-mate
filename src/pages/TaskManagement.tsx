@@ -178,107 +178,172 @@ export default function TaskManagement() {
       );
     }
 
+    // Group tasks by status
+    const tasksByStatus = {
+      in_progress: taskList.filter(task => task.status === 'in_progress'),
+      draft: taskList.filter(task => task.status === 'draft'),
+      completed: taskList.filter(task => task.status === 'completed'),
+      cancelled: taskList.filter(task => task.status === 'cancelled'),
+    };
+
+    const renderTaskCard = (task: any) => {
+      const hasItems = task.checklist_items && task.checklist_items.length > 0;
+      const progress = task.completion_progress || { completed: 0, total: 0 };
+      const progressPercent = progress.total > 0 
+        ? (progress.completed / progress.total) * 100 
+        : 0;
+
+      return (
+        <Card key={task.id} className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <CardTitle className="text-xl">{task.name}</CardTitle>
+                  {hasItems && (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <ListChecks className="h-3 w-3" />
+                      {progress.completed}/{progress.total} items
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {task.task_number}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {hasItems && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleManageItems(task)}
+                  >
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    Manage Items
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(task)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(task.id)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {task.description && (
+              <p className="text-sm text-muted-foreground mb-4">
+                {task.description}
+              </p>
+            )}
+            
+            {hasItems && progress.total > 0 && (
+              <div className="mb-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-medium">{Math.round(progressPercent)}%</span>
+                </div>
+                <Progress value={progressPercent} className="h-2" />
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-4 text-sm">
+              {task.due_date && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    Due: {format(new Date(task.due_date), "PPP")}
+                  </span>
+                </div>
+              )}
+              {task.creator && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>Created by: {task.creator.full_name} on {format(new Date(task.created_at), "PPP")}</span>
+                </div>
+              )}
+              {task.assigned_to && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>Assigned to: {task.assigned_to.full_name} on {format(new Date(task.updated_at), "PPP")}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    };
+
     return (
-      <div className="grid gap-4">
-        {taskList.map((task) => {
-          const hasItems = task.checklist_items && task.checklist_items.length > 0;
-          const progress = task.completion_progress || { completed: 0, total: 0 };
-          const progressPercent = progress.total > 0 
-            ? (progress.completed / progress.total) * 100 
-            : 0;
+      <div className="space-y-6">
+        {/* In Progress Tasks */}
+        {tasksByStatus.in_progress.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">In Progress</h3>
+              <Badge variant="default" className="bg-warning text-warning-foreground">
+                {tasksByStatus.in_progress.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {tasksByStatus.in_progress.map(renderTaskCard)}
+            </div>
+          </div>
+        )}
 
-          return (
-            <Card key={task.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <CardTitle className="text-xl">{task.name}</CardTitle>
-                      <Badge className={getStatusColor(task.status)}>
-                        {getStatusLabel(task.status)}
-                      </Badge>
-                      {hasItems && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <ListChecks className="h-3 w-3" />
-                          {progress.completed}/{progress.total} items
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {task.task_number}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {hasItems && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => handleManageItems(task)}
-                      >
-                        <ListChecks className="mr-2 h-4 w-4" />
-                        Manage Items
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(task)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(task.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {task.description && (
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {task.description}
-                  </p>
-                )}
-                
-                {hasItems && progress.total > 0 && (
-                  <div className="mb-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span className="font-medium">{Math.round(progressPercent)}%</span>
-                    </div>
-                    <Progress value={progressPercent} className="h-2" />
-                  </div>
-                )}
+        {/* Draft Tasks */}
+        {tasksByStatus.draft.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Draft</h3>
+              <Badge variant="secondary">
+                {tasksByStatus.draft.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {tasksByStatus.draft.map(renderTaskCard)}
+            </div>
+          </div>
+        )}
 
-                <div className="flex flex-wrap gap-4 text-sm">
-                  {task.due_date && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        Due: {format(new Date(task.due_date), "PPP")}
-                      </span>
-                    </div>
-                  )}
-                  {task.creator && (
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span>Created by: {task.creator.full_name} on {format(new Date(task.created_at), "PPP")}</span>
-                    </div>
-                  )}
-                  {task.assigned_to && (
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span>Assigned to: {task.assigned_to.full_name} on {format(new Date(task.updated_at), "PPP")}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {/* Completed Tasks */}
+        {tasksByStatus.completed.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Completed</h3>
+              <Badge className="bg-success text-success-foreground">
+                {tasksByStatus.completed.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {tasksByStatus.completed.map(renderTaskCard)}
+            </div>
+          </div>
+        )}
+
+        {/* Cancelled Tasks */}
+        {tasksByStatus.cancelled.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Cancelled</h3>
+              <Badge variant="destructive">
+                {tasksByStatus.cancelled.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {tasksByStatus.cancelled.map(renderTaskCard)}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
