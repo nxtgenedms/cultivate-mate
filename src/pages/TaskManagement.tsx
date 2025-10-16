@@ -170,7 +170,7 @@ export default function TaskManagement() {
         .update({
           approval_status: 'pending_approval',
           current_approval_stage: 1,
-          status: 'pending_approval',
+          // Keep status as in_progress - approval_status handles the approval workflow
           approval_history: approvalHistory,
         })
         .eq("id", taskId);
