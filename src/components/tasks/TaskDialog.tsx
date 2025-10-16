@@ -201,16 +201,16 @@ export function TaskDialog({
           <div className="space-y-2">
             <Label htmlFor="assignee">Assignee</Label>
             <Select
-              value={formData.assignee}
+              value={formData.assignee || "unassigned"}
               onValueChange={(value) =>
-                setFormData({ ...formData, assignee: value })
+                setFormData({ ...formData, assignee: value === "unassigned" ? "" : value })
               }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select assignee" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
                 {profiles?.map((profile) => (
                   <SelectItem key={profile.id} value={profile.id}>
                     {profile.full_name}
