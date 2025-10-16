@@ -423,9 +423,9 @@ export default function TaskManagement() {
               <div className="flex items-center gap-2 flex-1">
                 <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
                 <Select
-                  value={task.status}
+                  value={task.approval_status === 'pending_approval' ? 'pending_approval' : task.status}
                   onValueChange={(value) => handleStatusChange(task.id, value)}
-                  disabled={task.status === 'pending_approval'}
+                  disabled={task.approval_status === 'pending_approval' || task.approval_status === 'approved'}
                 >
                   <SelectTrigger id={`status-${task.id}`} className="h-8">
                     <SelectValue />
