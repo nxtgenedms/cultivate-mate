@@ -13,7 +13,6 @@ import RoleBasedAccess from "./pages/admin/RoleBasedAccess";
 import BatchDashboard from "./pages/batch/BatchDashboard";
 import MasterRecord from "./pages/batch/MasterRecord";
 import BatchDetail from "./pages/batch/BatchDetail";
-import SOFManagement from "./pages/admin/SOFManagement";
 import NomenclatureManagement from "./pages/admin/NomenclatureManagement";
 import ChecklistManagement from "./pages/admin/ChecklistManagement";
 import TaskManagement from "./pages/TaskManagement";
@@ -35,7 +34,6 @@ const App = () => (
             <Route path="/admin/users" element={<UserManagement />} />
             <Route path="/admin/roles" element={<RoleBasedAccess />} />
             <Route path="/admin/lookups" element={<LookupManagement />} />
-            <Route path="/admin/sofs" element={<SOFManagement />} />
             <Route path="/admin/nomenclature" element={<NomenclatureManagement />} />
             <Route path="/admin/checklists" element={<ChecklistManagement />} />
             <Route path="/batch/dashboard" element={<BatchDashboard />} />

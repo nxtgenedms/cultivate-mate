@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { Users, Shield, Database, FileText, Tag, FileCheck } from 'lucide-react';
+import { Users, Shield, Database, Tag, FileCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
@@ -16,7 +16,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/users', label: 'User Management', icon: Users },
     { path: '/admin/roles', label: 'Role-Based Access', icon: Shield },
     { path: '/admin/lookups', label: 'Lookup Table', icon: Database },
-    { path: '/admin/sofs', label: 'SOF Management', icon: FileText },
     { path: '/admin/nomenclature', label: 'Nomenclature Templates', icon: Tag },
     { path: '/admin/checklists', label: 'Checklist Management', icon: FileCheck },
   ];
