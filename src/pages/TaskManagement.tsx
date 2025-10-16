@@ -232,7 +232,8 @@ export default function TaskManagement() {
       const matchesDate = !dateFilter || 
         (task.due_date && task.due_date.startsWith(dateFilter));
       
-      const matchesCategory = selectedCategory === "all" || task.task_category === selectedCategory;
+  const matchesCategory = selectedCategory === "all" || task.task_category === selectedCategory;
+      console.log("Filtering task:", task.task_number, "Category:", task.task_category, "Selected:", selectedCategory, "Matches:", matchesCategory);
       
       return matchesSearch && matchesDate && matchesCategory;
     });
