@@ -453,21 +453,20 @@ export default function TaskManagement() {
   return (
     <Layout>
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-end">
-          <Button onClick={() => setIsChecklistDialogOpen(true)}>
-            <FileCheck className="mr-2 h-4 w-4" />
-            Create Checklist
-          </Button>
-        </div>
-
         {isLoading ? (
           <div className="text-center py-12">Loading tasks...</div>
         ) : isAdmin ? (
           <Tabs defaultValue="my-tasks" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
-              <TabsTrigger value="all-tasks">All Tasks</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between gap-4">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
+                <TabsTrigger value="all-tasks">All Tasks</TabsTrigger>
+              </TabsList>
+              <Button onClick={() => setIsChecklistDialogOpen(true)}>
+                <FileCheck className="mr-2 h-4 w-4" />
+                Create Checklist
+              </Button>
+            </div>
             
             <div className="flex gap-4 mt-6">
               <div className="relative flex-1">
@@ -497,6 +496,12 @@ export default function TaskManagement() {
           </Tabs>
         ) : (
           <>
+            <div className="flex items-center justify-end mb-4">
+              <Button onClick={() => setIsChecklistDialogOpen(true)}>
+                <FileCheck className="mr-2 h-4 w-4" />
+                Create Checklist
+              </Button>
+            </div>
             <div className="flex gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
