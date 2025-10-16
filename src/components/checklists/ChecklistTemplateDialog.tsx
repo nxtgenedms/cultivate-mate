@@ -40,14 +40,14 @@ const ChecklistTemplateDialog = ({
     description: string;
     frequency: "daily" | "weekly" | "monthly" | "on_demand";
     is_batch_specific: boolean;
-    lifecycle_phase: "cloning" | "flowering" | "harvest" | "vegetative" | "";
+    lifecycle_phase: "cloning" | "flowering" | "harvest" | "vegetative" | "none";
   }>({
     template_name: "",
     sof_number: "",
     description: "",
     frequency: "on_demand",
     is_batch_specific: false,
-    lifecycle_phase: "",
+    lifecycle_phase: "none",
   });
 
   const { toast } = useToast();
@@ -61,7 +61,7 @@ const ChecklistTemplateDialog = ({
         description: template.description || "",
         frequency: template.frequency || "on_demand",
         is_batch_specific: template.is_batch_specific || false,
-        lifecycle_phase: template.lifecycle_phase || "",
+        lifecycle_phase: template.lifecycle_phase || "none",
       });
     } else {
       setFormData({
@@ -70,7 +70,7 @@ const ChecklistTemplateDialog = ({
         description: "",
         frequency: "on_demand",
         is_batch_specific: false,
-        lifecycle_phase: "",
+        lifecycle_phase: "none",
       });
     }
   }, [template, open]);
@@ -88,7 +88,7 @@ const ChecklistTemplateDialog = ({
             description: data.description,
             frequency: data.frequency,
             is_batch_specific: data.is_batch_specific,
-            lifecycle_phase: data.lifecycle_phase === "" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
+            lifecycle_phase: data.lifecycle_phase === "none" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
           })
           .eq('id', template.id);
         
@@ -102,7 +102,7 @@ const ChecklistTemplateDialog = ({
             description: data.description,
             frequency: data.frequency,
             is_batch_specific: data.is_batch_specific,
-            lifecycle_phase: data.lifecycle_phase === "" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
+            lifecycle_phase: data.lifecycle_phase === "none" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
             created_by: userData.user?.id,
           }]);
         
@@ -211,13 +211,13 @@ const ChecklistTemplateDialog = ({
               <Label htmlFor="lifecycle_phase">Lifecycle Phase (Optional)</Label>
               <Select
                 value={formData.lifecycle_phase}
-                onValueChange={(value) => setFormData({ ...formData, lifecycle_phase: value as "cloning" | "flowering" | "harvest" | "vegetative" | "" })}
+                onValueChange={(value) => setFormData({ ...formData, lifecycle_phase: value as "cloning" | "flowering" | "harvest" | "vegetative" | "none" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select phase" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any Phase</SelectItem>
+                  <SelectItem value="none">Any Phase</SelectItem>
                   <SelectItem value="cloning">Cloning</SelectItem>
                   <SelectItem value="vegetation">Vegetation</SelectItem>
                   <SelectItem value="flowering">Flowering</SelectItem>
