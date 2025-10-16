@@ -6,16 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Calendar, User, Search } from "lucide-react";
+import { Plus, Calendar, User, Search, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
+import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChecklistDialogOpen, setIsChecklistDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -225,10 +227,16 @@ export default function TaskManagement() {
               Manage and track your tasks
             </p>
           </div>
-          <Button onClick={handleNewTask}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Task
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsChecklistDialogOpen(true)}>
+              <FileCheck className="mr-2 h-4 w-4" />
+              Create Checklist
+            </Button>
+            <Button onClick={handleNewTask}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Task
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-4">
@@ -276,6 +284,11 @@ export default function TaskManagement() {
           nomenclature={nomenclature}
           tasksCount={tasks?.length || 0}
           generateTaskNumber={generateTaskNumber}
+        />
+
+        <CreateChecklistDialog
+          open={isChecklistDialogOpen}
+          onOpenChange={setIsChecklistDialogOpen}
         />
       </div>
     </Layout>
