@@ -1704,6 +1704,7 @@ export type Database = {
         Row: {
           assignee: string | null
           batch_id: string | null
+          checklist_id: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1717,6 +1718,7 @@ export type Database = {
         Insert: {
           assignee?: string | null
           batch_id?: string | null
+          checklist_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1730,6 +1732,7 @@ export type Database = {
         Update: {
           assignee?: string | null
           batch_id?: string | null
+          checklist_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1753,6 +1756,13 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "batch_lifecycle_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_instances"
             referencedColumns: ["id"]
           },
           {
