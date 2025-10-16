@@ -1254,6 +1254,72 @@ export type Database = {
           },
         ]
       }
+      inventory_receipts: {
+        Row: {
+          batch_number: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          month: string
+          notes: string | null
+          product_name: string
+          quantity: number
+          receipt_date: string
+          receipt_number: string
+          receipt_time: string
+          receipt_type: Database["public"]["Enums"]["inventory_receipt_type"]
+          received_by_id: string
+          receiver_signature_id: string | null
+          responsible_person_id: string | null
+          supplier_name: string
+          unit: Database["public"]["Enums"]["inventory_unit"]
+          updated_at: string
+          usage_area: string | null
+        }
+        Insert: {
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month: string
+          notes?: string | null
+          product_name: string
+          quantity: number
+          receipt_date: string
+          receipt_number: string
+          receipt_time: string
+          receipt_type: Database["public"]["Enums"]["inventory_receipt_type"]
+          received_by_id: string
+          receiver_signature_id?: string | null
+          responsible_person_id?: string | null
+          supplier_name: string
+          unit: Database["public"]["Enums"]["inventory_unit"]
+          updated_at?: string
+          usage_area?: string | null
+        }
+        Update: {
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month?: string
+          notes?: string | null
+          product_name?: string
+          quantity?: number
+          receipt_date?: string
+          receipt_number?: string
+          receipt_time?: string
+          receipt_type?: Database["public"]["Enums"]["inventory_receipt_type"]
+          received_by_id?: string
+          receiver_signature_id?: string | null
+          responsible_person_id?: string | null
+          supplier_name?: string
+          unit?: Database["public"]["Enums"]["inventory_unit"]
+          updated_at?: string
+          usage_area?: string | null
+        }
+        Relationships: []
+      }
       lookup_categories: {
         Row: {
           category_key: string
@@ -1718,6 +1784,10 @@ export type Database = {
         Args: { creation_date?: string }
         Returns: string
       }
+      generate_receipt_number: {
+        Args: { receipt_date?: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1758,6 +1828,24 @@ export type Database = {
         | "date"
         | "signature"
         | "multi_day_boolean"
+      inventory_receipt_type:
+        | "chemical"
+        | "fertilizer"
+        | "seeds"
+        | "growing_media"
+        | "packaging"
+        | "equipment"
+        | "harvest_output"
+        | "other"
+      inventory_unit:
+        | "kg"
+        | "g"
+        | "l"
+        | "ml"
+        | "units"
+        | "boxes"
+        | "bags"
+        | "packs"
       lifecycle_phase:
         | "cloning"
         | "hardening"
@@ -1951,6 +2039,17 @@ export const Constants = {
         "signature",
         "multi_day_boolean",
       ],
+      inventory_receipt_type: [
+        "chemical",
+        "fertilizer",
+        "seeds",
+        "growing_media",
+        "packaging",
+        "equipment",
+        "harvest_output",
+        "other",
+      ],
+      inventory_unit: ["kg", "g", "l", "ml", "units", "boxes", "bags", "packs"],
       lifecycle_phase: [
         "cloning",
         "hardening",
