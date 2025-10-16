@@ -5,6 +5,7 @@ import { useIsAdmin } from '@/hooks/useUserRoles';
 import { Button } from '@/components/ui/button';
 import { LogOut, Users, Settings, LayoutDashboard, Leaf, ClipboardList, Bug, Droplets, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NotificationBell } from '@/components/tasks/NotificationBell';
 
 interface LayoutProps {
   children: ReactNode;
@@ -77,7 +78,8 @@ export function Layout({ children }: LayoutProps) {
           </nav>
 
           {/* User Info & Sign Out */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <NotificationBell />
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-sm font-semibold text-primary">

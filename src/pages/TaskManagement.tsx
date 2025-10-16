@@ -14,11 +14,14 @@ import { Plus, Search, FileCheck, Calendar, User, ListChecks } from "lucide-reac
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
+import { TaskCategoryFilter } from "@/components/tasks/TaskCategoryFilter";
+import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
-import { useIsAdmin } from "@/hooks/useUserRoles";
+import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
 import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
+import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, canUserApprove } from "@/lib/taskCategoryUtils";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,9 +30,11 @@ export default function TaskManagement() {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<TaskCategory | "all">("all");
   const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
+  const { data: userRoles = [] } = useUserRoles();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -226,9 +231,11 @@ export default function TaskManagement() {
       const matchesDate = !dateFilter || 
         (task.due_date && task.due_date.startsWith(dateFilter));
       
-      return matchesSearch && matchesDate;
+      const matchesCategory = selectedCategory === "all" || task.task_category === selectedCategory;
+      
+      return matchesSearch && matchesDate && matchesCategory;
     });
-  }, [tasks, searchTerm, dateFilter]);
+  }, [tasks, searchTerm, dateFilter, selectedCategory]);
 
   const myTasks = useMemo(() => 
     filteredTasks.filter(task => task.assignee === user?.id),
@@ -246,11 +253,16 @@ export default function TaskManagement() {
       );
     }
 
-    // Group tasks by status
+    // Group tasks by status and approval
     const tasksByStatus = {
-      in_progress: taskList.filter(task => task.status === 'in_progress'),
+      pending_approval: taskList.filter(task => 
+        task.task_category && 
+        task.approval_status === 'pending_approval' &&
+        canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles)
+      ),
+      in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
-      cancelled: taskList.filter(task => task.status === 'cancelled'),
+      cancelled: taskList.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
     };
 
     const renderTaskCard = (task: any) => {
@@ -267,10 +279,20 @@ export default function TaskManagement() {
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
                   <CardTitle className="text-xl">{task.name}</CardTitle>
+                  {task.task_category && (
+                    <Badge className={getCategoryColor(task.task_category)}>
+                      {TASK_CATEGORIES[task.task_category as TaskCategory]}
+                    </Badge>
+                  )}
                   {hasItems && (
                     <Badge variant="outline" className="flex items-center gap-1">
                       <ListChecks className="h-3 w-3" />
                       {progress.completed}/{progress.total} items
+                    </Badge>
+                  )}
+                  {task.task_category && task.approval_status === 'pending_approval' && (
+                    <Badge variant="secondary">
+                      Stage {(task.current_approval_stage || 0) + 1}/{getApprovalWorkflow(task.task_category).totalStages}
                     </Badge>
                   )}
                 </div>
@@ -285,6 +307,14 @@ export default function TaskManagement() {
                 </div>
               </div>
               <div className="flex gap-2">
+                {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && task.approval_status === 'pending_approval' && (
+                  <TaskApprovalActions
+                    taskId={task.id}
+                    taskName={task.name}
+                    currentStage={task.current_approval_stage || 0}
+                    totalStages={getApprovalWorkflow(task.task_category).totalStages}
+                  />
+                )}
                 {hasItems && (
                   <Button
                     variant="default"
@@ -402,6 +432,21 @@ export default function TaskManagement() {
 
     return (
       <div className="space-y-6">
+        {/* Pending My Approval */}
+        {tasksByStatus.pending_approval.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold">Pending My Approval</h3>
+              <Badge variant="default" className="bg-blue-500">
+                {tasksByStatus.pending_approval.length}
+              </Badge>
+            </div>
+            <div className="grid gap-4">
+              {tasksByStatus.pending_approval.map(renderTaskCard)}
+            </div>
+          </div>
+        )}
+
         {/* In Progress Tasks */}
         {tasksByStatus.in_progress.length > 0 && (
           <div className="space-y-3">

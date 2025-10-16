@@ -22,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TASK_CATEGORIES, APPROVAL_WORKFLOWS, TaskCategory } from "@/lib/taskCategoryUtils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface ChecklistTemplateDialogProps {
   open: boolean;
@@ -41,6 +44,7 @@ const ChecklistTemplateDialog = ({
     frequency: "daily" | "weekly" | "monthly" | "on_demand";
     is_batch_specific: boolean;
     lifecycle_phase: "cloning" | "flowering" | "harvest" | "vegetative" | "none";
+    task_category: string | null;
   }>({
     template_name: "",
     sof_number: "",
@@ -48,6 +52,7 @@ const ChecklistTemplateDialog = ({
     frequency: "on_demand",
     is_batch_specific: false,
     lifecycle_phase: "none",
+    task_category: null,
   });
 
   const { toast } = useToast();
@@ -62,6 +67,7 @@ const ChecklistTemplateDialog = ({
         frequency: template.frequency || "on_demand",
         is_batch_specific: template.is_batch_specific || false,
         lifecycle_phase: template.lifecycle_phase || "none",
+        task_category: template.task_category || null,
       });
     } else {
       setFormData({
@@ -71,6 +77,7 @@ const ChecklistTemplateDialog = ({
         frequency: "on_demand",
         is_batch_specific: false,
         lifecycle_phase: "none",
+        task_category: null,
       });
     }
   }, [template, open]);
@@ -89,6 +96,7 @@ const ChecklistTemplateDialog = ({
             frequency: data.frequency,
             is_batch_specific: data.is_batch_specific,
             lifecycle_phase: data.lifecycle_phase === "none" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
+            task_category: data.task_category as any,
           })
           .eq('id', template.id);
         
@@ -103,6 +111,7 @@ const ChecklistTemplateDialog = ({
             frequency: data.frequency,
             is_batch_specific: data.is_batch_specific,
             lifecycle_phase: data.lifecycle_phase === "none" ? null : data.lifecycle_phase as "cloning" | "flowering" | "harvest" | "vegetative",
+            task_category: data.task_category as any,
             created_by: userData.user?.id,
           }]);
         
@@ -228,6 +237,36 @@ const ChecklistTemplateDialog = ({
                 </SelectContent>
               </Select>
             </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="task_category">Task Category (Optional)</Label>
+            <Select
+              value={formData.task_category || "none"}
+              onValueChange={(value) => setFormData({ ...formData, task_category: value === "none" ? null : value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="none">No Category (Simple Task)</SelectItem>
+                {Object.entries(TASK_CATEGORIES).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {formData.task_category && formData.task_category !== "none" && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Approval Workflow:</strong>{" "}
+                {APPROVAL_WORKFLOWS[formData.task_category as TaskCategory].stages.join(" → ")}
+              </AlertDescription>
+            </Alert>
           )}
 
           <DialogFooter>
