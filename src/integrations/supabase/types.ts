@@ -1211,6 +1211,7 @@ export type Database = {
           product_name: string
           quantity: number
           receipt_date: string
+          receipt_file_path: string | null
           receipt_number: string
           receipt_time: string
           receipt_type: Database["public"]["Enums"]["inventory_receipt_type"]
@@ -1232,6 +1233,7 @@ export type Database = {
           product_name: string
           quantity: number
           receipt_date: string
+          receipt_file_path?: string | null
           receipt_number: string
           receipt_time: string
           receipt_type: Database["public"]["Enums"]["inventory_receipt_type"]
@@ -1253,6 +1255,7 @@ export type Database = {
           product_name?: string
           quantity?: number
           receipt_date?: string
+          receipt_file_path?: string | null
           receipt_number?: string
           receipt_time?: string
           receipt_type?: Database["public"]["Enums"]["inventory_receipt_type"]

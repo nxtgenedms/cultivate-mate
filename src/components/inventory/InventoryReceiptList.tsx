@@ -12,7 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Calendar } from 'lucide-react';
+import { Plus, Search, Edit, Calendar, FileText, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import InventoryReceiptDialog from './InventoryReceiptDialog';
 import {
@@ -95,6 +95,28 @@ const InventoryReceiptList = () => {
     setDialogOpen(true);
   };
 
+  const handleDownloadAttachment = async (filePath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('receipt-attachments')
+        .download(filePath);
+      
+      if (error) throw error;
+      
+      // Create a download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filePath.split('/').pop() || 'receipt-attachment';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
+
   const getReceiptTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
       chemical: 'bg-red-500',
@@ -174,6 +196,7 @@ const InventoryReceiptList = () => {
                 <TableHead>Quantity</TableHead>
                 <TableHead>Received By</TableHead>
                 <TableHead>Usage Area</TableHead>
+                <TableHead>Attachment</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -200,6 +223,21 @@ const InventoryReceiptList = () => {
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{receipt.usage_area || 'N/A'}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {receipt.receipt_file_path ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownloadAttachment(receipt.receipt_file_path)}
+                        className="gap-2"
+                      >
+                        <FileText className="h-4 w-4" />
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button

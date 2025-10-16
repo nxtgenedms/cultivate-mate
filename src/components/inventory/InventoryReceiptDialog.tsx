@@ -23,7 +23,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -55,6 +55,8 @@ const InventoryReceiptDialog = ({
     batch_number: '',
     notes: '',
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [existingFilePath, setExistingFilePath] = useState<string | null>(null);
 
   // Fetch users for dropdowns
   const { data: users } = useQuery({
@@ -88,6 +90,8 @@ const InventoryReceiptDialog = ({
         batch_number: receipt.batch_number || '',
         notes: receipt.notes || '',
       });
+      setExistingFilePath(receipt.receipt_file_path || null);
+      setSelectedFile(null);
     } else {
       // Reset for new receipt
       setFormData({
@@ -106,6 +110,8 @@ const InventoryReceiptDialog = ({
         batch_number: '',
         notes: '',
       });
+      setExistingFilePath(null);
+      setSelectedFile(null);
     }
   }, [receipt, open]);
 
@@ -115,6 +121,19 @@ const InventoryReceiptDialog = ({
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+
+      // Upload file if selected
+      let filePath = existingFilePath;
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('receipt-attachments')
+          .upload(fileName, selectedFile);
+        
+        if (uploadError) throw uploadError;
+        filePath = fileName;
+      }
 
       // Generate receipt number if new
       let receiptNumber = receipt?.receipt_number;
@@ -133,6 +152,7 @@ const InventoryReceiptDialog = ({
         receipt_date: format(data.receipt_date, 'yyyy-MM-dd'),
         quantity: parseFloat(data.quantity),
         created_by: user.id,
+        receipt_file_path: filePath,
       };
 
       if (receipt) {
@@ -168,6 +188,39 @@ const InventoryReceiptDialog = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate(formData);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (images and PDFs)
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload an image (JPG, PNG, WEBP) or PDF file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload a file smaller than 10MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setExistingFilePath(null);
   };
 
   return (
@@ -443,6 +496,45 @@ const InventoryReceiptDialog = ({
               }
               rows={3}
             />
+          </div>
+
+          {/* File Upload */}
+          <div className="space-y-2">
+            <Label htmlFor="receipt_file">Receipt Attachment</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="receipt_file"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('receipt_file')?.click()}
+                className="w-full"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {selectedFile ? selectedFile.name : existingFilePath ? 'Replace file' : 'Upload receipt scan'}
+              </Button>
+              {(selectedFile || existingFilePath) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRemoveFile}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {existingFilePath && !selectedFile && (
+              <p className="text-sm text-muted-foreground">Current file attached</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Accepted formats: JPG, PNG, WEBP, PDF (max 10MB)
+            </p>
           </div>
 
           <DialogFooter>
