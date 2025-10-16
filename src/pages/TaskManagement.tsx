@@ -364,6 +364,14 @@ export default function TaskManagement() {
                     variant="default"
                     size="sm"
                     onClick={() => {
+                      const hasItems = task.checklist_items && task.checklist_items.length > 0;
+                      const progress = task.completion_progress || { completed: 0, total: 0 };
+                      
+                      if (hasItems && progress.completed < progress.total) {
+                        toast.error("Please complete all manage items and submit for approval");
+                        return;
+                      }
+                      
                       setTaskToSubmit(task.id);
                       setShowSubmitDialog(true);
                     }}
