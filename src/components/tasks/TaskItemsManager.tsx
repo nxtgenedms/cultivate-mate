@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle } from "lucide-react";
@@ -17,6 +18,8 @@ interface TaskItem {
   completed: boolean;
   notes: string;
   sort_order: number;
+  item_type?: string;
+  response_value?: string;
 }
 
 interface TaskItemsManagerProps {
@@ -63,6 +66,12 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
   const handleNotesChange = (itemId: string, notes: string) => {
     setItems(items.map(item =>
       item.id === itemId ? { ...item, notes } : item
+    ));
+  };
+
+  const handleResponseValueChange = (itemId: string, response_value: string) => {
+    setItems(items.map(item =>
+      item.id === itemId ? { ...item, response_value } : item
     ));
   };
 
@@ -123,13 +132,43 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                           <Badge variant="outline" className="ml-2">Required</Badge>
                         )}
                       </label>
-                      <Textarea
-                        placeholder="Add notes..."
-                        value={item.notes}
-                        onChange={(e) => handleNotesChange(item.id, e.target.value)}
-                        rows={2}
-                        className="text-sm"
-                      />
+                      
+                      {/* Render input based on item type */}
+                      {item.item_type === 'date' && (
+                        <Input
+                          type="datetime-local"
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          className="text-sm"
+                        />
+                      )}
+                      {item.item_type === 'number' && (
+                        <Input
+                          type="number"
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          className="text-sm"
+                          placeholder="Enter number..."
+                        />
+                      )}
+                      {item.item_type === 'text' && (
+                        <Input
+                          type="text"
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          className="text-sm"
+                          placeholder="Enter text..."
+                        />
+                      )}
+                      {(!item.item_type || item.item_type === 'yes_no' || item.item_type === 'select' || item.item_type === 'batch_info') && (
+                        <Textarea
+                          placeholder="Add notes..."
+                          value={item.notes}
+                          onChange={(e) => handleNotesChange(item.id, e.target.value)}
+                          rows={2}
+                          className="text-sm"
+                        />
+                      )}
                     </div>
                   </div>
                 </div>

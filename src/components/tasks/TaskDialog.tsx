@@ -139,6 +139,8 @@ export function TaskDialog({
           is_required: item.is_required,
           completed: false,
           notes: "",
+          item_type: item.item_type,
+          response_value: "",
           sort_order: index
         }));
 
