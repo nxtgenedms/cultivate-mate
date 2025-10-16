@@ -37,7 +37,8 @@ export default function TaskManagement() {
         .select(`
           *,
           creator:profiles!tasks_created_by_fkey(full_name),
-          assigned_to:profiles!tasks_assignee_fkey(full_name)
+          assigned_to:profiles!tasks_assignee_fkey(full_name),
+          batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number)
         `)
         .order("created_at", { ascending: false });
 
@@ -257,6 +258,12 @@ export default function TaskManagement() {
             )}
 
             <div className="flex flex-wrap gap-4 text-sm">
+              {task.batch?.batch_number && (
+                <div className="flex items-center gap-2">
+                  <FileCheck className="h-4 w-4 text-muted-foreground" />
+                  <span>Batch: {task.batch.batch_number}</span>
+                </div>
+              )}
               {task.due_date && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
