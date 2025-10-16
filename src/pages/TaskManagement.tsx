@@ -387,7 +387,7 @@ export default function TaskManagement() {
                     totalStages={getApprovalWorkflow(task.task_category).totalStages}
                   />
                 )}
-                {hasItems && (
+                {hasItems && task.status !== 'completed' && task.approval_status !== 'approved' && (
                   <Button
                     variant="default"
                     size="sm"
@@ -397,13 +397,15 @@ export default function TaskManagement() {
                     Manage Items
                   </Button>
                 )}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(task.id)}
-                >
-                  Delete
-                </Button>
+                {task.status !== 'completed' && task.approval_status !== 'approved' && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
