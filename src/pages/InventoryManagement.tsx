@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AdminLayout } from '@/components/AdminLayout';
+import { Layout } from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, Leaf } from 'lucide-react';
@@ -9,7 +9,7 @@ const InventoryManagement = () => {
   const [activeTab, setActiveTab] = useState('receipts');
 
   return (
-    <AdminLayout>
+    <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
@@ -64,7 +64,7 @@ const InventoryManagement = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AdminLayout>
+    </Layout>
   );
 };
 
