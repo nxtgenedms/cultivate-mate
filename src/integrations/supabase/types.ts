@@ -1705,6 +1705,8 @@ export type Database = {
           assignee: string | null
           batch_id: string | null
           checklist_id: string | null
+          checklist_items: Json | null
+          completion_progress: Json | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1720,6 +1722,8 @@ export type Database = {
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
+          checklist_items?: Json | null
+          completion_progress?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1735,6 +1739,8 @@ export type Database = {
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
+          checklist_items?: Json | null
+          completion_progress?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null

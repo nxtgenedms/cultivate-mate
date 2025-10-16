@@ -123,33 +123,43 @@ export function TaskDialog({
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // If template is selected, create multiple tasks from template items
+      const taskNumber = generateTaskNumber(
+        nomenclature?.format_pattern || "TA-{counter:4}",
+        tasksCount
+      );
+
+      // If template is selected, create ONE task with all checklist items
       if (data.template_id && templateItems && templateItems.length > 0) {
-        const tasksToInsert = templateItems.map((item, index) => ({
-          task_number: generateTaskNumber(
-            nomenclature?.format_pattern || "TA-{counter:4}",
-            tasksCount + index
-          ),
-          name: item.item_label,
-          description: item.section_name 
-            ? `Section: ${item.section_name} - ${item.item_label}`
-            : item.item_label,
+        const template = templates?.find(t => t.id === data.template_id);
+        
+        const checklistItems = templateItems.map((item) => ({
+          id: item.id,
+          label: item.item_label,
+          section: item.section_name,
+          is_required: item.is_required,
+          completed: false,
+          notes: ""
+        }));
+
+        const { error } = await supabase.from("tasks").insert({
+          task_number: taskNumber,
+          name: template?.template_name || "Checklist Task",
+          description: `${template?.sof_number || ""}: ${template?.description || ""}`,
           due_date: data.due_date || null,
           assignee: data.assignee || null,
           status: data.status,
-          template_item_id: item.id,
+          template_item_id: data.template_id,
+          checklist_items: checklistItems,
+          completion_progress: {
+            completed: 0,
+            total: checklistItems.length
+          },
           created_by: user.id,
-        }));
+        });
 
-        const { error } = await supabase.from("tasks").insert(tasksToInsert);
         if (error) throw error;
       } else {
         // Single task creation
-        const taskNumber = generateTaskNumber(
-          nomenclature?.format_pattern || "TA-{counter:4}",
-          tasksCount
-        );
-
         const { error } = await supabase.from("tasks").insert({
           name: data.name,
           description: data.description || null,
@@ -157,6 +167,8 @@ export function TaskDialog({
           assignee: data.assignee || null,
           status: data.status,
           task_number: taskNumber,
+          checklist_items: [],
+          completion_progress: { completed: 0, total: 0 },
           created_by: user.id,
         });
 
