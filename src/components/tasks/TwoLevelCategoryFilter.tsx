@@ -16,10 +16,8 @@ export const TwoLevelCategoryFilter = ({
 
   const handleGroupClick = (group: CategoryGroup | "all") => {
     setSelectedGroup(group);
-    if (group === "all") {
-      onCategoryChange("all");
-    }
-    // Don't auto-select a category, just show the group's categories
+    // Always reset category to "all" when switching groups
+    onCategoryChange("all");
   };
 
   const handleCategoryClick = (category: TaskCategory) => {
