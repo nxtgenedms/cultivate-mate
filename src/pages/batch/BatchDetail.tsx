@@ -155,7 +155,7 @@ export default function BatchDetail() {
               </p>
             </div>
           </div>
-          <Button size="sm" onClick={() => navigate('/batch/master-record')}>
+          <Button size="sm" onClick={() => navigate(`/batch/master-record?edit=${batch.id}`)}>
             <Edit className="h-3 w-3 mr-1" />
             Edit Batch
           </Button>

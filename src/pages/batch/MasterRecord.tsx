@@ -19,8 +19,8 @@ import { getStageLabel, getStatusColor } from '@/lib/batchUtils';
 
 export default function MasterRecord() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isDialogOpen, setIsDialogOpen] = useState(searchParams.get('create') === 'true');
-  const [editingRecordId, setEditingRecordId] = useState<string | undefined>();
+  const [isDialogOpen, setIsDialogOpen] = useState(searchParams.get('create') === 'true' || !!searchParams.get('edit'));
+  const [editingRecordId, setEditingRecordId] = useState<string | undefined>(searchParams.get('edit') || undefined);
   const [wizardData, setWizardData] = useState<any>({});
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   const [searchQuery, setSearchQuery] = useState('');
@@ -170,8 +170,17 @@ export default function MasterRecord() {
     if (searchParams.get('create') === 'true') {
       setIsDialogOpen(true);
       setSearchParams({}, { replace: true });
+    } else if (searchParams.get('edit')) {
+      const editId = searchParams.get('edit');
+      const recordToEdit = records?.find(r => r.id === editId);
+      if (recordToEdit) {
+        setEditingRecordId(editId!);
+        setWizardData(recordToEdit);
+        setIsDialogOpen(true);
+      }
+      setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, records]);
 
   const handleEdit = (record: any) => {
     setEditingRecordId(record.id);
