@@ -265,13 +265,13 @@ export default function TaskManagement() {
                   {task.creator && (
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span>Created by: {task.creator.full_name}</span>
+                      <span>Created by: {task.creator.full_name} on {format(new Date(task.created_at), "PPP")}</span>
                     </div>
                   )}
                   {task.assigned_to && (
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span>Assigned to: {task.assigned_to.full_name}</span>
+                      <span>Assigned to: {task.assigned_to.full_name} on {format(new Date(task.updated_at), "PPP")}</span>
                     </div>
                   )}
                 </div>
