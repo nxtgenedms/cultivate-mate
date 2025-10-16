@@ -163,7 +163,7 @@ export default function TaskManagement() {
   }, [tasks, searchTerm, dateFilter]);
 
   const myTasks = useMemo(() => 
-    filteredTasks.filter(task => task.created_by === user?.id || task.assignee === user?.id),
+    filteredTasks.filter(task => task.assignee === user?.id),
     [filteredTasks, user?.id]
   );
 
