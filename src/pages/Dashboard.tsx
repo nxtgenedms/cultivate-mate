@@ -23,9 +23,10 @@ export default function Dashboard() {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .or(`assignee.eq.${user!.id},created_by.eq.${user!.id}`)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .eq('assignee', user!.id)
+        .in('status', ['draft', 'in_progress', 'pending'])
+        .order('due_date', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data;
@@ -69,11 +70,12 @@ export default function Dashboard() {
   const userName = profile?.full_name || user?.email?.split('@')[0] || 'User';
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
 
-  // Calculate task stats
-  const myTasks = tasks?.filter(t => t.assignee === user.id) || [];
-  const pendingApprovals = myTasks.filter(t => t.approval_status === 'pending').length;
-  const inProgress = myTasks.filter(t => t.status === 'in_progress').length;
-  const overdue = myTasks.filter(t => t.due_date && isPast(parseISO(t.due_date)) && t.status !== 'completed').length;
+  // Calculate task stats - only for open tasks
+  const openTasks = tasks || [];
+  const pendingApprovals = openTasks.filter(t => t.approval_status === 'pending').length;
+  const inProgress = openTasks.filter(t => t.status === 'in_progress').length;
+  const draftTasks = openTasks.filter(t => t.status === 'draft').length;
+  const overdue = openTasks.filter(t => t.due_date && isPast(parseISO(t.due_date))).length;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
@@ -109,23 +111,12 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Tasks</CardTitle>
+              <CardTitle className="text-sm font-medium">Open Tasks</CardTitle>
               <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{myTasks.length}</div>
+              <div className="text-2xl font-bold">{openTasks.length}</div>
               <p className="text-xs text-muted-foreground">Assigned to you</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-              <Clock className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{inProgress}</div>
-              <p className="text-xs text-muted-foreground">Active tasks</p>
             </CardContent>
           </Card>
 
@@ -142,6 +133,17 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+              <Clock className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{inProgress}</div>
+              <p className="text-xs text-muted-foreground">Active tasks</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Overdue</CardTitle>
               <AlertCircle className="h-4 w-4 text-red-500" />
             </CardHeader>
@@ -152,27 +154,30 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Recent Tasks */}
+        {/* Open Tasks Requiring Action */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Tasks</CardTitle>
+            <div>
+              <CardTitle>Open Tasks</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Tasks requiring your attention</p>
+            </div>
             <Button variant="outline" size="sm" onClick={() => navigate('/tasks')}>
               View All
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardHeader>
           <CardContent>
-            {myTasks.length === 0 ? (
+            {openTasks.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <CheckCircle2 className="mx-auto h-12 w-12 mb-2 opacity-50" />
-                <p>No tasks assigned yet</p>
+                <p>No open tasks - you're all caught up!</p>
                 <Button variant="link" onClick={() => navigate('/tasks')} className="mt-2">
                   Browse all tasks
                 </Button>
               </div>
             ) : (
               <div className="space-y-3">
-                {myTasks.slice(0, 5).map((task) => (
+                {openTasks.map((task) => (
                   <div
                     key={task.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
@@ -192,7 +197,7 @@ export default function Dashboard() {
                         {task.due_date && (
                           <>
                             <span>•</span>
-                            <span className={isPast(parseISO(task.due_date)) && task.status !== 'completed' ? 'text-red-500' : ''}>
+                            <span className={isPast(parseISO(task.due_date)) ? 'text-red-500 font-medium' : ''}>
                               Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
                             </span>
                           </>
