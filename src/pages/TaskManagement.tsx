@@ -319,7 +319,7 @@ export default function TaskManagement() {
             {/* Inline Edit Controls */}
             <div className="flex items-center gap-3 mb-3 p-2 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Status</Label>
+                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
                 <Select
                   value={task.status}
                   onValueChange={(value) => handleStatusChange(task.id, value)}
@@ -336,7 +336,7 @@ export default function TaskManagement() {
               </div>
 
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Assignee</Label>
+                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Assignee</Label>
                 <Select
                   value={task.assignee || "unassigned"}
                   onValueChange={(value) => handleAssigneeChange(task.id, value === "unassigned" ? "" : value)}
@@ -356,7 +356,7 @@ export default function TaskManagement() {
               </div>
 
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap">Due Date</Label>
+                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Due Date</Label>
                 <Input
                   id={`due-date-${task.id}`}
                   type="date"
@@ -385,13 +385,13 @@ export default function TaskManagement() {
               {task.creator && (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span>Created by: {task.creator.full_name} on {format(new Date(task.created_at), "PPP")}</span>
+                  <span><span className="font-semibold">Created by:</span> {task.creator.full_name} on {format(new Date(task.created_at), "PPP")}</span>
                 </div>
               )}
               {task.assigned_to && (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span>Assigned to: {task.assigned_to.full_name} on {format(new Date(task.updated_at), "PPP")}</span>
+                  <span><span className="font-semibold">Assigned to:</span> {task.assigned_to.full_name} on {format(new Date(task.updated_at), "PPP")}</span>
                 </div>
               )}
             </div>
