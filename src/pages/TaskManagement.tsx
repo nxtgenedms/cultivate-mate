@@ -260,9 +260,15 @@ export default function TaskManagement() {
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {task.task_number}
-                </p>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <span>{task.task_number}</span>
+                  {task.description && (
+                    <>
+                      <span>•</span>
+                      <span className="line-clamp-1">{task.description}</span>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2">
                 {hasItems && (
@@ -286,12 +292,6 @@ export default function TaskManagement() {
             </div>
           </CardHeader>
           <CardContent>
-            {task.description && (
-              <p className="text-sm text-muted-foreground mb-4">
-                {task.description}
-              </p>
-            )}
-            
             {hasItems && progress.total > 0 && (
               <div className="mb-4 space-y-2">
                 <div className="flex justify-between text-sm">
