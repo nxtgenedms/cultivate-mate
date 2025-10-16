@@ -79,7 +79,11 @@ const CreateChecklistDialog = ({
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !userData.user) {
+        throw new Error('Authentication required. Please log in and try again.');
+      }
       
       // Generate instance number
       const timestamp = format(new Date(), 'yyyyMMddHHmmss');
@@ -92,7 +96,7 @@ const CreateChecklistDialog = ({
           batch_id: checklistType === 'batch' ? selectedBatch : null,
           instance_number: instanceNumber,
           status: 'in_progress',
-          created_by: userData.user?.id,
+          created_by: userData.user.id,
         });
       
       if (error) throw error;
