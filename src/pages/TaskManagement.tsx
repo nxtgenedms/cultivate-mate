@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, FileCheck, Calendar, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { Plus, Search, FileCheck, Calendar, User, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
-import { TaskChecklistView } from "@/components/tasks/TaskChecklistView";
+import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin } from "@/hooks/useUserRoles";
@@ -93,11 +95,6 @@ export default function TaskManagement() {
     setIsItemsDialogOpen(true);
   };
 
-  const handleManageItems = (task: any) => {
-    setSelectedTask(task);
-    setIsItemsDialogOpen(true);
-  };
-
   const handleDelete = (taskId: string) => {
     if (confirm("Are you sure you want to delete this task?")) {
       deleteMutation.mutate(taskId);
@@ -161,23 +158,45 @@ export default function TaskManagement() {
 
     return (
       <div className="grid gap-4">
-        {taskList.map((task) => (
-          <div key={task.id}>
-            <Card className="hover:shadow-md transition-shadow">
+        {taskList.map((task) => {
+          const hasItems = task.checklist_items && task.checklist_items.length > 0;
+          const progress = task.completion_progress || { completed: 0, total: 0 };
+          const progressPercent = progress.total > 0 
+            ? (progress.completed / progress.total) * 100 
+            : 0;
+
+          return (
+            <Card key={task.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <CardTitle className="text-xl">{task.name}</CardTitle>
                       <Badge className={getStatusColor(task.status)}>
                         {getStatusLabel(task.status)}
                       </Badge>
+                      {hasItems && (
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <ListChecks className="h-3 w-3" />
+                          {progress.completed}/{progress.total} items
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {task.task_number}
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    {hasItems && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleManageItems(task)}
+                      >
+                        <ListChecks className="mr-2 h-4 w-4" />
+                        Manage Items
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -201,6 +220,17 @@ export default function TaskManagement() {
                     {task.description}
                   </p>
                 )}
+                
+                {hasItems && progress.total > 0 && (
+                  <div className="mb-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-medium">{Math.round(progressPercent)}%</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-2" />
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-4 text-sm">
                   {task.due_date && (
                     <div className="flex items-center gap-2">
@@ -225,9 +255,8 @@ export default function TaskManagement() {
                 </div>
               </CardContent>
             </Card>
-            <TaskChecklistView task={task} />
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };

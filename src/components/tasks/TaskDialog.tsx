@@ -132,34 +132,32 @@ export function TaskDialog({
       if (data.template_id && templateItems && templateItems.length > 0) {
         const template = templates?.find(t => t.id === data.template_id);
         
-        const checklistItems = templateItems.map((item) => ({
+        const checklistItems = templateItems.map((item, index) => ({
           id: item.id,
           label: item.item_label,
           section: item.section_name,
           is_required: item.is_required,
           completed: false,
-          notes: ""
+          notes: "",
+          sort_order: index
         }));
 
         const { error } = await supabase.from("tasks").insert({
           task_number: taskNumber,
-          name: template?.template_name || "Checklist Task",
-          description: `${template?.sof_number || ""}: ${template?.description || ""}`,
+          name: `${template?.sof_number}: ${template?.template_name}`,
+          description: template?.description || null,
           due_date: data.due_date || null,
           assignee: data.assignee || null,
           status: data.status,
           template_item_id: data.template_id,
-          checklist_items: checklistItems,
-          completion_progress: {
-            completed: 0,
-            total: checklistItems.length
-          },
+          checklist_items: checklistItems as any,
+          completion_progress: { completed: 0, total: checklistItems.length } as any,
           created_by: user.id,
         });
 
         if (error) throw error;
       } else {
-        // Single task creation
+        // Single task creation without checklist
         const { error } = await supabase.from("tasks").insert({
           name: data.name,
           description: data.description || null,
@@ -167,8 +165,8 @@ export function TaskDialog({
           assignee: data.assignee || null,
           status: data.status,
           task_number: taskNumber,
-          checklist_items: [],
-          completion_progress: { completed: 0, total: 0 },
+          checklist_items: [] as any,
+          completion_progress: { completed: 0, total: 0 } as any,
           created_by: user.id,
         });
 
