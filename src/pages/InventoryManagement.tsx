@@ -10,14 +10,7 @@ const InventoryManagement = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Track all incoming inventory receipts and harvest outputs
-          </p>
-        </div>
-
+      <div className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="receipts" className="flex items-center gap-2">
