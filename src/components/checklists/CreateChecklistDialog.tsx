@@ -55,15 +55,15 @@ const CreateChecklistDialog = ({
     enabled: open,
   });
 
-  // Fetch active batches if batch type selected
+  // Fetch batches if batch type selected
   const { data: batches } = useQuery({
     queryKey: ['active-batches'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('batch_lifecycle_records')
-        .select('id, batch_number, current_stage')
-        .eq('status', 'active')
-        .order('batch_number', { ascending: false });
+        .select('id, batch_number, current_stage, strain_id')
+        .order('batch_number', { ascending: false })
+        .limit(100);
       
       if (error) throw error;
       return data;
