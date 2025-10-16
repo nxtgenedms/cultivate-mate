@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, FileCheck, Calendar, User, ListChecks } from "lucide-react";
@@ -32,6 +32,9 @@ export default function TaskManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | "all">("all");
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
+  const [selectedApprover, setSelectedApprover] = useState("");
   const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
@@ -149,13 +152,26 @@ export default function TaskManagement() {
   });
 
   const submitForApprovalMutation = useMutation({
-    mutationFn: async (taskId: string) => {
+    mutationFn: async ({ taskId, approverId }: { taskId: string; approverId: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Create initial approval history
+      const approvalHistory = [{
+        stage: 0,
+        submitted_by: user.id,
+        submitted_at: new Date().toISOString(),
+        action: "submitted",
+        approver_id: approverId,
+      }];
+
       const { error } = await supabase
         .from("tasks")
         .update({
           approval_status: 'pending_approval',
           current_approval_stage: 1,
-          status: 'pending_approval'
+          status: 'pending_approval',
+          approval_history: approvalHistory,
         })
         .eq("id", taskId);
       if (error) throw error;
@@ -163,6 +179,9 @@ export default function TaskManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task submitted for approval");
+      setShowSubmitDialog(false);
+      setTaskToSubmit(null);
+      setSelectedApprover("");
     },
     onError: (error) => {
       toast.error("Failed to submit task: " + error.message);
@@ -344,8 +363,10 @@ export default function TaskManagement() {
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => submitForApprovalMutation.mutate(task.id)}
-                    disabled={submitForApprovalMutation.isPending}
+                    onClick={() => {
+                      setTaskToSubmit(task.id);
+                      setShowSubmitDialog(true);
+                    }}
                   >
                     Submit for Approval
                   </Button>
@@ -654,6 +675,64 @@ export default function TaskManagement() {
                 onClose={() => setIsItemsDialogOpen(false)}
               />
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Submit for Approval Dialog */}
+        <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Submit for Approval</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="approver">Select Approver *</Label>
+                <Select
+                  value={selectedApprover}
+                  onValueChange={setSelectedApprover}
+                >
+                  <SelectTrigger id="approver">
+                    <SelectValue placeholder="Select an approver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profiles?.map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSubmitDialog(false);
+                  setTaskToSubmit(null);
+                  setSelectedApprover("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!selectedApprover) {
+                    toast.error("Please select an approver");
+                    return;
+                  }
+                  if (taskToSubmit) {
+                    submitForApprovalMutation.mutate({ 
+                      taskId: taskToSubmit, 
+                      approverId: selectedApprover 
+                    });
+                  }
+                }}
+                disabled={!selectedApprover || submitForApprovalMutation.isPending}
+              >
+                Submit
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
