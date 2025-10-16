@@ -24,17 +24,17 @@ export function BatchStatsCard({
 }: BatchStatsCardProps) {
   return (
     <Card className={cn("hover:shadow-lg transition-shadow", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
         <CardTitle className="text-xs font-medium">{title}</CardTitle>
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+        <Icon className="h-3 w-3 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <div className="text-xl font-bold">{value}</div>
+      <CardContent className="p-3 pt-0">
+        <div className="text-lg font-bold">{value}</div>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="text-xs text-muted-foreground leading-tight">{description}</p>
         )}
         {trend && (
-          <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-0.5">
             <span className={cn(
               "text-xs font-medium",
               trend.isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
