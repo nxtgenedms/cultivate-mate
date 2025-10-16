@@ -19,6 +19,7 @@ import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isChecklistDialogOpen, setIsChecklistDialogOpen] = useState(false);
+  const [isItemsDialogOpen, setIsItemsDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -85,6 +86,16 @@ export default function TaskManagement() {
   const handleEdit = (task: any) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
+  };
+
+  const handleManageItems = (task: any) => {
+    setSelectedTask(task);
+    setIsItemsDialogOpen(true);
+  };
+
+  const handleManageItems = (task: any) => {
+    setSelectedTask(task);
+    setIsItemsDialogOpen(true);
   };
 
   const handleDelete = (taskId: string) => {
@@ -294,6 +305,20 @@ export default function TaskManagement() {
           open={isChecklistDialogOpen}
           onOpenChange={setIsChecklistDialogOpen}
         />
+
+        <Dialog open={isItemsDialogOpen} onOpenChange={setIsItemsDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Task Items</DialogTitle>
+            </DialogHeader>
+            {selectedTask && (
+              <TaskItemsManager
+                task={selectedTask}
+                onClose={() => setIsItemsDialogOpen(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
