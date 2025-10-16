@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,6 +30,38 @@ interface TaskItemsManagerProps {
 export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
   const [items, setItems] = useState<TaskItem[]>(task.checklist_items || []);
   const queryClient = useQueryClient();
+
+  // Fetch template items to get item_type information
+  const { data: templateItems } = useQuery({
+    queryKey: ["template-items-for-task", task.id],
+    queryFn: async () => {
+      const itemIds = (task.checklist_items || []).map((item: any) => item.id);
+      if (itemIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("id, item_type")
+        .in("id", itemIds);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: (task.checklist_items || []).length > 0,
+  });
+
+  // Merge template item types with task items
+  useEffect(() => {
+    if (templateItems && templateItems.length > 0) {
+      const enrichedItems = (task.checklist_items || []).map((item: any) => {
+        const templateItem = templateItems.find(ti => ti.id === item.id);
+        return {
+          ...item,
+          item_type: templateItem?.item_type || item.item_type,
+        };
+      });
+      setItems(enrichedItems);
+    }
+  }, [templateItems, task.checklist_items]);
 
   const updateMutation = useMutation({
     mutationFn: async () => {
