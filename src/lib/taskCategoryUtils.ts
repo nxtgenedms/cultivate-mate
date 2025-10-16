@@ -126,7 +126,6 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     label: 'Chemical Management',
     icon: '🧪',
     categories: [
-      'chemical_delivery',
       'fertigation_application',
       'ipm_chemical_mixing',
     ],
