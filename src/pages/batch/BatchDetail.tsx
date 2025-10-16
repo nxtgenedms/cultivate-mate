@@ -340,6 +340,24 @@ export default function BatchDetail() {
                 flowering: batch.move_to_flowering_date,
                 harvest: batch.harvest_date
               }}
+              stageData={{
+                cloning: { 
+                  dome: batch.dome_no, 
+                  plants: batch.total_clones_plants 
+                },
+                vegetative: { 
+                  dome: batch.dome_no, 
+                  plants: batch.veg_number_plants 
+                },
+                flowering: { 
+                  dome: batch.dome_no, 
+                  plants: batch.flowering_number_plants 
+                },
+                harvest: { 
+                  dome: batch.dome_no, 
+                  plants: batch.harvest_number_plants 
+                }
+              }}
             />
           </TabsContent>
 
