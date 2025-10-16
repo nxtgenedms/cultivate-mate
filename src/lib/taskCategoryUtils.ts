@@ -95,6 +95,60 @@ export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
   },
 };
 
+export type CategoryGroup = 
+  | 'daily_weekly'
+  | 'quality_safety'
+  | 'chemical_management'
+  | 'sanitation'
+  | 'harvest';
+
+export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: string; categories: TaskCategory[] }> = {
+  daily_weekly: {
+    label: 'Daily/Weekly Records',
+    icon: '📋',
+    categories: [
+      'daily_cloning_transplant',
+      'weekly_cultivation',
+      'clonator_weekly',
+      'soil_moisture',
+    ],
+  },
+  quality_safety: {
+    label: 'Quality & Safety',
+    icon: '📊',
+    categories: [
+      'scouting_corrective',
+      'mortality_discard',
+      'hygiene_check',
+    ],
+  },
+  chemical_management: {
+    label: 'Chemical Management',
+    icon: '🧪',
+    categories: [
+      'chemical_delivery',
+      'fertigation_application',
+      'ipm_chemical_mixing',
+    ],
+  },
+  sanitation: {
+    label: 'Sanitation',
+    icon: '🧹',
+    categories: [
+      'cultivation_cleaning',
+      'processing_cleaning',
+    ],
+  },
+  harvest: {
+    label: 'Harvest',
+    icon: '🌾',
+    categories: [
+      'pre_harvest',
+      'final_harvest',
+    ],
+  },
+};
+
 export const getCategoryColor = (category: TaskCategory): string => {
   const colors: Record<TaskCategory, string> = {
     daily_cloning_transplant: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',

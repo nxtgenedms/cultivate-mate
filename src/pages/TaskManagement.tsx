@@ -14,7 +14,7 @@ import { Plus, Search, FileCheck, Calendar, User, ListChecks } from "lucide-reac
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
-import { TaskCategoryFilter } from "@/components/tasks/TaskCategoryFilter";
+import { TwoLevelCategoryFilter } from "@/components/tasks/TwoLevelCategoryFilter";
 import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
 import { ApprovalProgressBadge } from "@/components/tasks/ApprovalProgressBadge";
 import { format } from "date-fns";
@@ -536,7 +536,7 @@ export default function TaskManagement() {
             </div>
 
             <div className="mt-4">
-              <TaskCategoryFilter
+              <TwoLevelCategoryFilter
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
@@ -576,7 +576,7 @@ export default function TaskManagement() {
               />
             </div>
             <div className="mb-4">
-              <TaskCategoryFilter
+              <TwoLevelCategoryFilter
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
