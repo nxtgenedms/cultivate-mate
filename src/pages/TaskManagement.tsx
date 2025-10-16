@@ -293,35 +293,10 @@ export default function TaskManagement() {
               Manage and track your tasks
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsChecklistDialogOpen(true)}>
-              <FileCheck className="mr-2 h-4 w-4" />
-              Create Checklist
-            </Button>
-            <Button onClick={handleNewTask}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Task
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by task name, number, or owner..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="w-48"
-            placeholder="Filter by date"
-          />
+          <Button variant="outline" onClick={() => setIsChecklistDialogOpen(true)}>
+            <FileCheck className="mr-2 h-4 w-4" />
+            Create Checklist
+          </Button>
         </div>
 
         {isLoading ? (
@@ -332,6 +307,26 @@ export default function TaskManagement() {
               <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
               <TabsTrigger value="all-tasks">All Tasks</TabsTrigger>
             </TabsList>
+            
+            <div className="flex gap-4 mt-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by task name, number, or owner..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-48"
+                placeholder="Filter by date"
+              />
+            </div>
+
             <TabsContent value="my-tasks" className="mt-6">
               {renderTaskList(myTasks)}
             </TabsContent>
@@ -340,7 +335,27 @@ export default function TaskManagement() {
             </TabsContent>
           </Tabs>
         ) : (
-          renderTaskList(myTasks)
+          <>
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by task name, number, or owner..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-48"
+                placeholder="Filter by date"
+              />
+            </div>
+            {renderTaskList(myTasks)}
+          </>
         )}
 
         <TaskDialog
