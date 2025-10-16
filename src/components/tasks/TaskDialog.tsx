@@ -138,7 +138,7 @@ export function TaskDialog({
           section: item.section_name,
           is_required: item.is_required,
           completed: false,
-          notes: "",
+          completed_date: "",
           sort_order: index
         }));
 
