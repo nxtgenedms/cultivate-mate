@@ -4,8 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, FileText, Settings } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, FileText } from "lucide-react";
 import ChecklistTemplateDialog from "@/components/checklists/ChecklistTemplateDialog";
 import ChecklistTemplateList from "@/components/checklists/ChecklistTemplateList";
 import ChecklistTemplateItemsManager from "@/components/checklists/ChecklistTemplateItemsManager";
@@ -67,7 +66,7 @@ const ChecklistManagement = () => {
           <div>
             <h1 className="text-3xl font-bold">Checklist Management</h1>
             <p className="text-muted-foreground">
-              Manage checklist templates, items, and automation rules
+              Manage checklist templates and items
             </p>
           </div>
           <Button onClick={handleNewTemplate}>
@@ -76,68 +75,39 @@ const ChecklistManagement = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="templates" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="templates">
-              <FileText className="mr-2 h-4 w-4" />
-              Templates
-            </TabsTrigger>
-            <TabsTrigger value="rules">
-              <Settings className="mr-2 h-4 w-4" />
-              Task Rules
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="templates" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Checklist Templates</CardTitle>
-                <CardDescription>
-                  Define reusable checklist templates with SOF numbers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading templates...
-                  </div>
-                ) : templates && templates.length > 0 ? (
-                  <ChecklistTemplateList
-                    templates={templates}
-                    onEdit={handleEditTemplate}
-                    onManageItems={handleManageItems}
-                  />
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">
-                      No templates created yet
-                    </p>
-                    <Button onClick={handleNewTemplate}>
-                      Create First Template
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="rules" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Task Generation Rules</CardTitle>
-                <CardDescription>
-                  Configure automatic task creation based on checklist responses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Checklist Templates</CardTitle>
+              <CardDescription>
+                Define reusable checklist templates with SOF numbers
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  Task rules configuration coming soon
+                  Loading templates...
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              ) : templates && templates.length > 0 ? (
+                <ChecklistTemplateList
+                  templates={templates}
+                  onEdit={handleEditTemplate}
+                  onManageItems={handleManageItems}
+                />
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground mb-4">
+                    No templates created yet
+                  </p>
+                  <Button onClick={handleNewTemplate}>
+                    Create First Template
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <ChecklistTemplateDialog
           open={templateDialogOpen}

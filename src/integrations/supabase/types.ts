@@ -921,60 +921,6 @@ export type Database = {
           },
         ]
       }
-      checklist_task_rules: {
-        Row: {
-          assign_to_role: Database["public"]["Enums"]["app_role"] | null
-          created_at: string
-          due_date_offset_days: number | null
-          id: string
-          is_active: boolean
-          task_description_template: string | null
-          task_name_template: string
-          template_id: string
-          template_item_id: string | null
-          trigger_condition: string
-        }
-        Insert: {
-          assign_to_role?: Database["public"]["Enums"]["app_role"] | null
-          created_at?: string
-          due_date_offset_days?: number | null
-          id?: string
-          is_active?: boolean
-          task_description_template?: string | null
-          task_name_template: string
-          template_id: string
-          template_item_id?: string | null
-          trigger_condition: string
-        }
-        Update: {
-          assign_to_role?: Database["public"]["Enums"]["app_role"] | null
-          created_at?: string
-          due_date_offset_days?: number | null
-          id?: string
-          is_active?: boolean
-          task_description_template?: string | null
-          task_name_template?: string
-          template_id?: string
-          template_item_id?: string | null
-          trigger_condition?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "checklist_task_rules_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "checklist_templates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "checklist_task_rules_template_item_id_fkey"
-            columns: ["template_item_id"]
-            isOneToOne: false
-            referencedRelation: "checklist_template_items"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       checklist_template_items: {
         Row: {
           created_at: string
