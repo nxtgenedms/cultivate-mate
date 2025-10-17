@@ -6,11 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BatchProgressTimeline } from '@/components/batch/BatchProgressTimeline';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock } from 'lucide-react';
+import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TaskDetailsPopoverContent } from '@/components/tasks/TaskDetailsPopover';
+import { TaskApprovalActions } from '@/components/tasks/TaskApprovalActions';
+import { ApprovalProgressBadge } from '@/components/tasks/ApprovalProgressBadge';
+import { TaskItemsManager } from '@/components/tasks/TaskItemsManager';
+import { toast } from 'sonner';
+import { useUserRoles } from '@/hooks/useUserRoles';
+import { getApprovalWorkflow, TASK_CATEGORIES, TaskCategory, getCategoryColor, canUserApprove } from '@/lib/taskCategoryUtils';
 import { 
   getStageColor, 
   getStageIcon, 
@@ -29,6 +41,13 @@ export default function BatchDetail() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedChecklistId, setSelectedChecklistId] = useState<string | null>(null);
+  const [showItemsDialog, setShowItemsDialog] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
+  
+  const queryClient = useQueryClient();
+  const userRoles = useUserRoles();
 
   const { data: batch, isLoading } = useQuery({
     queryKey: ['batch-detail', id],
@@ -103,6 +122,126 @@ export default function BatchDetail() {
       return data;
     },
   });
+
+  // Fetch all profiles for assignee selection
+  const { data: profiles } = useQuery({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('is_active', true)
+        .order('full_name');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Mutation handlers
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, updates }: { taskId: string; updates: any }) => {
+      const { error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', taskId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
+      toast.success('Task updated successfully');
+    },
+    onError: (error) => {
+      console.error('Error updating task:', error);
+      toast.error('Failed to update task');
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
+      toast.success('Task deleted successfully');
+    },
+    onError: (error) => {
+      console.error('Error deleting task:', error);
+      toast.error('Failed to delete task');
+    },
+  });
+
+  const submitForApprovalMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const task = batchTasks?.find(t => t.id === taskId);
+      if (!task || !task.task_category) {
+        throw new Error('Task category not found');
+      }
+
+      const workflow = getApprovalWorkflow(task.task_category);
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          approval_status: 'pending_approval',
+          current_approval_stage: 0,
+          approval_history: [
+            {
+              stage: 0,
+              action: 'submitted',
+              timestamp: new Date().toISOString(),
+              notes: 'Task submitted for approval'
+            }
+          ]
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
+      setShowSubmitDialog(false);
+      setTaskToSubmit(null);
+      toast.success('Task submitted for approval');
+    },
+    onError: (error) => {
+      console.error('Error submitting task:', error);
+      toast.error('Failed to submit task for approval');
+    },
+  });
+
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    if (newStatus === 'pending_approval') {
+      setTaskToSubmit(taskId);
+      setShowSubmitDialog(true);
+    } else {
+      updateTaskMutation.mutate({ taskId, updates: { status: newStatus } });
+    }
+  };
+
+  const handleAssigneeChange = (taskId: string, assigneeId: string) => {
+    updateTaskMutation.mutate({ taskId, updates: { assignee: assigneeId || null } });
+  };
+
+  const handleDueDateChange = (taskId: string, dueDate: string) => {
+    updateTaskMutation.mutate({ taskId, updates: { due_date: dueDate || null } });
+  };
+
+  const handleManageItems = (task: any) => {
+    setSelectedTask(task);
+    setShowItemsDialog(true);
+  };
+
+  const handleDelete = (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+      deleteTaskMutation.mutate(taskId);
+    }
+  };
 
   const getDisplayValue = (id: string) => {
     if (!id) return 'N/A';
@@ -571,7 +710,7 @@ export default function BatchDetail() {
               </CardHeader>
               <CardContent className="pt-0">
                 {batchTasks && batchTasks.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-6">
                     {batchTasks.map((task) => {
                       const hasItems = task.checklist_items && Array.isArray(task.checklist_items) && task.checklist_items.length > 0;
                       const progress = (task.completion_progress as any) || { completed: 0, total: 0 };
@@ -593,23 +732,48 @@ export default function BatchDetail() {
                       };
 
                       return (
-                        <Card key={task.id} className="hover:shadow-sm transition-shadow">
-                          <CardHeader className="pb-3">
+                        <Card key={task.id} className="hover:shadow-md transition-shadow">
+                          <CardHeader className="p-4 pb-2">
                             <div className="flex justify-between items-start gap-4">
-                              <div className="space-y-1 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <CardTitle className="text-base">{task.name}</CardTitle>
-                                  <Badge className={cn("text-xs", getStatusColor(task.status))}>
-                                    {task.status.replace('_', ' ').toUpperCase()}
-                                  </Badge>
+                              <div className="space-y-0.5 flex-1">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  <CardTitle className="text-lg flex items-center gap-2">
+                                    {task.name}
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm" 
+                                          className="h-7 w-7 p-0 rounded-full border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all"
+                                        >
+                                          <Info className="h-4 w-4 text-primary" />
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-96 p-4 bg-background" align="start">
+                                        <TaskDetailsPopoverContent task={task} />
+                                      </PopoverContent>
+                                    </Popover>
+                                  </CardTitle>
+                                  {task.task_category && (
+                                    <Badge className={getCategoryColor(task.task_category)}>
+                                      {TASK_CATEGORIES[task.task_category as TaskCategory]}
+                                    </Badge>
+                                  )}
+                                  {task.task_category && (
+                                    <ApprovalProgressBadge
+                                      category={task.task_category}
+                                      currentStage={task.current_approval_stage || 0}
+                                      approvalStatus={task.approval_status || "draft"}
+                                    />
+                                  )}
                                   {hasItems && (
-                                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                                    <Badge variant="outline" className="flex items-center gap-1">
                                       <ListChecks className="h-3 w-3" />
                                       {progress.completed}/{progress.total} items
                                     </Badge>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                   <span>{task.task_number}</span>
                                   {task.description && (
                                     <>
@@ -619,38 +783,131 @@ export default function BatchDetail() {
                                   )}
                                 </div>
                               </div>
+                              <div className="flex gap-2">
+                                {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => {
+                                      const items = task.checklist_items as any[];
+                                      const hasItems = items && items.length > 0;
+                                      const prog = task.completion_progress as any || { completed: 0, total: 0 };
+                                      
+                                      if (hasItems && prog.completed < prog.total) {
+                                        toast.error("Please complete all items before submitting for approval");
+                                        return;
+                                      }
+                                      
+                                      setTaskToSubmit(task.id);
+                                      setShowSubmitDialog(true);
+                                    }}
+                                  >
+                                    Submit for Approval
+                                  </Button>
+                                )}
+                                {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles.data || []) && task.approval_status === 'pending_approval' && (
+                                  <TaskApprovalActions
+                                    taskId={task.id}
+                                    taskName={task.name}
+                                    currentStage={task.current_approval_stage || 0}
+                                    totalStages={getApprovalWorkflow(task.task_category).totalStages}
+                                    onSuccess={() => queryClient.invalidateQueries({ queryKey: ['batch-tasks'] })}
+                                  />
+                                )}
+                                {hasItems && task.status !== 'completed' && task.approval_status !== 'approved' && (
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleManageItems(task)}
+                                  >
+                                    <ListChecks className="mr-2 h-4 w-4" />
+                                    Manage Items
+                                  </Button>
+                                )}
+                                {hasItems && (task.status === 'completed' || task.approval_status === 'approved') && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleManageItems(task)}
+                                  >
+                                    <ListChecks className="mr-2 h-4 w-4" />
+                                    View Items
+                                  </Button>
+                                )}
+                                {task.status !== 'completed' && task.approval_status !== 'approved' && (
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDelete(task.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </CardHeader>
-                          <CardContent className="pt-0 space-y-3">
+                          <CardContent className="px-4 py-2 pt-1">
                             {hasItems && progress.total > 0 && (
-                              <div className="space-y-1">
-                                <div className="flex justify-between text-xs">
-                                  <span className="text-muted-foreground">Progress</span>
-                                  <span className="font-medium">{Math.round(progressPercent)}%</span>
+                              <div className="mb-2">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <span className="text-xs text-muted-foreground font-semibold">Progress</span>
+                                  <Progress value={progressPercent} className="h-2 flex-1" />
+                                  <span className="text-xs font-medium">{Math.round(progressPercent)}%</span>
                                 </div>
-                                <Progress value={progressPercent} className="h-2" />
                               </div>
                             )}
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                              <div>
-                                <p className="text-muted-foreground">Created By</p>
-                                <p className="font-medium">{task.creator?.full_name || 'N/A'}</p>
+
+                            {/* Inline Edit Controls */}
+                            <div className="flex items-center gap-3 px-2 py-1.5 bg-muted/50 rounded-lg">
+                              <div className="flex items-center gap-2 flex-1">
+                                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
+                                <Select
+                                  value={task.approval_status === 'pending_approval' ? 'pending_approval' : task.status}
+                                  onValueChange={(value) => handleStatusChange(task.id, value)}
+                                  disabled={task.approval_status === 'pending_approval' || task.approval_status === 'approved'}
+                                >
+                                  <SelectTrigger id={`status-${task.id}`} className="h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="in_progress">In Progress</SelectItem>
+                                    <SelectItem value="pending_approval">Pending Approval</SelectItem>
+                                    <SelectItem value="completed">Completed</SelectItem>
+                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
-                              <div>
-                                <p className="text-muted-foreground">Assigned To</p>
-                                <p className="font-medium">{task.assigned_to?.full_name || 'Unassigned'}</p>
+
+                              <div className="flex items-center gap-2 flex-1">
+                                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Assignee</Label>
+                                <Select
+                                  value={task.assignee || "unassigned"}
+                                  onValueChange={(value) => handleAssigneeChange(task.id, value === "unassigned" ? "" : value)}
+                                >
+                                  <SelectTrigger id={`assignee-${task.id}`} className="h-8">
+                                    <SelectValue placeholder="Select assignee" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                                    {profiles?.map((profile) => (
+                                      <SelectItem key={profile.id} value={profile.id}>
+                                        {profile.full_name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
-                              {task.due_date && (
-                                <div>
-                                  <p className="text-muted-foreground">Due Date</p>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    <p className="font-medium">
-                                      {format(new Date(task.due_date), 'MMM d, yyyy')}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
+
+                              <div className="flex items-center gap-2 flex-1">
+                                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Due Date</Label>
+                                <Input
+                                  id={`due-date-${task.id}`}
+                                  type="date"
+                                  value={task.due_date || ""}
+                                  onChange={(e) => handleDueDateChange(task.id, e.target.value)}
+                                  className="h-8"
+                                />
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -680,6 +937,65 @@ export default function BatchDetail() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Manage Items Dialog */}
+        <Dialog open={showItemsDialog} onOpenChange={setShowItemsDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedTask?.status === 'completed' || selectedTask?.approval_status === 'approved' 
+                  ? 'View Task Items' 
+                  : 'Manage Task Items'}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedTask && (
+              <TaskItemsManager
+                task={selectedTask}
+                readOnly={selectedTask.status === 'completed' || selectedTask.approval_status === 'approved'}
+                onClose={() => {
+                  setShowItemsDialog(false);
+                  setSelectedTask(null);
+                  queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Submit for Approval Dialog */}
+        <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Submit Task for Approval</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to submit this task for approval? Once submitted, you won't be able to edit it until the approval process is complete.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowSubmitDialog(false);
+                    setTaskToSubmit(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (taskToSubmit) {
+                      submitForApprovalMutation.mutate(taskToSubmit);
+                    }
+                  }}
+                  disabled={submitForApprovalMutation.isPending}
+                >
+                  {submitForApprovalMutation.isPending ? 'Submitting...' : 'Submit for Approval'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </BatchLayout>
   );
