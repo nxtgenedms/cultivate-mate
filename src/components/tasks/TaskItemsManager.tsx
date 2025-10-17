@@ -192,8 +192,8 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                         )}
                       </label>
                       
-                      {/* Render input based on item type */}
-                      {item.item_type === 'date' && (
+                      {/* Render input based on item type - Generic logic */}
+                      {item.item_type === 'date' ? (
                         <Popover open={datePickerOpen === item.id} onOpenChange={(open) => {
                           if (open && !readOnly) {
                             openDatePicker(item.id, item.response_value);
@@ -288,8 +288,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                             </div>
                           </PopoverContent>
                         </Popover>
-                      )}
-                      {item.item_type === 'number' && (
+                      ) : item.item_type === 'number' ? (
                         <Input
                           type="number"
                           value={item.response_value || ""}
@@ -298,18 +297,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           placeholder="Enter number..."
                           disabled={readOnly}
                         />
-                      )}
-                      {item.item_type === 'text' && (
-                        <Input
-                          type="text"
-                          value={item.response_value || ""}
-                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
-                          className="text-sm"
-                          placeholder="Enter text..."
-                          disabled={readOnly}
-                        />
-                      )}
-                      {item.item_type === 'textarea' && (
+                      ) : item.item_type === 'textarea' ? (
                         <Textarea
                           placeholder="Enter text..."
                           value={item.response_value || ""}
@@ -318,8 +306,16 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           className="text-sm"
                           disabled={readOnly}
                         />
-                      )}
-                      {(!item.item_type || item.item_type === 'yes_no' || item.item_type === 'select' || item.item_type === 'batch_info') && (
+                      ) : item.item_type === 'text' ? (
+                        <Input
+                          type="text"
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          className="text-sm"
+                          placeholder="Enter text..."
+                          disabled={readOnly}
+                        />
+                      ) : (
                         <Textarea
                           placeholder="Add notes..."
                           value={item.notes}
