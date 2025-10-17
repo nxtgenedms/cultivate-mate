@@ -1309,6 +1309,9 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          lifecycle_stage:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
           name: string
           priority_level: Database["public"]["Enums"]["task_priority"] | null
           rejection_reason: string | null
@@ -1332,6 +1335,9 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          lifecycle_stage?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
           name: string
           priority_level?: Database["public"]["Enums"]["task_priority"] | null
           rejection_reason?: string | null
@@ -1355,6 +1361,9 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          lifecycle_stage?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
           name?: string
           priority_level?: Database["public"]["Enums"]["task_priority"] | null
           rejection_reason?: string | null

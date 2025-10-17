@@ -31,6 +31,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
   const [checklistType, setChecklistType] = useState<'general' | 'batch'>('general');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [selectedLifecycleStage, setSelectedLifecycleStage] = useState<string>('');
 
   const { data: templates } = useQuery({
     queryKey: ['checklist-templates-active'],
@@ -185,6 +186,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         batch_id: checklistType === 'batch' ? selectedBatch : null,
         checklist_id: instance.id,
         task_category: taskCategory as any,
+        lifecycle_stage: checklistType === 'batch' && selectedLifecycleStage ? selectedLifecycleStage : null,
         checklist_items: checklistItems,
         completion_progress: {
           total: checklistItems.length,
@@ -210,6 +212,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       onOpenChange(false);
       setSelectedTemplate('');
       setSelectedBatch('');
+      setSelectedLifecycleStage('');
       setChecklistType('general');
     },
     onError: (error) => {
@@ -225,6 +228,11 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     
     if (checklistType === 'batch' && !selectedBatch) {
       toast.error('Please select a batch');
+      return;
+    }
+
+    if (checklistType === 'batch' && !selectedLifecycleStage) {
+      toast.error('Please select a lifecycle stage');
       return;
     }
 
@@ -261,26 +269,47 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
           </div>
 
           {checklistType === 'batch' && (
-            <div className="space-y-2">
-              <Label htmlFor="batch">Select Batch *</Label>
-              <Select value={selectedBatch} onValueChange={setSelectedBatch}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select batch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {batches?.map((batch) => (
-                    <SelectItem key={batch.id} value={batch.id}>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium">{batch.batch_number}</span>
-                        <span className="text-xs text-muted-foreground">
-                          Mother: {batch.mother_no || 'N/A'} • Stage: {batch.current_stage || 'N/A'}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="batch">Select Batch *</Label>
+                <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {batches?.map((batch) => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{batch.batch_number}</span>
+                          <span className="text-xs text-muted-foreground">
+                            Mother: {batch.mother_no || 'N/A'} • Stage: {batch.current_stage || 'N/A'}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lifecycle-stage">Lifecycle Stage *</Label>
+                <Select value={selectedLifecycleStage} onValueChange={setSelectedLifecycleStage}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select lifecycle stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cloning">Cloning</SelectItem>
+                    <SelectItem value="hardening">Hardening</SelectItem>
+                    <SelectItem value="vegetative">Vegetative</SelectItem>
+                    <SelectItem value="flowering">Flowering</SelectItem>
+                    <SelectItem value="harvest">Harvest</SelectItem>
+                    <SelectItem value="drying">Drying</SelectItem>
+                    <SelectItem value="processing">Processing</SelectItem>
+                    <SelectItem value="packing">Packing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           )}
 
           <div className="space-y-2">
