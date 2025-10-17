@@ -318,21 +318,21 @@ export default function BatchDetail() {
 
         {/* Unified Stage Progress & Key Metrics Card */}
         <Card className="border-2 border-primary/20">
-          <CardContent className="p-4">
-            <div className="grid gap-4 md:grid-cols-6">
+          <CardContent className="p-3">
+            <div className="grid gap-3 md:grid-cols-6">
               {/* Stage Progress Section - Takes 2 columns */}
-              <div className="md:col-span-2 space-y-2">
+              <div className="md:col-span-2 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Badge className={cn("border", getStageColor(batch.current_stage))}>
+                  <Badge className={cn("border text-xs", getStageColor(batch.current_stage))}>
                     {getStageLabel(batch.current_stage)}
                   </Badge>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{Math.round(stageProgress)}%</p>
-                    <p className="text-xs text-muted-foreground">Complete</p>
+                    <p className="text-xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                    <p className="text-[10px] text-muted-foreground leading-none">Complete</p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">{daysInStage} days in current stage</p>
-                <Progress value={stageProgress} className="h-2" />
+                <p className="text-[10px] text-muted-foreground">{daysInStage} days in current stage</p>
+                <Progress value={stageProgress} className="h-1.5" />
                 <PhaseChangeButton
                   batchId={batch.id}
                   batchNumber={batch.batch_number}
@@ -344,40 +344,40 @@ export default function BatchDetail() {
               </div>
 
               {/* Key Metrics - 4 columns */}
-              <div className="md:col-span-4 grid grid-cols-4 gap-3">
-                <div className="border rounded-lg p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-medium text-muted-foreground">Strain ID</p>
+              <div className="md:col-span-4 grid grid-cols-4 gap-2">
+                <div className="border rounded-lg p-2 bg-muted/30">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[10px] font-medium text-muted-foreground">Strain ID</p>
                     <Package className="h-3 w-3 text-muted-foreground" />
                   </div>
-                  <p className="text-xl font-bold">{getDisplayValue(batch.strain_id || '')}</p>
+                  <p className="text-lg font-bold leading-tight">{getDisplayValue(batch.strain_id || '')}</p>
                 </div>
 
-                <div className="border rounded-lg p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-medium text-muted-foreground">Mother ID</p>
+                <div className="border rounded-lg p-2 bg-muted/30">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[10px] font-medium text-muted-foreground">Mother ID</p>
                     <Users className="h-3 w-3 text-muted-foreground" />
                   </div>
-                  <p className="text-xl font-bold">{batch.mother_no || 'N/A'}</p>
+                  <p className="text-lg font-bold leading-tight">{batch.mother_no || 'N/A'}</p>
                 </div>
 
-                <div className="border rounded-lg p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-medium text-muted-foreground">Total Plants</p>
+                <div className="border rounded-lg p-2 bg-muted/30">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[10px] font-medium text-muted-foreground">Total Plants</p>
                     <TrendingUp className="h-3 w-3 text-muted-foreground" />
                   </div>
-                  <p className="text-xl font-bold">{batch.total_clones_plants || 0}</p>
+                  <p className="text-lg font-bold leading-tight">{batch.total_clones_plants || 0}</p>
                   {batch.clonator_mortalities > 0 && (
-                    <p className="text-xs text-red-500">-{batch.clonator_mortalities} lost</p>
+                    <p className="text-[10px] text-red-500 leading-none mt-0.5">-{batch.clonator_mortalities} lost</p>
                   )}
                 </div>
 
-                <div className="border rounded-lg p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-medium text-muted-foreground">Start Date</p>
+                <div className="border rounded-lg p-2 bg-muted/30">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[10px] font-medium text-muted-foreground">Start Date</p>
                     <Calendar className="h-3 w-3 text-muted-foreground" />
                   </div>
-                  <p className="text-base font-bold">
+                  <p className="text-sm font-bold leading-tight">
                     {batch.clone_germination_date 
                       ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
                       : 'N/A'}
