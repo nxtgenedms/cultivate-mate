@@ -366,7 +366,6 @@ export default function BatchDetail() {
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="lifecycle">Lifecycle Timeline</TabsTrigger>
-            <TabsTrigger value="records">Records & Logs</TabsTrigger>
             <TabsTrigger value="tasks">Batch Tasks</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -473,18 +472,6 @@ export default function BatchDetail() {
                 }
               }}
             />
-          </TabsContent>
-
-          <TabsContent value="records" className="mt-4">
-            <div className="space-y-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-center text-muted-foreground">
-                    No records or logs available for this batch.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           <TabsContent value="tasks" className="mt-4">
