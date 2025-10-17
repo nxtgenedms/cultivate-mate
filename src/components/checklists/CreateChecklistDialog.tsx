@@ -61,6 +61,35 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     enabled: open && checklistType === 'batch',
   });
 
+  const { data: nomenclature } = useQuery({
+    queryKey: ['nomenclature-task'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('nomenclature_templates')
+        .select('*')
+        .eq('entity_type', 'task')
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: open,
+  });
+
+  const { data: tasksCount } = useQuery({
+    queryKey: ['tasks-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: open,
+  });
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -68,6 +97,16 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       const template = templates?.find(t => t.id === selectedTemplate);
       if (!template) throw new Error('Template not found');
 
+      // Fetch template items
+      const { data: templateItems, error: itemsError } = await supabase
+        .from('checklist_template_items')
+        .select('*')
+        .eq('template_id', selectedTemplate)
+        .order('sort_order');
+      
+      if (itemsError) throw itemsError;
+
+      // Create checklist instance
       const instanceData = {
         template_id: selectedTemplate,
         batch_id: checklistType === 'batch' ? selectedBatch : null,
@@ -76,17 +115,74 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         created_by: user?.id,
       };
 
-      const { data, error } = await supabase
+      const { data: instance, error: instanceError } = await supabase
         .from('checklist_instances')
         .insert([instanceData])
         .select()
         .single();
       
-      if (error) throw error;
-      return data;
+      if (instanceError) throw instanceError;
+
+      // Generate task number
+      const generateTaskNumber = (formatPattern: string, count: number) => {
+        const counterMatch = formatPattern.match(/\{counter:(\d+)\}/) || formatPattern.match(/\{seq\}/);
+        if (counterMatch) {
+          const padding = counterMatch[1] ? parseInt(counterMatch[1]) : 4;
+          const counterValue = String(count + 1).padStart(padding, "0");
+          return formatPattern.replace(/\{counter:\d+\}|\{seq\}/, counterValue);
+        }
+        return formatPattern;
+      };
+
+      const taskNumber = nomenclature 
+        ? generateTaskNumber(nomenclature.format_pattern, tasksCount || 0)
+        : `TASK-${String((tasksCount || 0) + 1).padStart(4, '0')}`;
+
+      // Convert template items to checklist items format
+      const checklistItems = templateItems?.map(item => ({
+        id: crypto.randomUUID(),
+        label: item.item_label,
+        section: item.section_name || 'General',
+        item_type: item.item_type,
+        is_required: item.is_required,
+        sort_order: item.sort_order,
+        completed: false,
+        response_value: '',
+        notes: '',
+      })) || [];
+
+      // Create task
+      const taskData = {
+        task_number: taskNumber,
+        name: `${template.sof_number}: ${template.template_name}`,
+        description: template.description,
+        status: 'in_progress',
+        created_by: user?.id,
+        assignee: user?.id,
+        batch_id: checklistType === 'batch' ? selectedBatch : null,
+        checklist_id: instance.id,
+        task_category: template.task_category as any,
+        checklist_items: checklistItems,
+        completion_progress: {
+          total: checklistItems.length,
+          completed: 0,
+        },
+        approval_status: 'draft',
+        current_approval_stage: 0,
+      };
+
+      const { error: taskError } = await supabase
+        .from('tasks')
+        .insert([taskData]);
+      
+      if (taskError) throw taskError;
+
+      return instance;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist-instances'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks-count'] });
       toast.success("Checklist created successfully");
       onOpenChange(false);
       setSelectedTemplate('');
