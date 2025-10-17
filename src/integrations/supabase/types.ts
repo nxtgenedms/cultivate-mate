@@ -680,6 +680,10 @@ export type Database = {
       }
       checklist_instances: {
         Row: {
+          approval_notes: string | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           batch_id: string | null
           completed_at: string | null
           completed_by: string | null
@@ -687,11 +691,20 @@ export type Database = {
           created_by: string | null
           id: string
           instance_name: string
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           status: string | null
+          submitted_at: string | null
+          submitted_by: string | null
           template_id: string
           updated_at: string | null
         }
         Insert: {
+          approval_notes?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           batch_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
@@ -699,11 +712,20 @@ export type Database = {
           created_by?: string | null
           id?: string
           instance_name: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           status?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
           template_id: string
           updated_at?: string | null
         }
         Update: {
+          approval_notes?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           batch_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
@@ -711,7 +733,12 @@ export type Database = {
           created_by?: string | null
           id?: string
           instance_name?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           status?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
           template_id?: string
           updated_at?: string | null
         }
