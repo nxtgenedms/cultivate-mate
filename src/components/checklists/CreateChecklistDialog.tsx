@@ -151,6 +151,28 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         notes: '',
       })) || [];
 
+      // Validate task_category - only use if it's a valid enum value
+      const validTaskCategories = [
+        'daily_cloning_transplant',
+        'mortality_discard',
+        'weekly_cultivation',
+        'clonator_weekly',
+        'soil_moisture',
+        'scouting_corrective',
+        'chemical_delivery',
+        'fertigation_application',
+        'ipm_chemical_mixing',
+        'hygiene_check',
+        'cultivation_cleaning',
+        'processing_cleaning',
+        'pre_harvest',
+        'final_harvest'
+      ];
+      
+      const taskCategory = template.task_category && validTaskCategories.includes(template.task_category)
+        ? template.task_category
+        : null;
+
       // Create task
       const taskData = {
         task_number: taskNumber,
@@ -161,7 +183,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         assignee: user?.id,
         batch_id: checklistType === 'batch' ? selectedBatch : null,
         checklist_id: instance.id,
-        task_category: template.task_category as any,
+        task_category: taskCategory as any,
         checklist_items: checklistItems,
         completion_progress: {
           total: checklistItems.length,
