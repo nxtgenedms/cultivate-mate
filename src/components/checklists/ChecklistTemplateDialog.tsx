@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
+import { CATEGORY_GROUPS, type CategoryGroup } from "@/lib/taskCategoryUtils";
 
 interface ChecklistTemplateDialogProps {
   open: boolean;
@@ -103,18 +104,11 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
 
   const getApprovalWorkflow = (category: string) => {
     const workflows: Record<string, string> = {
-      'cloning_rooting': 'Grower → Manager → QA',
-      'vegetative': 'Grower → Manager → QA',
-      'flowering': 'Grower → Manager → QA',
+      'daily_weekly': 'Staff → Grower → Manager',
+      'quality_safety': 'Grower → Manager → QA',
+      'chemical_management': 'Grower → Manager → QA',
+      'sanitation': 'Staff → Manager → QA',
       'harvest': 'Grower → Manager → QA',
-      'processing': 'Processor → Manager → QA',
-      'drying': 'Processor → Manager → QA',
-      'dry_weight': 'Processor → Manager → QA',
-      'packaging': 'Processor → Manager → QA',
-      'mortality': 'Grower → Manager → QA',
-      'inventory': 'Staff → Manager',
-      'maintenance': 'Staff → Supervisor',
-      'general': 'Creator → Manager',
     };
     return workflows[category] || 'Creator → Manager';
   };
@@ -227,18 +221,11 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cloning_rooting">Cloning & Rooting</SelectItem>
-                <SelectItem value="vegetative">Vegetative Growth</SelectItem>
-                <SelectItem value="flowering">Flowering</SelectItem>
-                <SelectItem value="harvest">Harvest</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="drying">Drying</SelectItem>
-                <SelectItem value="dry_weight">Dry Weight</SelectItem>
-                <SelectItem value="packaging">Packaging</SelectItem>
-                <SelectItem value="mortality">Mortality & Discard</SelectItem>
-                <SelectItem value="inventory">Inventory</SelectItem>
-                <SelectItem value="maintenance">Maintenance</SelectItem>
-                <SelectItem value="general">General</SelectItem>
+                {Object.entries(CATEGORY_GROUPS).map(([key, group]) => (
+                  <SelectItem key={key} value={key}>
+                    {group.icon} {group.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
