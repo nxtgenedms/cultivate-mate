@@ -45,39 +45,6 @@ export function TaskDialog({
     due_date: "",
     assignee: "",
     status: "draft",
-    template_id: "",
-  });
-
-  const { data: templates } = useQuery({
-    queryKey: ["checklist-templates"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("checklist_templates")
-        .select("*")
-        .eq("is_active", true)
-        .order("template_name");
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: templateItems } = useQuery({
-    queryKey: ["template-items", formData.template_id],
-    queryFn: async () => {
-      if (!formData.template_id) return [];
-      
-      const { data, error } = await supabase
-        .from("checklist_template_items")
-        .select("*")
-        .eq("template_id", formData.template_id)
-        .eq("is_required", true)
-        .order("sort_order");
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!formData.template_id,
   });
 
   const { data: profiles } = useQuery({
@@ -102,7 +69,6 @@ export function TaskDialog({
         due_date: task.due_date || "",
         assignee: task.assignee || "",
         status: task.status || "draft",
-        template_id: "",
       });
     } else {
       setFormData({
@@ -111,7 +77,6 @@ export function TaskDialog({
         due_date: "",
         assignee: "",
         status: "draft",
-        template_id: "",
       });
     }
   }, [task, open]);
@@ -128,52 +93,19 @@ export function TaskDialog({
         tasksCount
       );
 
-      // If template is selected, create ONE task with all checklist items
-      if (data.template_id && templateItems && templateItems.length > 0) {
-        const template = templates?.find(t => t.id === data.template_id);
-        
-        const checklistItems = templateItems.map((item, index) => ({
-          id: item.id,
-          label: item.item_label,
-          section: item.section_name,
-          is_required: item.is_required,
-          completed: false,
-          notes: "",
-          item_type: item.item_type,
-          response_value: "",
-          sort_order: index
-        }));
+      const { error } = await supabase.from("tasks").insert({
+        name: data.name,
+        description: data.description || null,
+        due_date: data.due_date || null,
+        assignee: data.assignee || null,
+        status: data.status,
+        task_number: taskNumber,
+        checklist_items: [] as any,
+        completion_progress: { completed: 0, total: 0 } as any,
+        created_by: user.id,
+      });
 
-        const { error } = await supabase.from("tasks").insert({
-          task_number: taskNumber,
-          name: `${template?.sof_number}: ${template?.template_name}`,
-          description: template?.description || null,
-          due_date: data.due_date || null,
-          assignee: data.assignee || null,
-          status: data.status,
-          template_item_id: data.template_id,
-          checklist_items: checklistItems as any,
-          completion_progress: { completed: 0, total: checklistItems.length } as any,
-          created_by: user.id,
-        });
-
-        if (error) throw error;
-      } else {
-        // Single task creation without checklist
-        const { error } = await supabase.from("tasks").insert({
-          name: data.name,
-          description: data.description || null,
-          due_date: data.due_date || null,
-          assignee: data.assignee || null,
-          status: data.status,
-          task_number: taskNumber,
-          checklist_items: [] as any,
-          completion_progress: { completed: 0, total: 0 } as any,
-          created_by: user.id,
-        });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -207,13 +139,12 @@ export function TaskDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.template_id && !formData.name.trim()) {
+    if (!formData.name.trim()) {
       toast.error("Task name is required");
       return;
     }
 
     if (task) {
-      // For updates, don't include template_id as it's not a field in the tasks table
       const updateData = {
         name: formData.name,
         description: formData.description || null,
@@ -223,15 +154,7 @@ export function TaskDialog({
       };
       updateMutation.mutate(updateData);
     } else {
-      const submitData = {
-        name: formData.name,
-        description: formData.description || null,
-        due_date: formData.due_date || null,
-        assignee: formData.assignee || null,
-        status: formData.status,
-        template_id: formData.template_id || null,
-      };
-      createMutation.mutate(submitData);
+      createMutation.mutate(formData);
     }
   };
 
@@ -242,64 +165,31 @@ export function TaskDialog({
           <DialogTitle>{task ? "Edit Task" : "Create New Task"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!task && (
-            <div className="space-y-2">
-              <Label htmlFor="template">Create from Template (Optional)</Label>
-              <Select
-                value={formData.template_id || "none"}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, template_id: value === "none" ? "" : value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select template" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Template (Single Task)</SelectItem>
-                  {templates?.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.template_name} ({template.sof_number})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.template_id && templateItems && templateItems.length > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Will create {templateItems.length} task(s) from template items
-                </p>
-              )}
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="name">Task Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              placeholder="Enter task name"
+              required
+            />
+          </div>
 
-          {!formData.template_id && (
-            <div className="space-y-2">
-              <Label htmlFor="name">Task Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder="Enter task name"
-                required={!formData.template_id}
-              />
-            </div>
-          )}
-
-          {!formData.template_id && (
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Enter task description"
-                rows={3}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Enter task description"
+              rows={3}
+            />
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="due_date">Due Date & Time</Label>

@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Search, FileCheck, Calendar, User, ListChecks, Info } from "lucide-react";
+import { Plus, Search, Calendar, User, ListChecks, Info } from "lucide-react";
 import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
@@ -23,12 +23,10 @@ import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
-import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
 import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, canUserApprove } from "@/lib/taskCategoryUtils";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isChecklistDialogOpen, setIsChecklistDialogOpen] = useState(false);
   const [isItemsDialogOpen, setIsItemsDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -590,10 +588,6 @@ export default function TaskManagement() {
                 <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
                 <TabsTrigger value="all-tasks">All Tasks</TabsTrigger>
               </TabsList>
-              <Button onClick={() => setIsChecklistDialogOpen(true)}>
-                <FileCheck className="mr-2 h-4 w-4" />
-                Create Checklist
-              </Button>
             </div>
             
             <div className="flex gap-4 mt-6">
@@ -631,12 +625,6 @@ export default function TaskManagement() {
           </Tabs>
         ) : (
           <>
-            <div className="flex items-center justify-end mb-4">
-              <Button onClick={() => setIsChecklistDialogOpen(true)}>
-                <FileCheck className="mr-2 h-4 w-4" />
-                Create Checklist
-              </Button>
-            </div>
             <div className="flex gap-4 mb-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -672,11 +660,6 @@ export default function TaskManagement() {
           nomenclature={nomenclature}
           tasksCount={tasks?.length || 0}
           generateTaskNumber={generateTaskNumber}
-        />
-
-        <CreateChecklistDialog
-          open={isChecklistDialogOpen}
-          onOpenChange={setIsChecklistDialogOpen}
         />
 
         <Dialog open={isItemsDialogOpen} onOpenChange={setIsItemsDialogOpen}>
