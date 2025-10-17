@@ -292,7 +292,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lifecycle-stage">Stage for This Task *</Label>
+                <Label htmlFor="lifecycle-stage">Target Stage *</Label>
                 <Select value={selectedLifecycleStage} onValueChange={setSelectedLifecycleStage}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select lifecycle stage" />
