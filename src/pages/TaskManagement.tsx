@@ -339,8 +339,12 @@ export default function TaskManagement() {
                     {task.name}
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
-                          <Info className="h-4 w-4 text-muted-foreground" />
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 w-7 p-0 rounded-full border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all"
+                        >
+                          <Info className="h-4 w-4 text-primary" />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-96 p-4 bg-background" align="start">
