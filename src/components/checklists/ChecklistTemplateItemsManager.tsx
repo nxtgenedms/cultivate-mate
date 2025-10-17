@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, Edit, Plus, Trash2 } from "lucide-react";
+import ChecklistTemplateItemDialog from "./ChecklistTemplateItemDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,54 +16,50 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import ChecklistTemplateItemDialog from "./ChecklistTemplateItemDialog";
+import { toast } from "sonner";
 
 interface ChecklistTemplateItemsManagerProps {
   template: any;
   onBack: () => void;
 }
 
-const ChecklistTemplateItemsManager = ({
-  template,
-  onBack,
-}: ChecklistTemplateItemsManagerProps) => {
+const ChecklistTemplateItemsManager = ({ template, onBack }: ChecklistTemplateItemsManagerProps) => {
+  const queryClient = useQueryClient();
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
-  const queryClient = useQueryClient();
 
   const { data: items, isLoading } = useQuery({
-    queryKey: ["checklist-template-items", template.id],
+    queryKey: ['checklist-template-items', template.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("checklist_template_items")
-        .select("*")
-        .eq("template_id", template.id)
-        .order("sort_order");
-
+        .from('checklist_template_items')
+        .select('*')
+        .eq('template_id', template.id)
+        .order('sort_order');
+      
       if (error) throw error;
       return data;
-    },
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (itemId: string) => {
       const { error } = await supabase
-        .from("checklist_template_items")
+        .from('checklist_template_items')
         .delete()
-        .eq("id", itemId);
-
+        .eq('id', itemId);
+      
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
+      queryClient.invalidateQueries({ queryKey: ['checklist-template-items', template.id] });
       toast.success("Item deleted successfully");
       setDeleteDialogOpen(false);
-      setItemToDelete(null);
     },
     onError: (error) => {
-      toast.error("Failed to delete item: " + error.message);
+      toast.error(`Failed to delete item: ${error.message}`);
     },
   });
 
@@ -84,17 +80,16 @@ const ChecklistTemplateItemsManager = ({
 
   const getItemTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
-      yes_no: "bg-blue-500",
+      checkbox: "bg-blue-500",
       text: "bg-green-500",
-      number: "bg-purple-500",
-      date: "bg-orange-500",
-      select: "bg-pink-500",
-      batch_info: "bg-cyan-500",
+      number: "bg-yellow-500",
+      date: "bg-purple-500",
+      textarea: "bg-orange-500",
     };
-
+    
     return (
       <Badge className={colors[type] || "bg-gray-500"}>
-        {type.replace("_", " ")}
+        {type}
       </Badge>
     );
   };
@@ -109,8 +104,10 @@ const ChecklistTemplateItemsManager = ({
           </Button>
           <div>
             <h2 className="text-2xl font-bold">{template.template_name}</h2>
-            <p className="text-sm text-muted-foreground">
-              SOF: {template.sof_number}
+            <p className="text-muted-foreground">
+              <code className="text-sm bg-muted px-2 py-1 rounded">
+                {template.sof_number}
+              </code>
             </p>
           </div>
         </div>
@@ -123,6 +120,9 @@ const ChecklistTemplateItemsManager = ({
       <Card>
         <CardHeader>
           <CardTitle>Checklist Items</CardTitle>
+          <CardDescription>
+            Manage the items for this checklist template
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -130,14 +130,14 @@ const ChecklistTemplateItemsManager = ({
               Loading items...
             </div>
           ) : items && items.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
                       <span className="font-medium">{item.item_label}</span>
                       {getItemTypeBadge(item.item_type)}
                       {item.is_required && (
@@ -166,7 +166,7 @@ const ChecklistTemplateItemsManager = ({
                       size="sm"
                       onClick={() => handleDelete(item)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ const ChecklistTemplateItemsManager = ({
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              No items added yet. Click "Add Item" to create one.
+              No items added yet. Click "Add Item" to get started.
             </div>
           )}
         </CardContent>
@@ -192,15 +192,13 @@ const ChecklistTemplateItemsManager = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Item</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{itemToDelete?.item_label}"? This
-              action cannot be undone.
+              Are you sure you want to delete "{itemToDelete?.item_label}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => itemToDelete && deleteMutation.mutate(itemToDelete.id)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

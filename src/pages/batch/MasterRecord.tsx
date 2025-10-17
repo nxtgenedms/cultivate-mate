@@ -119,14 +119,6 @@ export default function MasterRecord() {
           .eq('id', editingRecordId);
 
         if (batchError) throw batchError;
-
-        // Update checklist if it exists
-        const { error: checklistError } = await supabase
-          .from('cloning_pre_start_checklists')
-          .update(checklistFields)
-          .eq('batch_number', data.batch_number);
-
-        if (checklistError) throw checklistError;
       } else {
         // Insert batch lifecycle record
         const { error: batchError } = await supabase
@@ -134,13 +126,6 @@ export default function MasterRecord() {
           .insert(batchFields);
 
         if (batchError) throw batchError;
-
-        // Insert checklist
-        const { error: checklistError } = await supabase
-          .from('cloning_pre_start_checklists')
-          .insert(checklistFields);
-
-        if (checklistError) throw checklistError;
       }
     },
     onSuccess: (_, { isDraft }) => {
