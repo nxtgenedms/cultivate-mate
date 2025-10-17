@@ -404,13 +404,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "batch_lifecycle_records_batch_id_fkey"
-            columns: ["batch_id"]
-            isOneToOne: false
-            referencedRelation: "batches"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "batch_lifecycle_records_clonator_2_completed_by_fkey"
             columns: ["clonator_2_completed_by"]
             isOneToOne: false
@@ -618,62 +611,6 @@ export type Database = {
             columns: ["veg_completed_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      batches: {
-        Row: {
-          actual_quantity: number | null
-          batch_number: string
-          created_at: string | null
-          created_by: string | null
-          id: string
-          is_active: boolean | null
-          mother_id: string | null
-          notes: string | null
-          projected_quantity: number | null
-          stage: Database["public"]["Enums"]["batch_stage"]
-          start_date: string
-          strain_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          actual_quantity?: number | null
-          batch_number: string
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          is_active?: boolean | null
-          mother_id?: string | null
-          notes?: string | null
-          projected_quantity?: number | null
-          stage?: Database["public"]["Enums"]["batch_stage"]
-          start_date?: string
-          strain_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          actual_quantity?: number | null
-          batch_number?: string
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          is_active?: boolean | null
-          mother_id?: string | null
-          notes?: string | null
-          projected_quantity?: number | null
-          stage?: Database["public"]["Enums"]["batch_stage"]
-          start_date?: string
-          strain_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "batches_strain_id_fkey"
-            columns: ["strain_id"]
-            isOneToOne: false
-            referencedRelation: "lookup_values"
             referencedColumns: ["id"]
           },
         ]
@@ -1103,15 +1040,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["approval_status"] | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "mortality_discard_records_batch_id_fkey"
-            columns: ["batch_id"]
-            isOneToOne: false
-            referencedRelation: "batches"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       nomenclature_templates: {
         Row: {
