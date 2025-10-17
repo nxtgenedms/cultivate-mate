@@ -454,56 +454,35 @@ export default function TaskManagement() {
               </div>
             )}
 
-            {/* Inline Edit Controls */}
+            {/* Read-only Display Fields */}
             <div className="flex items-center gap-3 px-2 py-1.5 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
-                <Select
-                  value={task.approval_status === 'pending_approval' ? 'pending_approval' : task.status}
-                  onValueChange={(value) => handleStatusChange(task.id, value)}
-                  disabled={task.approval_status === 'pending_approval' || task.approval_status === 'approved'}
-                >
-                  <SelectTrigger id={`status-${task.id}`} className="h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="pending_approval">Pending Approval</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
+                <Badge variant={
+                  task.approval_status === 'pending_approval' ? 'default' :
+                  task.status === 'completed' ? 'default' :
+                  task.status === 'in_progress' ? 'secondary' :
+                  'outline'
+                }>
+                  {task.approval_status === 'pending_approval' ? 'Pending Approval' :
+                   task.status === 'in_progress' ? 'In Progress' :
+                   task.status === 'completed' ? 'Completed' :
+                   task.status === 'cancelled' ? 'Cancelled' : task.status}
+                </Badge>
               </div>
 
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`assignee-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Assignee</Label>
-                <Select
-                  value={task.assignee || "unassigned"}
-                  onValueChange={(value) => handleAssigneeChange(task.id, value === "unassigned" ? "" : value)}
-                >
-                  <SelectTrigger id={`assignee-${task.id}`} className="h-8">
-                    <SelectValue placeholder="Select assignee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {profiles?.map((profile) => (
-                      <SelectItem key={profile.id} value={profile.id}>
-                        {profile.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Assignee</Label>
+                <span className="text-sm">
+                  {task.assigned_to?.full_name || 'Unassigned'}
+                </span>
               </div>
 
               <div className="flex items-center gap-2 flex-1">
-                <Label htmlFor={`due-date-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Due Date</Label>
-                <Input
-                  id={`due-date-${task.id}`}
-                  type="date"
-                  value={task.due_date || ""}
-                  onChange={(e) => handleDueDateChange(task.id, e.target.value)}
-                  className="h-8"
-                />
+                <Label className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Due Date</Label>
+                <span className="text-sm">
+                  {task.due_date ? format(new Date(task.due_date), "MMM dd, yyyy") : 'No due date'}
+                </span>
               </div>
             </div>
           </CardContent>
