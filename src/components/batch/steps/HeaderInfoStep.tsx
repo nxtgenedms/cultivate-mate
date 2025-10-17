@@ -133,8 +133,9 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          {/* 1. Batch Number */}
           <div className="space-y-2">
-            <Label htmlFor="batch_number">Batch ID *</Label>
+            <Label htmlFor="batch_number">Batch Number *</Label>
             <div className="flex gap-2">
               <Input
                 id="batch_number"
@@ -149,7 +150,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
                 variant="outline"
                 size="icon"
                 onClick={generateBatchNumber}
-                title="Generate new Batch ID"
+                title="Generate new Batch Number"
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -159,25 +160,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="mother_no">Mother ID *</Label>
-            <Select
-              value={data?.mother_no || ''}
-              onValueChange={(value) => handleChange('mother_no', value)}
-            >
-              <SelectTrigger id="mother_no">
-                <SelectValue placeholder="Select Mother ID" />
-              </SelectTrigger>
-              <SelectContent>
-                {getValuesByCategory('mother_id').map((option: any) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.value_display}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* 2. Strain ID */}
           <div className="space-y-2">
             <Label htmlFor="strain_id">Strain ID *</Label>
             <Select
@@ -197,17 +180,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="total_clones_plants">Quantity *</Label>
-            <Input
-              id="total_clones_plants"
-              type="number"
-              value={data?.total_clones_plants || ''}
-              onChange={(e) => handleChange('total_clones_plants', parseInt(e.target.value))}
-              required
-            />
-          </div>
-
+          {/* 3. Dome No */}
           <div className="space-y-2">
             <Label htmlFor="dome_no">Dome No *</Label>
             <Select
@@ -225,6 +198,152 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* 4. Clone / Germination Date */}
+          <div className="space-y-2">
+            <Label htmlFor="clone_germination_date">Clone / Germination Date *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !data?.clone_germination_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {data?.clone_germination_date ? (
+                    format(new Date(data.clone_germination_date), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={data?.clone_germination_date ? new Date(data.clone_germination_date) : undefined}
+                  onSelect={(date) => handleChange('clone_germination_date', date?.toISOString().split('T')[0])}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* 5. Mother No */}
+          <div className="space-y-2">
+            <Label htmlFor="mother_no">Mother No *</Label>
+            <Select
+              value={data?.mother_no || ''}
+              onValueChange={(value) => handleChange('mother_no', value)}
+            >
+              <SelectTrigger id="mother_no">
+                <SelectValue placeholder="Select Mother No" />
+              </SelectTrigger>
+              <SelectContent>
+                {getValuesByCategory('mother_id').map((option: any) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.value_display}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 6. Total number of clones / plants */}
+          <div className="space-y-2">
+            <Label htmlFor="total_clones_plants">Total number of clones / plants *</Label>
+            <Input
+              id="total_clones_plants"
+              type="number"
+              value={data?.total_clones_plants || ''}
+              onChange={(e) => handleChange('total_clones_plants', parseInt(e.target.value))}
+              required
+            />
+          </div>
+
+          {/* 7. Clonator 1 – Rack No */}
+          <div className="space-y-2">
+            <Label htmlFor="rack_no">Clonator 1 – Rack No</Label>
+            <Input
+              id="rack_no"
+              value={data?.rack_no || ''}
+              onChange={(e) => handleChange('rack_no', e.target.value)}
+            />
+          </div>
+
+          {/* 8. Clonator / Germination Mortalities */}
+          <div className="space-y-2">
+            <Label htmlFor="clonator_mortalities">Clonator / Germination Mortalities</Label>
+            <Input
+              id="clonator_mortalities"
+              type="number"
+              value={data?.clonator_mortalities || ''}
+              onChange={(e) => handleChange('clonator_mortalities', parseInt(e.target.value))}
+            />
+          </div>
+
+          {/* 9. Expected Rooting Date */}
+          <div className="space-y-2">
+            <Label htmlFor="expected_rooting_date">Expected Rooting Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !data?.expected_rooting_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {data?.expected_rooting_date ? (
+                    format(new Date(data.expected_rooting_date), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={data?.expected_rooting_date ? new Date(data.expected_rooting_date) : undefined}
+                  onSelect={(date) => handleChange('expected_rooting_date', date?.toISOString().split('T')[0])}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* 10. Actual Rooting Date */}
+          <div className="space-y-2">
+            <Label htmlFor="actual_rooting_date">Actual Rooting Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !data?.actual_rooting_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {data?.actual_rooting_date ? (
+                    format(new Date(data.actual_rooting_date), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={data?.actual_rooting_date ? new Date(data.actual_rooting_date) : undefined}
+                  onSelect={(date) => handleChange('actual_rooting_date', date?.toISOString().split('T')[0])}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
     </div>
