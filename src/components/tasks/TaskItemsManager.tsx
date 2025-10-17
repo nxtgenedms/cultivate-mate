@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, Calendar as CalendarIcon } from "lucide-react";
+import { CheckCircle2, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -198,14 +198,10 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                     <div className="flex-1 space-y-2">
                       <label
                         htmlFor={item.id}
-                        className={`text-sm font-medium leading-none cursor-pointer flex items-center gap-2 ${
-                          item.completed ? "line-through text-muted-foreground" : ""
-                        }`}
+                        className="text-sm font-medium leading-none cursor-pointer flex items-center gap-2"
                       >
-                        {item.completed ? (
+                        {item.completed && (
                           <CheckCircle2 className="h-4 w-4 text-success" />
-                        ) : (
-                          <Circle className="h-4 w-4" />
                         )}
                         {item.label}
                         {item.is_required && (
