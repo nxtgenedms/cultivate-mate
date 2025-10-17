@@ -186,7 +186,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         batch_id: checklistType === 'batch' ? selectedBatch : null,
         checklist_id: instance.id,
         task_category: taskCategory as any,
-        lifecycle_stage: checklistType === 'batch' && selectedLifecycleStage ? selectedLifecycleStage : null,
+        lifecycle_stage: (checklistType === 'batch' && selectedLifecycleStage ? selectedLifecycleStage : null) as any,
         checklist_items: checklistItems,
         completion_progress: {
           total: checklistItems.length,
@@ -292,7 +292,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lifecycle-stage">Lifecycle Stage *</Label>
+                <Label htmlFor="lifecycle-stage">Stage for This Task *</Label>
                 <Select value={selectedLifecycleStage} onValueChange={setSelectedLifecycleStage}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select lifecycle stage" />
