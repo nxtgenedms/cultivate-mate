@@ -100,16 +100,15 @@ export type CategoryGroup =
   | 'quality_safety'
   | 'chemical_management'
   | 'sanitation'
-  | 'harvest';
+  | 'harvest'
+  | 'cloning';
 
 export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: string; categories: TaskCategory[] }> = {
   daily_weekly: {
     label: 'Daily/Weekly Records',
     icon: '📋',
     categories: [
-      'daily_cloning_transplant',
       'weekly_cultivation',
-      'clonator_weekly',
       'soil_moisture',
     ],
   },
@@ -123,9 +122,10 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     ],
   },
   chemical_management: {
-    label: 'Chemical Management',
+    label: 'Chemical Mgmt',
     icon: '🧪',
     categories: [
+      'chemical_delivery',
       'fertigation_application',
       'ipm_chemical_mixing',
     ],
@@ -144,6 +144,14 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     categories: [
       'pre_harvest',
       'final_harvest',
+    ],
+  },
+  cloning: {
+    label: 'Cloning',
+    icon: '🌱',
+    categories: [
+      'daily_cloning_transplant',
+      'clonator_weekly',
     ],
   },
 };
