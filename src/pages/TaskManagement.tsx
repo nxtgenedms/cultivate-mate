@@ -332,7 +332,7 @@ export default function TaskManagement() {
 
       return (
         <Card key={task.id} className="hover:shadow-md transition-shadow">
-          <CardHeader>
+          <CardHeader className="p-4 pb-2">
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
@@ -443,7 +443,7 @@ export default function TaskManagement() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 py-3 pt-2">
             {hasItems && progress.total > 0 && (
               <div className="mb-3">
                 <div className="flex items-center gap-3 mb-1">
@@ -455,7 +455,7 @@ export default function TaskManagement() {
             )}
 
             {/* Inline Edit Controls */}
-            <div className="flex items-center gap-3 mb-3 p-2 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 flex-1">
                 <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
                 <Select
