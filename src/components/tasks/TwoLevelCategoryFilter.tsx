@@ -16,8 +16,13 @@ export const TwoLevelCategoryFilter = ({
 
   const handleGroupClick = (group: CategoryGroup | "all") => {
     setSelectedGroup(group);
-    // Always reset category to "all" when switching groups
-    onCategoryChange("all");
+    // When selecting a group, automatically select its first category and trigger refresh
+    if (group === "all") {
+      onCategoryChange("all");
+    } else {
+      const firstCategory = CATEGORY_GROUPS[group].categories[0];
+      onCategoryChange(firstCategory);
+    }
   };
 
   const handleCategoryClick = (category: TaskCategory) => {
