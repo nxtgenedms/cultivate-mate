@@ -104,10 +104,10 @@ export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
 export type CategoryGroup = 
   | 'daily_weekly'
   | 'quality_safety'
+  | 'cloning'
   | 'chemical_management'
   | 'sanitation'
-  | 'harvest'
-  | 'cloning';
+  | 'harvest';
 
 export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: string; categories: TaskCategory[] }> = {
   daily_weekly: {
@@ -127,6 +127,13 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
       'scouting_corrective',
       'mortality_discard',
       'hygiene_check',
+    ],
+  },
+  cloning: {
+    label: 'Cloning',
+    icon: '🌱',
+    categories: [
+      'cloning_pre_start',
     ],
   },
   chemical_management: {
@@ -152,13 +159,6 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     categories: [
       'pre_harvest',
       'final_harvest',
-    ],
-  },
-  cloning: {
-    label: 'Cloning',
-    icon: '🌱',
-    categories: [
-      'cloning_pre_start',
     ],
   },
 };
