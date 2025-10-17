@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
-import { CATEGORY_GROUPS, type CategoryGroup } from "@/lib/taskCategoryUtils";
+import { TASK_CATEGORIES, type TaskCategory } from "@/lib/taskCategoryUtils";
 
 interface ChecklistTemplateDialogProps {
   open: boolean;
@@ -104,11 +104,20 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
 
   const getApprovalWorkflow = (category: string) => {
     const workflows: Record<string, string> = {
-      'daily_weekly': 'Staff → Grower → Manager',
-      'quality_safety': 'Grower → Manager → QA',
-      'chemical_management': 'Grower → Manager → QA',
-      'sanitation': 'Staff → Manager → QA',
-      'harvest': 'Grower → Manager → QA',
+      'daily_cloning_transplant': 'Assistant Grower → Grower/Manager',
+      'mortality_discard': 'Grower → Manager → QA',
+      'weekly_cultivation': 'Grower → Manager',
+      'clonator_weekly': 'Grower → Supervisor → Manager',
+      'soil_moisture': 'Grower → Manager',
+      'scouting_corrective': 'Grower → Manager → QA',
+      'chemical_delivery': 'Receiver Signature',
+      'fertigation_application': 'Grower → Manager → QA',
+      'ipm_chemical_mixing': 'Grower → Manager → QA',
+      'hygiene_check': 'Staff → Manager/Supervisor',
+      'cultivation_cleaning': 'Performer → Manager → QA',
+      'processing_cleaning': 'Performer → Manager → QA',
+      'pre_harvest': 'Grower → Supervisor',
+      'final_harvest': 'Manager → QA',
     };
     return workflows[category] || 'Creator → Manager';
   };
@@ -221,9 +230,9 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(CATEGORY_GROUPS).map(([key, group]) => (
+                {Object.entries(TASK_CATEGORIES).map(([key, label]) => (
                   <SelectItem key={key} value={key}>
-                    {group.icon} {group.label}
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>
