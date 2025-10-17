@@ -26,7 +26,7 @@ const InventoryManagement = () => {
           <TabsContent value="receipts" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>External Delivery Receipts</CardTitle>
+                <CardTitle>External Delivery Receipts (HVCSOF038)</CardTitle>
                 <CardDescription>
                   Manage chemical, fertilizer, and all other incoming inventory receipts
                 </CardDescription>
