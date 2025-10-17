@@ -62,20 +62,11 @@ export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecy
         </Button>
 
         <Button 
-          variant="outline" 
-          onClick={handleSaveDraft}
-          disabled={isSaving}
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Save as Draft
-        </Button>
-
-        <Button 
           onClick={handleSubmit}
           disabled={isSaving}
         >
           <CheckCircle2 className="h-4 w-4 mr-2" />
-          Submit
+          Create Batch
         </Button>
       </div>
     </div>
