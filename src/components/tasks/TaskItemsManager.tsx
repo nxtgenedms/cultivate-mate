@@ -30,9 +30,10 @@ interface TaskItem {
 interface TaskItemsManagerProps {
   task: any;
   onClose: () => void;
+  readOnly?: boolean;
 }
 
-export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
+export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsManagerProps) {
   const [items, setItems] = useState<TaskItem[]>(task.checklist_items || []);
   const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
   const [tempDate, setTempDate] = useState<Date | undefined>();
@@ -192,6 +193,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                       checked={item.completed}
                       onCheckedChange={() => handleToggleItem(item.id)}
                       className="mt-1"
+                      disabled={readOnly}
                     />
                     <div className="flex-1 space-y-2">
                       <label
@@ -214,7 +216,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                       {/* Render input based on item type */}
                       {item.item_type === 'date' && (
                         <Popover open={datePickerOpen === item.id} onOpenChange={(open) => {
-                          if (open) {
+                          if (open && !readOnly) {
                             openDatePicker(item.id, item.response_value);
                           } else {
                             setDatePickerOpen(null);
@@ -227,6 +229,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                                 "w-full justify-start text-left font-normal",
                                 !item.response_value && "text-muted-foreground"
                               )}
+                              disabled={readOnly}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {item.response_value ? (
@@ -314,6 +317,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                           onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
                           className="text-sm"
                           placeholder="Enter number..."
+                          disabled={readOnly}
                         />
                       )}
                       {item.item_type === 'text' && (
@@ -323,6 +327,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                           onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
                           className="text-sm"
                           placeholder="Enter text..."
+                          disabled={readOnly}
                         />
                       )}
                       {(!item.item_type || item.item_type === 'yes_no' || item.item_type === 'select' || item.item_type === 'batch_info') && (
@@ -332,6 +337,7 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
                           onChange={(e) => handleNotesChange(item.id, e.target.value)}
                           rows={2}
                           className="text-sm"
+                          disabled={readOnly}
                         />
                       )}
                     </div>
@@ -344,12 +350,20 @@ export function TaskItemsManager({ task, onClose }: TaskItemsManagerProps) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
-          Save Changes
-        </Button>
+        {readOnly ? (
+          <Button onClick={onClose}>
+            Close
+          </Button>
+        ) : (
+          <>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
+              Save Changes
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

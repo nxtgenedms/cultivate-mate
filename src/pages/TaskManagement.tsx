@@ -403,6 +403,16 @@ export default function TaskManagement() {
                     Manage Items
                   </Button>
                 )}
+                {hasItems && (task.status === 'completed' || task.approval_status === 'approved') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleManageItems(task)}
+                  >
+                    <ListChecks className="mr-2 h-4 w-4" />
+                    View Items
+                  </Button>
+                )}
                 {task.status !== 'completed' && task.approval_status !== 'approved' && (
                   <Button
                     variant="destructive"
@@ -683,12 +693,17 @@ export default function TaskManagement() {
         <Dialog open={isItemsDialogOpen} onOpenChange={setIsItemsDialogOpen}>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Manage Task Items</DialogTitle>
+              <DialogTitle>
+                {selectedTask && (selectedTask.status === 'completed' || selectedTask.approval_status === 'approved')
+                  ? 'View Task Items'
+                  : 'Manage Task Items'}
+              </DialogTitle>
             </DialogHeader>
             {selectedTask && (
               <TaskItemsManager
                 task={selectedTask}
                 onClose={() => setIsItemsDialogOpen(false)}
+                readOnly={selectedTask.status === 'completed' || selectedTask.approval_status === 'approved'}
               />
             )}
           </DialogContent>
