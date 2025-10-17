@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Save, CheckCircle2, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 import { HeaderInfoStep } from './steps/HeaderInfoStep';
 
 interface BatchLifecycleWizardProps {
@@ -14,16 +14,44 @@ export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecy
   const [formData, setFormData] = useState<any>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveDraft = async () => {
-    setIsSaving(true);
-    try {
-      await onSave(formData, true);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleSubmit = async () => {
+    // Validate mandatory fields
+    const errors: string[] = [];
+    
+    // Check batch source is selected
+    if (!formData.starting_phase) {
+      errors.push("Please select a batch source (Mother Plant or Seed)");
+    }
+    
+    // Check Strain ID
+    if (!formData.strain_id) {
+      errors.push("Strain ID is required");
+    }
+    
+    // Check Mother ID (if starting from mother plant)
+    if (formData.starting_phase === 'mother_plant' && !formData.mother_no) {
+      errors.push("Mother ID is required");
+    }
+    
+    // Check Quantity
+    if (!formData.total_clones_plants || formData.total_clones_plants <= 0) {
+      errors.push("Quantity is required and must be greater than 0");
+    }
+    
+    // Check Dome No
+    if (!formData.dome_no) {
+      errors.push("Dome No is required");
+    }
+    
+    // If there are validation errors, show them and return
+    if (errors.length > 0) {
+      const toast = await import('sonner');
+      toast.toast.error("Please fill in all mandatory fields", {
+        description: errors.join(", ")
+      });
+      return;
+    }
+    
     setIsSaving(true);
     try {
       await onSave(formData, false);
