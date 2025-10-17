@@ -106,7 +106,12 @@ export default function MasterRecord() {
         strain_id: data.strain_id, // UUID
         mother_no: getDisplayValue(data.mother_no),
         dome_no: getDisplayValue(data.dome_no),
+        clone_germination_date: data.clone_germination_date,
         total_clones_plants: data.total_clones_plants,
+        rack_no: data.rack_no,
+        clonator_mortalities: data.clonator_mortalities,
+        expected_rooting_date: data.expected_rooting_date,
+        actual_rooting_date: data.actual_rooting_date,
         status: isDraft ? 'draft' : 'in_progress',
         created_by: user?.id,
       };
