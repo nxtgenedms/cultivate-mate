@@ -107,15 +107,25 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
   };
 
   const handleNotesChange = (itemId: string, notes: string) => {
-    setItems(items.map(item =>
-      item.id === itemId ? { ...item, notes } : item
-    ));
+    setItems(items.map(item => {
+      if (item.id === itemId) {
+        // Auto-check the item when notes are entered
+        const shouldBeCompleted = notes && notes.trim() !== '';
+        return { ...item, notes, completed: shouldBeCompleted };
+      }
+      return item;
+    }));
   };
 
   const handleResponseValueChange = (itemId: string, response_value: string) => {
-    setItems(items.map(item =>
-      item.id === itemId ? { ...item, response_value } : item
-    ));
+    setItems(items.map(item => {
+      if (item.id === itemId) {
+        // Auto-check the item when data is entered
+        const shouldBeCompleted = response_value && response_value.trim() !== '';
+        return { ...item, response_value, completed: shouldBeCompleted };
+      }
+      return item;
+    }));
   };
 
   const handleDateTimeSelect = (itemId: string) => {
