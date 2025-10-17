@@ -68,6 +68,38 @@ export default function MasterRecord() {
     mutationFn: async ({ data, isDraft }: { data: any; isDraft: boolean }) => {
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Fetch lookup values to get display names
+      const { data: lookupData } = await supabase
+        .from('lookup_values')
+        .select('id, value_display')
+        .in('id', [data.strain_id, data.mother_no, data.dome_no].filter(Boolean));
+
+      const getDisplayValue = (id: string) => {
+        return lookupData?.find(l => l.id === id)?.value_display || id;
+      };
+
+      // Separate checklist fields from batch lifecycle fields
+      const checklistFields = {
+        batch_number: data.batch_number,
+        mother_id: getDisplayValue(data.mother_no),
+        strain_id: getDisplayValue(data.strain_id),
+        quantity: data.total_clones_plants,
+        dome_no: getDisplayValue(data.dome_no),
+        mother_plant_healthy: data.mother_plant_healthy,
+        mother_plant_fed_watered_12h: data.mother_plant_fed_watered_12h,
+        work_area_sharp_clean_scissors: data.work_area_sharp_clean_scissors,
+        work_area_sharp_clean_blade: data.work_area_sharp_clean_blade,
+        work_area_jug_clean_water: data.work_area_jug_clean_water,
+        work_area_dome_cleaned_disinfected: data.work_area_dome_cleaned_disinfected,
+        work_area_dome_prepared_medium: data.work_area_dome_prepared_medium,
+        work_area_sanitizer_cup: data.work_area_sanitizer_cup,
+        work_area_rooting_powder: data.work_area_rooting_powder,
+        work_surface_sterilized: data.work_surface_sterilized,
+        wearing_clean_gloves: data.wearing_clean_gloves,
+        status: (isDraft ? 'draft' : 'pending') as 'draft' | 'pending',
+        created_by: user?.id,
+      };
+
       // Batch lifecycle record fields
       const batchFields = {
         batch_number: data.batch_number,
@@ -87,6 +119,14 @@ export default function MasterRecord() {
           .eq('id', editingRecordId);
 
         if (batchError) throw batchError;
+
+        // Update checklist if it exists
+        const { error: checklistError } = await supabase
+          .from('cloning_pre_start_checklists')
+          .update(checklistFields)
+          .eq('batch_number', data.batch_number);
+
+        if (checklistError) throw checklistError;
       } else {
         // Insert batch lifecycle record
         const { error: batchError } = await supabase
@@ -94,6 +134,13 @@ export default function MasterRecord() {
           .insert(batchFields);
 
         if (batchError) throw batchError;
+
+        // Insert checklist
+        const { error: checklistError } = await supabase
+          .from('cloning_pre_start_checklists')
+          .insert(checklistFields);
+
+        if (checklistError) throw checklistError;
       }
     },
     onSuccess: (_, { isDraft }) => {

@@ -678,6 +678,528 @@ export type Database = {
           },
         ]
       }
+      checklist_batch_records: {
+        Row: {
+          batch_id: string | null
+          batch_number: string | null
+          created_at: string
+          date_transplanted: string | null
+          dome_no: string | null
+          id: string
+          instance_id: string
+          mother_id: string | null
+          projected_transplant_date: string | null
+          strain: string | null
+          total_clones: number | null
+          total_transplanted: number | null
+        }
+        Insert: {
+          batch_id?: string | null
+          batch_number?: string | null
+          created_at?: string
+          date_transplanted?: string | null
+          dome_no?: string | null
+          id?: string
+          instance_id: string
+          mother_id?: string | null
+          projected_transplant_date?: string | null
+          strain?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+        }
+        Update: {
+          batch_id?: string | null
+          batch_number?: string | null
+          created_at?: string
+          date_transplanted?: string | null
+          dome_no?: string | null
+          id?: string
+          instance_id?: string
+          mother_id?: string | null
+          projected_transplant_date?: string | null
+          strain?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_batch_records_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batch_lifecycle_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_batch_records_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_instances: {
+        Row: {
+          batch_id: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          instance_number: string
+          status: string
+          template_id: string
+          updated_at: string
+          week_ending: string | null
+          week_starting: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instance_number: string
+          status?: string
+          template_id: string
+          updated_at?: string
+          week_ending?: string | null
+          week_starting?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instance_number?: string
+          status?: string
+          template_id?: string
+          updated_at?: string
+          week_ending?: string | null
+          week_starting?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_instances_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batch_lifecycle_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_instances_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_instances_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_instances_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_item_responses: {
+        Row: {
+          action_date: string | null
+          action_required: boolean | null
+          action_taken: string | null
+          created_at: string
+          id: string
+          instance_id: string
+          notes: string | null
+          reported_to: string | null
+          response_data: Json | null
+          response_value: string | null
+          template_item_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_date?: string | null
+          action_required?: boolean | null
+          action_taken?: string | null
+          created_at?: string
+          id?: string
+          instance_id: string
+          notes?: string | null
+          reported_to?: string | null
+          response_data?: Json | null
+          response_value?: string | null
+          template_item_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_date?: string | null
+          action_required?: boolean | null
+          action_taken?: string | null
+          created_at?: string
+          id?: string
+          instance_id?: string
+          notes?: string | null
+          reported_to?: string | null
+          response_data?: Json | null
+          response_value?: string | null
+          template_item_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_item_responses_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_item_responses_reported_to_fkey"
+            columns: ["reported_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_item_responses_template_item_id_fkey"
+            columns: ["template_item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_template_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_signatures: {
+        Row: {
+          id: string
+          instance_id: string
+          role: string
+          signature_type: string
+          signed_at: string
+          signed_by: string | null
+        }
+        Insert: {
+          id?: string
+          instance_id: string
+          role: string
+          signature_type?: string
+          signed_at?: string
+          signed_by?: string | null
+        }
+        Update: {
+          id?: string
+          instance_id?: string
+          role?: string
+          signature_type?: string
+          signed_at?: string
+          signed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_signatures_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_signatures_signed_by_fkey"
+            columns: ["signed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_template_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_required: boolean
+          item_label: string
+          item_type: Database["public"]["Enums"]["checklist_item_type"]
+          metadata: Json | null
+          section_name: string | null
+          sort_order: number
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          item_label: string
+          item_type?: Database["public"]["Enums"]["checklist_item_type"]
+          metadata?: Json | null
+          section_name?: string | null
+          sort_order?: number
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          item_label?: string
+          item_type?: Database["public"]["Enums"]["checklist_item_type"]
+          metadata?: Json | null
+          section_name?: string | null
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          frequency: Database["public"]["Enums"]["checklist_frequency"]
+          id: string
+          is_active: boolean
+          is_batch_specific: boolean
+          lifecycle_phase:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          sof_number: string
+          task_category: Database["public"]["Enums"]["task_category"] | null
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["checklist_frequency"]
+          id?: string
+          is_active?: boolean
+          is_batch_specific?: boolean
+          lifecycle_phase?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          sof_number: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["checklist_frequency"]
+          id?: string
+          is_active?: boolean
+          is_batch_specific?: boolean
+          lifecycle_phase?:
+            | Database["public"]["Enums"]["batch_lifecycle_stage"]
+            | null
+          sof_number?: string
+          task_category?: Database["public"]["Enums"]["task_category"] | null
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cloning_pre_start_checklists: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          batch_id: string | null
+          batch_number: string
+          created_at: string | null
+          created_by: string | null
+          dome_no: string | null
+          id: string
+          mother_id: string
+          mother_plant_fed_watered_12h: boolean | null
+          mother_plant_healthy: boolean | null
+          quantity: number
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          sof_number: string | null
+          status: Database["public"]["Enums"]["approval_status"] | null
+          strain_id: string | null
+          submitted_at: string | null
+          submitted_by: string | null
+          updated_at: string | null
+          wearing_clean_gloves: boolean | null
+          work_area_dome_cleaned_disinfected: boolean | null
+          work_area_dome_prepared_medium: boolean | null
+          work_area_jug_clean_water: boolean | null
+          work_area_rooting_powder: boolean | null
+          work_area_sanitizer_cup: boolean | null
+          work_area_sharp_clean_blade: boolean | null
+          work_area_sharp_clean_scissors: boolean | null
+          work_surface_sterilized: boolean | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          batch_number: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_no?: string | null
+          id?: string
+          mother_id: string
+          mother_plant_fed_watered_12h?: boolean | null
+          mother_plant_healthy?: boolean | null
+          quantity: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          strain_id?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+          wearing_clean_gloves?: boolean | null
+          work_area_dome_cleaned_disinfected?: boolean | null
+          work_area_dome_prepared_medium?: boolean | null
+          work_area_jug_clean_water?: boolean | null
+          work_area_rooting_powder?: boolean | null
+          work_area_sanitizer_cup?: boolean | null
+          work_area_sharp_clean_blade?: boolean | null
+          work_area_sharp_clean_scissors?: boolean | null
+          work_surface_sterilized?: boolean | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          batch_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_no?: string | null
+          id?: string
+          mother_id?: string
+          mother_plant_fed_watered_12h?: boolean | null
+          mother_plant_healthy?: boolean | null
+          quantity?: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          sof_number?: string | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          strain_id?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          updated_at?: string | null
+          wearing_clean_gloves?: boolean | null
+          work_area_dome_cleaned_disinfected?: boolean | null
+          work_area_dome_prepared_medium?: boolean | null
+          work_area_jug_clean_water?: boolean | null
+          work_area_rooting_powder?: boolean | null
+          work_area_sanitizer_cup?: boolean | null
+          work_area_sharp_clean_blade?: boolean | null
+          work_area_sharp_clean_scissors?: boolean | null
+          work_surface_sterilized?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloning_pre_start_checklists_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cloning_transplant_logs: {
+        Row: {
+          actual_transplant_date: string | null
+          batch_id: string | null
+          batch_number: string
+          created_at: string | null
+          created_by: string | null
+          dome_number: string | null
+          id: string
+          mother_id: string
+          notes: string | null
+          projected_transplant_date: string | null
+          sof_number: string | null
+          strain_id: string | null
+          total_clones: number | null
+          total_transplanted: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_transplant_date?: string | null
+          batch_id?: string | null
+          batch_number: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_number?: string | null
+          id?: string
+          mother_id: string
+          notes?: string | null
+          projected_transplant_date?: string | null
+          sof_number?: string | null
+          strain_id?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_transplant_date?: string | null
+          batch_id?: string | null
+          batch_number?: string
+          created_at?: string | null
+          created_by?: string | null
+          dome_number?: string | null
+          id?: string
+          mother_id?: string
+          notes?: string | null
+          projected_transplant_date?: string | null
+          sof_number?: string | null
+          strain_id?: string | null
+          total_clones?: number | null
+          total_transplanted?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloning_transplant_logs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cloning_transplant_logs_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "lookup_values"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_receipts: {
         Row: {
           batch_number: string | null
@@ -1156,10 +1678,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tasks_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_instances"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tasks_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_template_item_id_fkey"
+            columns: ["template_item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_template_items"
             referencedColumns: ["id"]
           },
         ]
