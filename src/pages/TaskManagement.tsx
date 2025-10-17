@@ -32,7 +32,6 @@ export default function TaskManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | "all">("all");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
   const [selectedApprover, setSelectedApprover] = useState("");
@@ -43,10 +42,11 @@ export default function TaskManagement() {
 
   const handleCategoryChange = (category: TaskCategory | "all") => {
     setSelectedCategory(category);
-    setRefreshTrigger(prev => prev + 1);
+    // Force refetch to ensure fresh data
+    refetch();
   };
 
-  const { data: tasks, isLoading } = useQuery({
+  const { data: tasks, isLoading, refetch } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -99,11 +99,6 @@ export default function TaskManagement() {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
-
-  // Refresh data when category filter changes
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["tasks"] });
-  }, [refreshTrigger, queryClient]);
 
   const { data: nomenclature } = useQuery({
     queryKey: ["nomenclature-task"],
