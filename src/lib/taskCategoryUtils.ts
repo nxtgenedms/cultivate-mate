@@ -12,7 +12,8 @@ export type TaskCategory =
   | 'cultivation_cleaning'
   | 'processing_cleaning'
   | 'pre_harvest'
-  | 'final_harvest';
+  | 'final_harvest'
+  | 'cloning_pre_start';
 
 export type ApprovalWorkflow = {
   stages: string[];
@@ -34,6 +35,7 @@ export const TASK_CATEGORIES: Record<TaskCategory, string> = {
   processing_cleaning: 'Processing Cleaning Checklist',
   pre_harvest: 'Pre-Harvest Checklist',
   final_harvest: 'Final Harvest Record',
+  cloning_pre_start: 'Cloning Pre-Start Checklist',
 };
 
 export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
@@ -93,6 +95,10 @@ export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
     stages: ['Manager', 'QA'],
     totalStages: 2,
   },
+  cloning_pre_start: {
+    stages: ['Grower', 'Manager'],
+    totalStages: 2,
+  },
 };
 
 export type CategoryGroup = 
@@ -108,7 +114,9 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     label: 'Daily/Weekly Records',
     icon: '📋',
     categories: [
+      'daily_cloning_transplant',
       'weekly_cultivation',
+      'clonator_weekly',
       'soil_moisture',
     ],
   },
@@ -150,8 +158,7 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     label: 'Cloning',
     icon: '🌱',
     categories: [
-      'daily_cloning_transplant',
-      'clonator_weekly',
+      'cloning_pre_start',
     ],
   },
 };
@@ -172,6 +179,7 @@ export const getCategoryColor = (category: TaskCategory): string => {
     processing_cleaning: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
     pre_harvest: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     final_harvest: 'bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200',
+    cloning_pre_start: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
   };
   return colors[category];
 };
