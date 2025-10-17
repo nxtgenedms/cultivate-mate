@@ -19,6 +19,7 @@ import { TwoLevelCategoryFilter } from "@/components/tasks/TwoLevelCategoryFilte
 import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
 import { ApprovalProgressBadge } from "@/components/tasks/ApprovalProgressBadge";
 import { TaskDetailsPopoverContent } from "@/components/tasks/TaskDetailsPopover";
+import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
@@ -28,6 +29,7 @@ import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, c
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isItemsDialogOpen, setIsItemsDialogOpen] = useState(false);
+  const [isChecklistDialogOpen, setIsChecklistDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -588,6 +590,10 @@ export default function TaskManagement() {
                 <TabsTrigger value="my-tasks">My Tasks</TabsTrigger>
                 <TabsTrigger value="all-tasks">All Tasks</TabsTrigger>
               </TabsList>
+              <Button onClick={() => setIsChecklistDialogOpen(true)} className="ml-auto">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Checklist
+              </Button>
             </div>
             
             <div className="flex gap-4 mt-6">
@@ -625,23 +631,29 @@ export default function TaskManagement() {
           </Tabs>
         ) : (
           <>
-            <div className="flex gap-4 mb-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex gap-4 flex-1">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by task name, number, or owner..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
                 <Input
-                  placeholder="Search by task name, number, or owner..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-48"
+                  placeholder="Filter by date"
                 />
               </div>
-              <Input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="w-48"
-                placeholder="Filter by date"
-              />
+              <Button onClick={() => setIsChecklistDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Checklist
+              </Button>
             </div>
             <div className="mb-4">
               <TwoLevelCategoryFilter
@@ -680,6 +692,12 @@ export default function TaskManagement() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Create Checklist Dialog */}
+        <CreateChecklistDialog
+          open={isChecklistDialogOpen}
+          onOpenChange={setIsChecklistDialogOpen}
+        />
 
         {/* Submit for Approval Dialog */}
         <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
