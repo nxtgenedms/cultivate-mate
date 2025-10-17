@@ -455,7 +455,7 @@ export default function TaskManagement() {
             )}
 
             {/* Inline Edit Controls */}
-            <div className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-3 px-2 py-1.5 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 flex-1">
                 <Label htmlFor={`status-${task.id}`} className="text-xs text-muted-foreground whitespace-nowrap font-semibold">Status</Label>
                 <Select
