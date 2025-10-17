@@ -336,7 +336,7 @@ export default function TaskManagement() {
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <CardTitle className="text-xl flex items-center gap-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
                     {task.name}
                     <Popover>
                       <PopoverTrigger asChild>
