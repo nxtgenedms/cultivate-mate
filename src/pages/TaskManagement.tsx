@@ -94,6 +94,11 @@ export default function TaskManagement() {
     };
   }, [queryClient]);
 
+  // Refresh data when category filter changes
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  }, [selectedCategory, queryClient]);
+
   const { data: nomenclature } = useQuery({
     queryKey: ["nomenclature-task"],
     queryFn: async () => {
