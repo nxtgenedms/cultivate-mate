@@ -227,7 +227,7 @@ const InventoryReceiptDialog = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {receipt ? 'Edit Receipt' : 'Add Inventory Receipt'}
+            {receipt ? 'Edit Receipt' : 'Add External Delivery Receipt (HVCSOF038)'}
           </DialogTitle>
           <DialogDescription>
             Record external delivery of chemicals, fertilizers, and other inventory
