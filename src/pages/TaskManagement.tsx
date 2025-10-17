@@ -32,6 +32,7 @@ export default function TaskManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | "all">("all");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
   const [selectedApprover, setSelectedApprover] = useState("");
@@ -39,6 +40,11 @@ export default function TaskManagement() {
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
+
+  const handleCategoryChange = (category: TaskCategory | "all") => {
+    setSelectedCategory(category);
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -97,7 +103,7 @@ export default function TaskManagement() {
   // Refresh data when category filter changes
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
-  }, [selectedCategory, queryClient]);
+  }, [refreshTrigger, queryClient]);
 
   const { data: nomenclature } = useQuery({
     queryKey: ["nomenclature-task"],
@@ -618,7 +624,7 @@ export default function TaskManagement() {
             <div className="mt-4">
               <TwoLevelCategoryFilter
                 selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
+                onCategoryChange={handleCategoryChange}
               />
             </div>
 
@@ -658,7 +664,7 @@ export default function TaskManagement() {
             <div className="mb-4">
               <TwoLevelCategoryFilter
                 selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
+                onCategoryChange={handleCategoryChange}
               />
             </div>
             {renderTaskList(myTasks)}
