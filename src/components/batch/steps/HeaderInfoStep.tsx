@@ -88,16 +88,6 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-primary/5 p-3 rounded-lg border border-primary/20">
-        <p className="text-sm">
-          <span className="font-semibold">New Batch: Source & Checklist</span>
-          {" "}
-          <span className="text-primary font-medium">(HVCSOF0011 - Batch Pre-Start Checklist)</span>
-          {" "}
-          <span className="text-muted-foreground">Complete all checklist items before proceeding</span>
-        </p>
-      </div>
-
       {/* Source Selection */}
       <div className="space-y-2">
         <Label className="text-base font-semibold">Select Batch Source *</Label>
