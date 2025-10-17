@@ -52,7 +52,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     queryFn: async () => {
       const { data, error } = await supabase
         .from('batch_lifecycle_records')
-        .select('id, batch_number')
+        .select('id, batch_number, mother_no, current_stage')
         .order('batch_number', { ascending: false });
       
       if (error) throw error;
@@ -166,7 +166,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         'cultivation_cleaning',
         'processing_cleaning',
         'pre_harvest',
-        'final_harvest'
+        'final_harvest',
+        'cloning_pre_start'
       ];
       
       const taskCategory = template.task_category && validTaskCategories.includes(template.task_category)
@@ -269,7 +270,12 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
                 <SelectContent>
                   {batches?.map((batch) => (
                     <SelectItem key={batch.id} value={batch.id}>
-                      {batch.batch_number}
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{batch.batch_number}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Mother: {batch.mother_no || 'N/A'} • Stage: {batch.current_stage || 'N/A'}
+                        </span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
