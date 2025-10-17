@@ -309,6 +309,16 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           disabled={readOnly}
                         />
                       )}
+                      {item.item_type === 'textarea' && (
+                        <Textarea
+                          placeholder="Enter text..."
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          rows={3}
+                          className="text-sm"
+                          disabled={readOnly}
+                        />
+                      )}
                       {(!item.item_type || item.item_type === 'yes_no' || item.item_type === 'select' || item.item_type === 'batch_info') && (
                         <Textarea
                           placeholder="Add notes..."
