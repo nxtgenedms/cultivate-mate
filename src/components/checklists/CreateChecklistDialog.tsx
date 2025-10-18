@@ -167,8 +167,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         'cultivation_cleaning',
         'processing_cleaning',
         'pre_harvest',
-        'final_harvest',
-        'cloning_pre_start'
+        'final_harvest'
       ];
       
       const taskCategory = template.task_category && validTaskCategories.includes(template.task_category)
