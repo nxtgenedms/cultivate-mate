@@ -1,11 +1,12 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Clock, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown } from "lucide-react";
 import { groupTasksByStatus, TaskData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 import { Progress } from "@/components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface ChecklistTemplate {
   id: string;
@@ -73,310 +74,158 @@ export const TaskValidationStep = ({
     };
   });
 
+  const allBatchTasks = [...stageSpecificTasks, ...otherBatchTasks];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Task Validation & Selection</h3>
-        <p className="text-sm text-muted-foreground">
-          Review required checklists and batch tasks before proceeding with the stage transition.
-        </p>
-      </div>
-
-      {/* ========== SECTION 1: REQUIRED CHECKLISTS FOR CURRENT STAGE ========== */}
-      <div className="space-y-4 border-2 border-orange-500/30 rounded-lg p-4 bg-orange-50/30 dark:bg-orange-950/20">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-orange-600" />
-          <h4 className="text-base font-bold">Required Checklists for {currentStage} Stage</h4>
-        </div>
-        
-        <p className="text-sm text-muted-foreground">
-          The following checklists are required for this stage. You must create and complete tasks for each checklist before proceeding.
-        </p>
-
-        {checklistTemplates.length === 0 ? (
-          <Alert className="bg-muted">
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              No checklists are required for the <strong>{currentStage}</strong> lifecycle stage.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <div className="space-y-2">
-            {checklistStatus.map(({ template, tasksCreated, totalTasks, completedTasks, tasks: checklistTasks }) => (
-              <Card key={template.id} className={`border-2 ${
+    <div className="space-y-4">
+      {/* ========== REQUIRED CHECKLISTS ========== */}
+      <Card className="border-orange-500/50">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <CardTitle className="text-base">Required Checklists ({checklistTemplates.length})</CardTitle>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {checklistTemplates.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No checklists required for {currentStage} stage.</p>
+          ) : (
+            checklistStatus.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
+              <div key={template.id} className={`flex items-center justify-between p-3 rounded-md border ${
                 !tasksCreated 
-                  ? 'border-red-500 bg-red-50/50 dark:bg-red-950/20' 
+                  ? 'border-red-300 bg-red-50 dark:bg-red-950/20' 
                   : completedTasks === totalTasks
-                  ? 'border-green-500 bg-green-50/50 dark:bg-green-950/20'
-                  : 'border-orange-300 bg-orange-50/30 dark:bg-orange-950/20'
+                  ? 'border-green-300 bg-green-50 dark:bg-green-950/20'
+                  : 'border-orange-200 bg-orange-50 dark:bg-orange-950/10'
               }`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h5 className="font-semibold">{template.template_name}</h5>
-                      <p className="text-sm text-muted-foreground">{template.sof_number}</p>
-                      {template.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{template.description}</p>
-                      )}
-                    </div>
-                    <div>
-                      {!tasksCreated ? (
-                        <Badge variant="destructive" className="ml-2">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          Not Created
-                        </Badge>
-                      ) : completedTasks === totalTasks ? (
-                        <Badge className="bg-green-600 hover:bg-green-700 ml-2">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          All Completed ({completedTasks}/{totalTasks})
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 ml-2">
-                          <Clock className="h-3 w-3 mr-1" />
-                          In Progress ({completedTasks}/{totalTasks})
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ========== SECTION 2: BATCH TASKS (FOR SELECTION) ========== */}
-      <div className="space-y-4 border-2 border-primary/20 rounded-lg p-4 bg-primary/5">
-        <div className="flex items-center gap-2">
-          <Info className="h-5 w-5 text-primary" />
-          <h4 className="text-base font-bold">All Batch Tasks</h4>
-        </div>
-        
-        <p className="text-sm text-muted-foreground">
-          Select the tasks you want to associate with this stage transition. All selected tasks must be completed before proceeding.
-        </p>
-
-        {/* Stage Task Progress - Only show if tasks exist */}
-        {stageSpecificTasks.length > 0 && (
-          <Card className="border-primary/30">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Stage-Specific Task Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {stageCompleted.length} of {stageSpecificTasks.length} stage tasks completed
-                </span>
-                <span className="font-semibold">{Math.round(stageCompletionPercentage)}%</span>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{template.template_name}</p>
+                  <p className="text-xs text-muted-foreground">{template.sof_number}</p>
+                </div>
+                {!tasksCreated ? (
+                  <Badge variant="destructive" className="text-xs">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Not Created
+                  </Badge>
+                ) : completedTasks === totalTasks ? (
+                  <Badge className="bg-green-600 hover:bg-green-700 text-xs">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {completedTasks}/{totalTasks}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {completedTasks}/{totalTasks}
+                  </Badge>
+                )}
               </div>
-              <Progress value={stageCompletionPercentage} className="h-2" />
-            </CardContent>
-          </Card>
-        )}
+            ))
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Stage-Specific: Incomplete Tasks */}
-        {stagePending.length > 0 && (
-          <div className="space-y-2">
-            <h5 className="text-sm font-medium flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-orange-600" />
-              Incomplete Stage Tasks ({stagePending.length})
-            </h5>
-            <div className="space-y-2">
-              {stagePending.map(task => (
-                <Card key={task.id} className="border-2 border-orange-200 bg-orange-50/30 dark:bg-orange-950/20 dark:border-orange-900">
-                  <CardContent className="p-3">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id={`stage-task-${task.id}`}
-                        checked={selectedTaskIds.includes(task.id)}
-                        onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1 space-y-2">
-                        <Label
-                          htmlFor={`stage-task-${task.id}`}
-                          className="text-sm font-semibold cursor-pointer block"
-                        >
+      {/* ========== BATCH TASKS ========== */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Batch Tasks</CardTitle>
+            {stageSpecificTasks.length > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">{stageCompleted.length}/{stageSpecificTasks.length}</span>
+                <Progress value={stageCompletionPercentage} className="h-2 w-20" />
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+
+          {allBatchTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No tasks associated with this batch.</p>
+          ) : (
+            <Accordion type="multiple" defaultValue={["stage-tasks"]} className="space-y-2">
+              {/* Stage-Specific Tasks */}
+              {stageSpecificTasks.length > 0 && (
+                <AccordionItem value="stage-tasks" className="border rounded-md px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      <span>Stage Tasks ({stageCompleted.length}/{stageSpecificTasks.length} completed)</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-2 pb-3">
+                    {[...stagePending, ...stageCompleted].map(task => (
+                      <div key={task.id} className={`flex items-center gap-2 p-2 rounded border ${
+                        task.status === 'completed' 
+                          ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
+                          : 'border-orange-200 bg-orange-50/30 dark:bg-orange-950/10'
+                      }`}>
+                        <Checkbox
+                          id={`task-${task.id}`}
+                          checked={selectedTaskIds.includes(task.id)}
+                          onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
+                        />
+                        <Label htmlFor={`task-${task.id}`} className="flex-1 text-sm cursor-pointer">
                           {task.name}
                         </Label>
-                        {task.description && (
-                          <p className="text-xs text-muted-foreground">{task.description}</p>
+                        {task.status === 'completed' ? (
+                          <Badge className="bg-green-600 text-xs">
+                            <CheckCircle2 className="h-3 w-3" />
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-orange-100 text-orange-800 text-xs">
+                            <Clock className="h-3 w-3" />
+                          </Badge>
                         )}
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                            {task.status === 'in_progress' ? 'In Progress' : 'Not Started'}
-                          </Badge>
-                          {task.task_category && (
-                            <Badge variant="outline" className="text-xs">
-                              {task.task_category}
-                            </Badge>
-                          )}
-                          {task.due_date && (
-                            <Badge variant="outline" className="text-xs">
-                              Due: {new Date(task.due_date).toLocaleDateString()}
-                            </Badge>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-        {/* Stage-Specific: Completed Tasks */}
-        {stageCompleted.length > 0 && (
-          <div className="space-y-2">
-            <h5 className="text-sm font-medium flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              Completed Stage Tasks ({stageCompleted.length})
-            </h5>
-            <div className="space-y-2">
-              {stageCompleted.map(task => (
-                <Card key={task.id} className="border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-900">
-                  <CardContent className="p-3">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id={`stage-task-${task.id}`}
-                        checked={selectedTaskIds.includes(task.id)}
-                        onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1 space-y-2">
-                        <Label
-                          htmlFor={`stage-task-${task.id}`}
-                          className="text-sm font-medium cursor-pointer block"
-                        >
+              {/* Other Batch Tasks */}
+              {otherBatchTasks.length > 0 && (
+                <AccordionItem value="other-tasks" className="border rounded-md px-4">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <span>Other Tasks ({otherCompleted.length}/{otherBatchTasks.length} completed)</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-2 pb-3">
+                    {[...otherPending, ...otherCompleted].map(task => (
+                      <div key={task.id} className={`flex items-center gap-2 p-2 rounded border ${
+                        task.status === 'completed' 
+                          ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
+                          : 'border-muted'
+                      }`}>
+                        <Checkbox
+                          id={`task-${task.id}`}
+                          checked={selectedTaskIds.includes(task.id)}
+                          onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
+                        />
+                        <Label htmlFor={`task-${task.id}`} className="flex-1 text-sm cursor-pointer">
                           {task.name}
                         </Label>
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge className="bg-green-600 hover:bg-green-700">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Completed
+                        {task.status === 'completed' ? (
+                          <Badge className="bg-green-600 text-xs">
+                            <CheckCircle2 className="h-3 w-3" />
                           </Badge>
-                          {task.approval_status === 'approved' && (
-                            <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                              Approved
-                            </Badge>
-                          )}
-                          {task.task_category && (
-                            <Badge variant="outline" className="text-xs">
-                              {task.task_category}
-                            </Badge>
-                          )}
-                        </div>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            <Clock className="h-3 w-3" />
+                          </Badge>
+                        )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Other Batch Tasks */}
-        {otherBatchTasks.length > 0 && (
-          <>
-            <div className="border-t pt-4 mt-4">
-              <h5 className="text-sm font-medium mb-2">Other Batch Tasks (Optional)</h5>
-              <p className="text-xs text-muted-foreground mb-3">
-                These tasks are not tagged to this specific stage but are associated with the batch.
-              </p>
-            </div>
-
-            {/* Other: Pending Tasks */}
-            {otherPending.length > 0 && (
-              <div className="space-y-2">
-                <h6 className="text-xs font-medium flex items-center gap-2 text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  Pending ({otherPending.length})
-                </h6>
-                <div className="space-y-2">
-                  {otherPending.map(task => (
-                    <Card key={task.id} className="border-muted">
-                      <CardContent className="p-2">
-                        <div className="flex items-start gap-2">
-                          <Checkbox
-                            id={`other-task-${task.id}`}
-                            checked={selectedTaskIds.includes(task.id)}
-                            onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor={`other-task-${task.id}`}
-                              className="text-xs font-medium cursor-pointer block"
-                            >
-                              {task.name}
-                            </Label>
-                            <div className="flex gap-1 flex-wrap mt-1">
-                              <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900">
-                                {task.status === 'in_progress' ? 'In Progress' : 'Pending'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Other: Completed Tasks */}
-            {otherCompleted.length > 0 && (
-              <div className="space-y-2">
-                <h6 className="text-xs font-medium flex items-center gap-2 text-muted-foreground">
-                  <CheckCircle2 className="h-3 w-3 text-green-600" />
-                  Completed ({otherCompleted.length})
-                </h6>
-                <div className="space-y-2">
-                  {otherCompleted.map(task => (
-                    <Card key={task.id} className="border-muted">
-                      <CardContent className="p-2">
-                        <div className="flex items-start gap-2">
-                          <Checkbox
-                            id={`other-task-${task.id}`}
-                            checked={selectedTaskIds.includes(task.id)}
-                            onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor={`other-task-${task.id}`}
-                              className="text-xs font-medium cursor-pointer block"
-                            >
-                              {task.name}
-                            </Label>
-                            <div className="flex gap-1 flex-wrap mt-1">
-                              <Badge className="text-xs bg-green-600 hover:bg-green-700">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Completed
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Selection Warning - Only for selected incomplete tasks */}
-      {hasIncompleteSelectedTasks && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Some selected tasks are not completed. You cannot proceed until all selected tasks are completed, or you deselect them.
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 };
