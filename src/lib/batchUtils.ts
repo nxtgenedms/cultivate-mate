@@ -24,25 +24,25 @@ export type BatchStatus = typeof BATCH_STATUS[keyof typeof BATCH_STATUS];
 
 export const STAGE_COLORS = {
   [BATCH_STAGES.PRECLONE]: 'bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20',
-  [BATCH_STAGES.CLONE_GERMINATION]: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
-  [BATCH_STAGES.HARDENING]: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20',
+  [BATCH_STAGES.CLONE_GERMINATION]: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20',
+  [BATCH_STAGES.HARDENING]: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
   [BATCH_STAGES.VEGETATIVE]: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
   [BATCH_STAGES.FLOWERING_GROW_ROOM]: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
   [BATCH_STAGES.PREHARVEST]: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20',
   [BATCH_STAGES.HARVEST]: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
   [BATCH_STAGES.PROCESSING_DRYING]: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
-  [BATCH_STAGES.PACKING_STORAGE]: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+  [BATCH_STAGES.PACKING_STORAGE]: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
 };
 
 export const STAGE_ICONS = {
-  [BATCH_STAGES.PRECLONE]: '🔬',
+  [BATCH_STAGES.PRECLONE]: '🧬',
   [BATCH_STAGES.CLONE_GERMINATION]: '🌱',
   [BATCH_STAGES.HARDENING]: '💪',
   [BATCH_STAGES.VEGETATIVE]: '🌳',
   [BATCH_STAGES.FLOWERING_GROW_ROOM]: '🌸',
-  [BATCH_STAGES.PREHARVEST]: '🌾',
+  [BATCH_STAGES.PREHARVEST]: '🔍',
   [BATCH_STAGES.HARVEST]: '✂️',
-  [BATCH_STAGES.PROCESSING_DRYING]: '🔧',
+  [BATCH_STAGES.PROCESSING_DRYING]: '🌾',
   [BATCH_STAGES.PACKING_STORAGE]: '📦',
 };
 
@@ -87,7 +87,7 @@ export function getStageColor(stage: string): string {
 }
 
 export function getStageIcon(stage: string): string {
-  return STAGE_ICONS[stage as BatchStage] || '🌱';
+  return STAGE_ICONS[stage as BatchStage] || '🧬';
 }
 
 export function getStageLabel(stage: string): string {
