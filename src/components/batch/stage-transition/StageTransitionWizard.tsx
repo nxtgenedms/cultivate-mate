@@ -327,8 +327,7 @@ export const StageTransitionWizard = ({
           {currentStep === 1 && !canProceed() && (
             <Alert variant="destructive" className="w-full">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle className="font-bold">Cannot Proceed</AlertTitle>
-              <AlertDescription className="space-y-2">
+              <AlertDescription>
                 {(() => {
                   // Check for missing checklist tasks first
                   const missingChecklists = checklistTemplates.filter(template => {
@@ -339,23 +338,8 @@ export const StageTransitionWizard = ({
                   });
 
                   if (missingChecklists.length > 0) {
-                    return (
-                      <div>
-                        <p className="font-medium mb-2">
-                          Required checklists for <strong>{currentStage}</strong> stage have not been created yet.
-                        </p>
-                        <p className="text-sm mb-2">
-                          Please create tasks for the following checklists before proceeding:
-                        </p>
-                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
-                          {missingChecklists.map(template => (
-                            <li key={template.id}>
-                              <strong>{template.template_name}</strong> ({template.sof_number})
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    );
+                    const checklistNames = missingChecklists.map(t => `${t.template_name} (${t.sof_number})`).join(', ');
+                    return `Required checklists for ${currentStage} stage have not been created yet. Please create tasks for: ${checklistNames}`;
                   }
 
                   // Check for incomplete stage tasks
@@ -364,20 +348,8 @@ export const StageTransitionWizard = ({
                   );
 
                   if (incompleteStageTasks.length > 0) {
-                    return (
-                      <div>
-                        <p className="font-medium mb-2">
-                          The following required tasks for <strong>{currentStage}</strong> stage must be completed:
-                        </p>
-                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
-                          {incompleteStageTasks.map(task => (
-                            <li key={task.id}>
-                              <strong>{task.name}</strong> - Status: {task.status}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    );
+                    const taskCount = incompleteStageTasks.length;
+                    return `${taskCount} required task${taskCount > 1 ? 's' : ''} for ${currentStage} stage must be completed before proceeding.`;
                   }
 
                   return null;
