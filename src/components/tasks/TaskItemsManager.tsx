@@ -12,7 +12,8 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -195,34 +196,27 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                       
                       {/* Render input based on item type - Generic logic */}
                       {item.item_type === 'checkbox' ? (
-                        // Checkbox type: Yes/No toggle buttons
+                        // Checkbox type: Yes/No radio buttons
                         <div className="space-y-2">
-                          <ToggleGroup 
-                            type="single" 
+                          <RadioGroup 
                             value={item.response_value || ""}
-                            onValueChange={(value) => {
-                              if (value) {
-                                handleResponseValueChange(item.id, value);
-                              }
-                            }}
+                            onValueChange={(value) => handleResponseValueChange(item.id, value)}
                             disabled={readOnly}
-                            className="justify-start"
+                            className="flex gap-4"
                           >
-                            <ToggleGroupItem 
-                              value="yes" 
-                              aria-label="Yes"
-                              className="data-[state=on]:bg-green-100 data-[state=on]:text-green-900 dark:data-[state=on]:bg-green-900 dark:data-[state=on]:text-green-100"
-                            >
-                              Yes
-                            </ToggleGroupItem>
-                            <ToggleGroupItem 
-                              value="no" 
-                              aria-label="No"
-                              className="data-[state=on]:bg-red-100 data-[state=on]:text-red-900 dark:data-[state=on]:bg-red-900 dark:data-[state=on]:text-red-100"
-                            >
-                              No
-                            </ToggleGroupItem>
-                          </ToggleGroup>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id={`${item.id}-yes`} />
+                              <Label htmlFor={`${item.id}-yes`} className="cursor-pointer">
+                                Yes
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id={`${item.id}-no`} />
+                              <Label htmlFor={`${item.id}-no`} className="cursor-pointer">
+                                No
+                              </Label>
+                            </div>
+                          </RadioGroup>
                           <p className="text-xs text-muted-foreground">
                             Select Yes or No to confirm
                           </p>
