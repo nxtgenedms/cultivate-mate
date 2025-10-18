@@ -19,7 +19,7 @@ export function Layout({ children }: LayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', adminOnly: false },
-    { icon: Leaf, label: 'Batch Management', path: '/batch/dashboard', adminOnly: false },
+    { icon: Leaf, label: 'Batch', path: '/batch/dashboard', adminOnly: false },
     { icon: ClipboardList, label: 'Tasks', path: '/tasks', adminOnly: false },
     { icon: Package, label: 'Inventory', path: '/inventory', adminOnly: false },
     { icon: BarChart3, label: 'Reports', path: '/reports', adminOnly: false },
