@@ -111,7 +111,7 @@ export type CategoryGroup =
 
 export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: string; categories: TaskCategory[] }> = {
   daily_weekly: {
-    label: 'Daily/Weekly Records',
+    label: 'Daily/Weekly',
     icon: '📋',
     categories: [
       'daily_cloning_transplant',
