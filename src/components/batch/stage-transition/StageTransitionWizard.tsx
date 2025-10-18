@@ -47,7 +47,7 @@ export const StageTransitionWizard = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tasks')
-        .select('*')
+        .select('id, name, status, description, due_date, lifecycle_stage, task_category, approval_status, batch_id, checklist_items, created_at, updated_at, created_by, assignee')
         .eq('batch_id', batchId)
         .order('created_at', { ascending: false });
       

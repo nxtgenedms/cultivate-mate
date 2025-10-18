@@ -22,6 +22,10 @@ export interface TaskData {
   description?: string;
   due_date?: string;
   batch_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  assignee?: string;
 }
 
 export interface ExtractedFieldData {

@@ -3,10 +3,13 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown, User, Calendar } from "lucide-react";
 import { groupTasksByStatus, TaskData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 interface ChecklistTemplate {
   id: string;
@@ -35,6 +38,25 @@ export const TaskValidationStep = ({
   checklistTemplates,
   onTaskSelectionChange,
 }: TaskValidationStepProps) => {
+  // Fetch user profiles for creator/completer names
+  const { data: profiles = [] } = useQuery({
+    queryKey: ['profiles-for-tasks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const getUserName = (userId: string | null | undefined) => {
+    if (!userId) return 'Unknown';
+    const profile = profiles.find(p => p.id === userId);
+    return profile?.full_name || profile?.email || 'Unknown';
+  };
   // 1. REQUIRED: Tasks tagged to the current lifecycle stage (MANDATORY)
   const stageSpecificTasks = tasks.filter(task => 
     task.lifecycle_stage === currentStage
@@ -75,6 +97,121 @@ export const TaskValidationStep = ({
   });
 
   const allBatchTasks = [...stageSpecificTasks, ...otherBatchTasks];
+
+  const renderTaskCard = (task: TaskData) => {
+    const isCompleted = task.status === 'completed';
+    const completedItems = task.checklist_items?.filter((item: any) => item.completed).length || 0;
+    const totalItems = task.checklist_items?.length || 0;
+    
+    return (
+      <div key={task.id} className={`rounded border ${
+        isCompleted 
+          ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
+          : 'border-orange-200 bg-orange-50/30 dark:bg-orange-950/10'
+      }`}>
+        <div className="p-3 space-y-3">
+          {/* Task Header */}
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id={`task-${task.id}`}
+              checked={selectedTaskIds.includes(task.id)}
+              onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
+              className="mt-1"
+            />
+            <div className="flex-1 min-w-0">
+              <Label htmlFor={`task-${task.id}`} className="text-sm font-medium cursor-pointer block">
+                {task.name}
+              </Label>
+              
+              {/* Status and Progress */}
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {isCompleted ? (
+                  <Badge className="bg-green-600 text-xs">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Completed
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 text-xs">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {task.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                  </Badge>
+                )}
+                {totalItems > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {completedItems}/{totalItems} items
+                  </span>
+                )}
+              </div>
+
+              {/* Creation & Completion Info */}
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                {task.created_at && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
+                    {task.created_by && (
+                      <>
+                        <span>by</span>
+                        <User className="h-3 w-3 ml-1" />
+                        <span>{getUserName(task.created_by)}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                {isCompleted && task.updated_at && (
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Completed: {format(new Date(task.updated_at), 'MMM dd, yyyy')}</span>
+                    {task.assignee && (
+                      <>
+                        <span>by</span>
+                        <User className="h-3 w-3 ml-1" />
+                        <span>{getUserName(task.assignee)}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Checklist Items */}
+              {totalItems > 0 && (
+                <Accordion type="single" collapsible className="mt-2">
+                  <AccordionItem value="items" className="border-0">
+                    <AccordionTrigger className="py-1 text-xs hover:no-underline">
+                      View {totalItems} checklist item{totalItems !== 1 ? 's' : ''}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-1 mt-1">
+                        {task.checklist_items?.map((item: any, idx: number) => (
+                          <div key={idx} className="flex items-start gap-2 text-xs p-1.5 rounded bg-background/50">
+                            <div className="mt-0.5">
+                              {item.completed ? (
+                                <CheckCircle2 className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Clock className="h-3 w-3 text-orange-600" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium">{item.label}</p>
+                              {item.response_value && (
+                                <p className="text-muted-foreground mt-0.5">
+                                  Value: {item.response_value}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -155,31 +292,7 @@ export const TaskValidationStep = ({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-2 pb-3">
-                    {[...stagePending, ...stageCompleted].map(task => (
-                      <div key={task.id} className={`flex items-center gap-2 p-2 rounded border ${
-                        task.status === 'completed' 
-                          ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
-                          : 'border-orange-200 bg-orange-50/30 dark:bg-orange-950/10'
-                      }`}>
-                        <Checkbox
-                          id={`task-${task.id}`}
-                          checked={selectedTaskIds.includes(task.id)}
-                          onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                        />
-                        <Label htmlFor={`task-${task.id}`} className="flex-1 text-sm cursor-pointer">
-                          {task.name}
-                        </Label>
-                        {task.status === 'completed' ? (
-                          <Badge className="bg-green-600 text-xs">
-                            <CheckCircle2 className="h-3 w-3" />
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="bg-orange-100 text-orange-800 text-xs">
-                            <Clock className="h-3 w-3" />
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
+                    {[...stagePending, ...stageCompleted].map(task => renderTaskCard(task))}
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -193,31 +306,7 @@ export const TaskValidationStep = ({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-2 pb-3">
-                    {[...otherPending, ...otherCompleted].map(task => (
-                      <div key={task.id} className={`flex items-center gap-2 p-2 rounded border ${
-                        task.status === 'completed' 
-                          ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
-                          : 'border-muted'
-                      }`}>
-                        <Checkbox
-                          id={`task-${task.id}`}
-                          checked={selectedTaskIds.includes(task.id)}
-                          onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
-                        />
-                        <Label htmlFor={`task-${task.id}`} className="flex-1 text-sm cursor-pointer">
-                          {task.name}
-                        </Label>
-                        {task.status === 'completed' ? (
-                          <Badge className="bg-green-600 text-xs">
-                            <CheckCircle2 className="h-3 w-3" />
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-xs">
-                            <Clock className="h-3 w-3" />
-                          </Badge>
-                        )}
-                      </div>
-                    ))}
+                    {[...otherPending, ...otherCompleted].map(task => renderTaskCard(task))}
                   </AccordionContent>
                 </AccordionItem>
               )}
