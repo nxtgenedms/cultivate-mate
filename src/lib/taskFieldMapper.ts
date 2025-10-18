@@ -21,6 +21,7 @@ export interface TaskData {
   lifecycle_stage?: string;
   description?: string;
   due_date?: string;
+  batch_id?: string;
 }
 
 export interface ExtractedFieldData {

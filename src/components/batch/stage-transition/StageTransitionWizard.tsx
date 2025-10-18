@@ -84,6 +84,26 @@ export const StageTransitionWizard = ({
     enabled: open,
   });
 
+  // Fetch checklist templates for current stage
+  const { data: checklistTemplates = [] } = useQuery({
+    queryKey: ['checklist-templates-stage', currentStage],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('checklist_templates')
+        .select('*')
+        .eq('lifecycle_phase', currentStage)
+        .eq('is_active', true);
+      
+      if (error) {
+        console.warn('Failed to fetch checklist templates:', error);
+        return [];
+      }
+      
+      return data || [];
+    },
+    enabled: open,
+  });
+
   // Fetch dome values
   const { data: domeValues = [] } = useQuery({
     queryKey: ['lookup-dome-values'],
@@ -210,13 +230,22 @@ export const StageTransitionWizard = ({
 
   const canProceed = () => {
     if (currentStep === 1) {
-      // Filter tasks by current stage
-      const stageSpecificTasks = tasks.filter(t => t.lifecycle_stage === currentStage);
-      
-      // Block if no stage-specific tasks have been created
-      if (stageSpecificTasks.length === 0) {
+      // Check if any checklist templates exist for this stage but tasks haven't been created
+      const missingChecklists = checklistTemplates.filter(template => {
+        // Check if any tasks exist for this template's SOF number and batch
+        const tasksForTemplate = tasks.filter(t => 
+          t.name.includes(template.sof_number) && t.batch_id === batchId
+        );
+        return tasksForTemplate.length === 0;
+      });
+
+      // Block if checklist templates exist but no tasks created for them
+      if (missingChecklists.length > 0) {
         return false;
       }
+
+      // Filter tasks by current stage
+      const stageSpecificTasks = tasks.filter(t => t.lifecycle_stage === currentStage);
       
       // Block if there are any incomplete stage-specific tasks
       const hasIncompleteStageTasks = stageSpecificTasks.some(task => 
@@ -263,6 +292,8 @@ export const StageTransitionWizard = ({
                 mappings={mappings}
                 selectedTaskIds={selectedTaskIds}
                 currentStage={currentStage}
+                batchId={batchId}
+                checklistTemplates={checklistTemplates}
                 onTaskSelectionChange={handleTaskSelection}
               />
             )}
@@ -298,32 +329,59 @@ export const StageTransitionWizard = ({
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="font-bold">Cannot Proceed</AlertTitle>
               <AlertDescription className="space-y-2">
-                {tasks.filter(t => t.lifecycle_stage === currentStage).length === 0 ? (
-                  <div>
-                    <p className="font-medium mb-2">
-                      No stage-specific tasks have been created for the <strong>{currentStage}</strong> stage.
-                    </p>
-                    <p className="text-sm">
-                      Please create and complete the required tasks before proceeding.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium mb-2">
-                      The following required tasks for <strong>{currentStage}</strong> stage must be completed:
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
-                      {tasks
-                        .filter(t => t.lifecycle_stage === currentStage && t.status !== 'completed')
-                        .map(task => (
-                          <li key={task.id}>
-                            <strong>{task.name}</strong> - Status: {task.status}
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                )}
+                {(() => {
+                  // Check for missing checklist tasks first
+                  const missingChecklists = checklistTemplates.filter(template => {
+                    const tasksForTemplate = tasks.filter(t => 
+                      t.name.includes(template.sof_number) && t.batch_id === batchId
+                    );
+                    return tasksForTemplate.length === 0;
+                  });
+
+                  if (missingChecklists.length > 0) {
+                    return (
+                      <div>
+                        <p className="font-medium mb-2">
+                          Required checklists for <strong>{currentStage}</strong> stage have not been created yet.
+                        </p>
+                        <p className="text-sm mb-2">
+                          Please create tasks for the following checklists before proceeding:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                          {missingChecklists.map(template => (
+                            <li key={template.id}>
+                              <strong>{template.template_name}</strong> ({template.sof_number})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+
+                  // Check for incomplete stage tasks
+                  const incompleteStageTasks = tasks.filter(
+                    t => t.lifecycle_stage === currentStage && t.status !== 'completed'
+                  );
+
+                  if (incompleteStageTasks.length > 0) {
+                    return (
+                      <div>
+                        <p className="font-medium mb-2">
+                          The following required tasks for <strong>{currentStage}</strong> stage must be completed:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                          {incompleteStageTasks.map(task => (
+                            <li key={task.id}>
+                              <strong>{task.name}</strong> - Status: {task.status}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+
+                  return null;
+                })()}
               </AlertDescription>
             </Alert>
           )}
