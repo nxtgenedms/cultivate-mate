@@ -214,15 +214,31 @@ export default function TaskFieldMappings() {
   };
 
   const handleEdit = (mapping: TaskFieldMapping) => {
+    console.log('Editing mapping:', mapping);
+    console.log('Available templates:', templates);
+    
     setEditingMapping(mapping);
     
-    // Find template by task_category
-    const template = templates?.find(t => t.task_category === mapping.task_category);
+    // Find template by task_category and sof_number
+    const template = templates?.find(
+      t => t.task_category === mapping.task_category && t.sof_number === mapping.sof_number
+    );
+    
+    console.log('Found template:', template);
+    
     if (template) {
       setSelectedTemplate(template.id);
+      setSofNumber(template.sof_number);
+    } else {
+      // Fallback: try to find by task_category only
+      const fallbackTemplate = templates?.find(t => t.task_category === mapping.task_category);
+      console.log('Fallback template:', fallbackTemplate);
+      if (fallbackTemplate) {
+        setSelectedTemplate(fallbackTemplate.id);
+      }
+      setSofNumber(mapping.sof_number);
     }
     
-    setSofNumber(mapping.sof_number);
     setSelectedStages(mapping.applicable_stages);
     
     // Convert item_mappings to FieldMapping[]
@@ -234,6 +250,7 @@ export default function TaskFieldMappings() {
     );
     setFieldMappings(mappings);
     
+    // Start at step 2 (field mapping) when editing
     setCurrentStep(2);
     setIsDialogOpen(true);
   };
