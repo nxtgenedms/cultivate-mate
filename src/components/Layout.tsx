@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsAdmin } from '@/hooks/useUserRoles';
 import { Button } from '@/components/ui/button';
-import { LogOut, Users, Settings, LayoutDashboard, Leaf, ClipboardList, Bug, Droplets, Package } from 'lucide-react';
+import { LogOut, Users, Settings, LayoutDashboard, Leaf, ClipboardList, Bug, Droplets, Package, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/tasks/NotificationBell';
 
@@ -22,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: Leaf, label: 'Batch Management', path: '/batch/dashboard', adminOnly: false },
     { icon: ClipboardList, label: 'Tasks', path: '/tasks', adminOnly: false },
     { icon: Package, label: 'Inventory', path: '/inventory', adminOnly: false },
+    { icon: BarChart3, label: 'Reports', path: '/reports', adminOnly: false },
     { icon: Settings, label: 'Administration', path: '/admin/users', adminOnly: true },
   ];
 

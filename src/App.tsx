@@ -18,6 +18,7 @@ import InventoryManagement from "./pages/InventoryManagement";
 import ChecklistManagement from "./pages/admin/ChecklistManagement";
 import TaskFieldMappings from "./pages/admin/TaskFieldMappings";
 import TaskManagement from "./pages/TaskManagement";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/batch/detail/:id" element={<BatchDetail />} />
             <Route path="/tasks" element={<TaskManagement />} />
             <Route path="/inventory" element={<InventoryManagement />} />
+            <Route path="/reports" element={<Reports />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
