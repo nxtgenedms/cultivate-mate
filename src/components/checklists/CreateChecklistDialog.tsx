@@ -31,7 +31,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
   const [checklistType, setChecklistType] = useState<'general' | 'batch'>('general');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
-  const [selectedLifecycleStage, setSelectedLifecycleStage] = useState<string>('');
 
   const { data: templates } = useQuery({
     queryKey: ['checklist-templates-active'],
@@ -185,7 +184,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         batch_id: checklistType === 'batch' ? selectedBatch : null,
         checklist_id: instance.id,
         task_category: taskCategory as any,
-        lifecycle_stage: (checklistType === 'batch' && selectedLifecycleStage ? selectedLifecycleStage : null) as any,
+        lifecycle_stage: (checklistType === 'batch' && template.lifecycle_phase ? template.lifecycle_phase : null) as any,
         checklist_items: checklistItems,
         completion_progress: {
           total: checklistItems.length,
@@ -211,7 +210,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       onOpenChange(false);
       setSelectedTemplate('');
       setSelectedBatch('');
-      setSelectedLifecycleStage('');
       setChecklistType('general');
     },
     onError: (error) => {
@@ -230,17 +228,15 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       return;
     }
 
-    if (checklistType === 'batch' && !selectedLifecycleStage) {
-      toast.error('Please select a lifecycle stage');
-      return;
-    }
-
     createMutation.mutate();
   };
 
   const filteredTemplates = templates?.filter(t => 
     checklistType === 'batch' ? t.is_batch_specific : !t.is_batch_specific
   );
+
+  const selectedTemplateData = templates?.find(t => t.id === selectedTemplate);
+  const templateLifecycleStage = selectedTemplateData?.lifecycle_phase;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -268,48 +264,26 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
           </div>
 
           {checklistType === 'batch' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="batch">Select Batch *</Label>
-                <Select value={selectedBatch} onValueChange={setSelectedBatch}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select batch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {batches?.map((batch) => (
-                      <SelectItem key={batch.id} value={batch.id}>
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium">{batch.batch_number}</span>
-                          <span className="text-xs text-muted-foreground">
-                            Mother: {batch.mother_no || 'N/A'} • Stage: {batch.current_stage || 'N/A'}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lifecycle-stage">Target Stage *</Label>
-                <Select value={selectedLifecycleStage} onValueChange={setSelectedLifecycleStage}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select lifecycle stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="preclone">Preclone</SelectItem>
-                    <SelectItem value="clone_germination">Clone / Germination</SelectItem>
-                    <SelectItem value="hardening">Hardening</SelectItem>
-                    <SelectItem value="vegetative">Vegetative</SelectItem>
-                    <SelectItem value="flowering_grow_room">Flowering / Grow Room</SelectItem>
-                    <SelectItem value="preharvest">Preharvest</SelectItem>
-                    <SelectItem value="harvest">Harvest</SelectItem>
-                    <SelectItem value="processing_drying">Processing / Drying</SelectItem>
-                    <SelectItem value="packing_storage">Packing / Storage</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
+            <div className="space-y-2">
+              <Label htmlFor="batch">Select Batch *</Label>
+              <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select batch" />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-background">
+                  {batches?.map((batch) => (
+                    <SelectItem key={batch.id} value={batch.id}>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{batch.batch_number}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Mother: {batch.mother_no || 'N/A'} • Stage: {batch.current_stage || 'N/A'}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
           <div className="space-y-2">
@@ -318,7 +292,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
               <SelectTrigger>
                 <SelectValue placeholder="Select template" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background">
                 {filteredTemplates?.map((template) => (
                   <SelectItem key={template.id} value={template.id}>
                     {template.sof_number} - {template.template_name}
@@ -327,6 +301,20 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
               </SelectContent>
             </Select>
           </div>
+
+          {selectedTemplate && templateLifecycleStage && (
+            <div className="space-y-2">
+              <Label>Template Lifecycle Stage</Label>
+              <div className="px-3 py-2 border rounded-md bg-muted/50 text-sm">
+                {templateLifecycleStage.split('_').map((word: string) => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This lifecycle stage is automatically set from the template
+              </p>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
