@@ -363,10 +363,10 @@ export default function Reports() {
                 {tasksLoading ? (
                   <Skeleton className="h-96 w-full" />
                 ) : (
-                  <>
+                  <div className="space-y-6">
                     <ResponsiveContainer width="100%" height={400}>
                       <BarChart data={userTaskData}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
                         <XAxis 
                           dataKey="userName" 
                           angle={-45} 
@@ -375,44 +375,92 @@ export default function Reports() {
                           fontSize={12}
                         />
                         <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="pending" fill="hsl(var(--warning))" name="Pending" />
-                        <Bar dataKey="inProgress" fill="hsl(var(--primary))" name="In Progress" />
-                        <Bar dataKey="overdue" fill="hsl(var(--destructive))" name="Overdue" />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--background))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend 
+                          wrapperStyle={{ paddingTop: '20px' }}
+                          iconType="square"
+                        />
+                        <Bar 
+                          dataKey="pending" 
+                          stackId="a"
+                          fill="hsl(45, 90%, 55%)" 
+                          name="Pending" 
+                          radius={[0, 0, 0, 0]}
+                        />
+                        <Bar 
+                          dataKey="inProgress" 
+                          stackId="a"
+                          fill="hsl(142, 70%, 45%)" 
+                          name="In Progress" 
+                          radius={[0, 0, 0, 0]}
+                        />
+                        <Bar 
+                          dataKey="overdue" 
+                          stackId="a"
+                          fill="hsl(0, 85%, 60%)" 
+                          name="Overdue" 
+                          radius={[4, 4, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-                    {/* Detailed task list */}
-                    <div className="mt-6 space-y-3">
-                      <h3 className="font-semibold text-lg">Overdue Tasks Detail</h3>
-                      {tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).map((task) => (
-                        <Card key={task.id} className="border-l-4 border-l-destructive">
-                          <div className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1">
-                                <h4 className="font-medium">{task.name}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Assigned to: {task.assignee_profile?.full_name || 'Unassigned'}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <Badge variant="destructive">
-                                  {differenceInDays(new Date(), new Date(task.due_date))} days overdue
-                                </Badge>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  Due: {format(new Date(task.due_date), 'MMM dd, yyyy')}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                      {tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).length === 0 && (
-                        <p className="text-center text-muted-foreground py-4">No overdue tasks</p>
-                      )}
-                    </div>
-                  </>
+            {/* Overdue Tasks Detail */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Overdue Tasks Detail</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {tasksLoading ? (
+                  <Skeleton className="h-32 w-full" />
+                ) : tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).length > 0 ? (
+                  <div className="rounded-lg border overflow-hidden">
+                    <table className="w-full">
+                      <thead className="bg-muted">
+                        <tr>
+                          <th className="text-left p-3 font-semibold text-sm">Task Name</th>
+                          <th className="text-left p-3 font-semibold text-sm">Assigned To</th>
+                          <th className="text-left p-3 font-semibold text-sm">Due Date</th>
+                          <th className="text-left p-3 font-semibold text-sm">Days Overdue</th>
+                          <th className="text-left p-3 font-semibold text-sm">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).map((task) => (
+                          <tr key={task.id} className="border-t hover:bg-muted/50">
+                            <td className="p-3 text-sm font-medium">{task.name}</td>
+                            <td className="p-3 text-sm">{task.assignee_profile?.full_name || 'Unassigned'}</td>
+                            <td className="p-3 text-sm text-muted-foreground">
+                              {format(new Date(task.due_date), 'MMM dd, yyyy')}
+                            </td>
+                            <td className="p-3">
+                              <Badge variant="destructive" className="font-semibold">
+                                {differenceInDays(new Date(), new Date(task.due_date))} days
+                              </Badge>
+                            </td>
+                            <td className="p-3">
+                              <Badge variant="outline" className="text-xs">
+                                {task.status}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">No overdue tasks</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
