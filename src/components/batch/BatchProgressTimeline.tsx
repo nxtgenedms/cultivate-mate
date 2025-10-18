@@ -9,16 +9,26 @@ interface BatchProgressTimelineProps {
   currentStage: string;
   completedStages?: string[];
   stageCompletionDates?: {
-    cloning?: string | null;
+    preclone?: string | null;
+    clone_germination?: string | null;
+    hardening?: string | null;
     vegetative?: string | null;
-    flowering?: string | null;
+    flowering_grow_room?: string | null;
+    preharvest?: string | null;
     harvest?: string | null;
+    processing_drying?: string | null;
+    packing_storage?: string | null;
   };
   stageData?: {
-    cloning?: { dome?: string; plants?: number };
+    preclone?: { dome?: string; plants?: number };
+    clone_germination?: { dome?: string; plants?: number };
+    hardening?: { dome?: string; plants?: number };
     vegetative?: { dome?: string; plants?: number };
-    flowering?: { dome?: string; plants?: number };
+    flowering_grow_room?: { dome?: string; plants?: number };
+    preharvest?: { dome?: string; plants?: number };
     harvest?: { dome?: string; plants?: number };
+    processing_drying?: { dome?: string; plants?: number };
+    packing_storage?: { dome?: string; plants?: number };
   };
 }
 
@@ -29,18 +39,32 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
     let dateValue: string | null | undefined;
     
     switch (stage) {
-      case 'cloning':
-        // Cloning is completed when moved to veg
+      case 'preclone':
+        dateValue = stageCompletionDates.clone_germination;
+        break;
+      case 'clone_germination':
+        dateValue = stageCompletionDates.hardening;
+        break;
+      case 'hardening':
         dateValue = stageCompletionDates.vegetative;
         break;
       case 'vegetative':
-        dateValue = stageCompletionDates.flowering;
+        dateValue = stageCompletionDates.flowering_grow_room;
         break;
-      case 'flowering':
+      case 'flowering_grow_room':
+        dateValue = stageCompletionDates.preharvest;
+        break;
+      case 'preharvest':
         dateValue = stageCompletionDates.harvest;
         break;
       case 'harvest':
-        dateValue = stageCompletionDates.harvest;
+        dateValue = stageCompletionDates.processing_drying;
+        break;
+      case 'processing_drying':
+        dateValue = stageCompletionDates.packing_storage;
+        break;
+      case 'packing_storage':
+        dateValue = stageCompletionDates.packing_storage;
         break;
     }
 
@@ -70,17 +94,18 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
           {/* Progress Line */}
           <div className="absolute top-6 left-0 right-0 h-0.5 bg-muted" style={{ left: '24px', right: '24px' }} />
           
-          {/* Stages - Horizontal Layout */}
-          <div className="grid grid-cols-4 gap-2">
-            {STAGE_ORDER.map((stage, index) => {
-              const isCompleted = completedStages.includes(stage) || index < currentIndex;
-              const isCurrent = stage === currentStage;
-              const isFuture = index > currentIndex;
-              const completionDate = getCompletionDate(stage);
-              const { dome, plants } = getStageInfo(stage);
+          {/* Stages - Horizontal Layout - Scrollable for 9 stages */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-2 min-w-full">
+              {STAGE_ORDER.map((stage, index) => {
+                const isCompleted = completedStages.includes(stage) || index < currentIndex;
+                const isCurrent = stage === currentStage;
+                const isFuture = index > currentIndex;
+                const completionDate = getCompletionDate(stage);
+                const { dome, plants } = getStageInfo(stage);
 
-              return (
-                <div key={stage} className="relative flex flex-col items-center text-center">
+                return (
+                  <div key={stage} className="relative flex flex-col items-center text-center min-w-[140px] flex-shrink-0">
                   {/* Stage Indicator */}
                   <div
                     className={cn(
@@ -153,9 +178,10 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </CardContent>

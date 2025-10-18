@@ -311,27 +311,52 @@ export default function BatchDetail() {
             <BatchProgressTimeline 
               currentStage={batch.current_stage}
               stageCompletionDates={{
-                cloning: batch.clone_germination_date,
+                preclone: null,
+                clone_germination: batch.clone_germination_date,
+                hardening: batch.move_to_hardening_date,
                 vegetative: batch.move_to_veg_date,
-                flowering: batch.move_to_flowering_date,
-                harvest: batch.harvest_date
+                flowering_grow_room: batch.move_to_flowering_date,
+                preharvest: batch.actual_flowering_date,
+                harvest: batch.harvest_date,
+                processing_drying: batch.drying_date,
+                packing_storage: batch.packing_date
               }}
               stageData={{
-                cloning: { 
+                preclone: { 
+                  dome: null, 
+                  plants: null 
+                },
+                clone_germination: { 
                   dome: batch.dome_no, 
                   plants: batch.total_clones_plants 
+                },
+                hardening: { 
+                  dome: batch.dome_no, 
+                  plants: batch.hardening_number_clones 
                 },
                 vegetative: { 
                   dome: batch.dome_no, 
                   plants: batch.veg_number_plants 
                 },
-                flowering: { 
+                flowering_grow_room: { 
                   dome: batch.dome_no, 
                   plants: batch.flowering_number_plants 
                 },
+                preharvest: { 
+                  dome: null, 
+                  plants: null 
+                },
                 harvest: { 
-                  dome: batch.dome_no, 
+                  dome: null, 
                   plants: batch.harvest_number_plants 
+                },
+                processing_drying: { 
+                  dome: null, 
+                  plants: batch.drying_total_plants 
+                },
+                packing_storage: { 
+                  dome: null, 
+                  plants: null 
                 }
               }}
             />
