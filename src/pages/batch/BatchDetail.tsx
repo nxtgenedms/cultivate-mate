@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { BatchProgressTimeline } from '@/components/batch/BatchProgressTimeline';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock, Info } from 'lucide-react';
+import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock, Info, Sprout, Leaf, Flower, Scissors } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -364,329 +365,13 @@ export default function BatchDetail() {
         {/* Tabbed Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="lifecycle">Lifecycle Timeline</TabsTrigger>
+            <TabsTrigger value="overview">Batch Overview</TabsTrigger>
             <TabsTrigger value="tasks">Batch Tasks</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-3 mt-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Initial Batch Information */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    Batch Information
-                  </CardTitle>
-                  <CardDescription className="text-xs">Initial batch details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Batch Number:</span>
-                    <span className="font-medium">{batch.batch_number}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Strain ID:</span>
-                    <span className="font-medium">{getDisplayValue(batch.strain_id || '')}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dome No:</span>
-                    <span className="font-medium">{batch.dome_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Clone / Germination Date:</span>
-                    <span className="font-medium">
-                      {batch.clone_germination_date 
-                        ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mother No:</span>
-                    <span className="font-medium">{batch.mother_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Clones / Plants:</span>
-                    <span className="font-medium">{batch.total_clones_plants || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Clonator 1 – Rack No:</span>
-                    <span className="font-medium">{batch.rack_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Clonator Mortalities:</span>
-                    <span className={cn("font-medium", batch.clonator_mortalities > 0 && "text-red-500")}>
-                      {batch.clonator_mortalities || 0}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Expected Rooting Date:</span>
-                    <span className="font-medium">
-                      {batch.expected_rooting_date 
-                        ? format(new Date(batch.expected_rooting_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Actual Rooting Date:</span>
-                    <span className="font-medium">
-                      {batch.actual_rooting_date 
-                        ? format(new Date(batch.actual_rooting_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Clonator 2 Stage */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    Clonator 2 Stage
-                  </CardTitle>
-                  <CardDescription className="text-xs">Secondary cloning details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Clonator 2:</span>
-                    <span className="font-medium">{batch.clonator_2 || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date Moved:</span>
-                    <span className="font-medium">
-                      {batch.clonator_2_date 
-                        ? format(new Date(batch.clonator_2_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Number of Clones:</span>
-                    <span className="font-medium">{batch.clonator_2_number_clones || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Area Placed:</span>
-                    <span className="font-medium">{batch.clonator_2_area_placed || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Rack No:</span>
-                    <span className="font-medium">{batch.clonator_2_rack_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">No of Days:</span>
-                    <span className="font-medium">{batch.clonator_2_no_of_days || 'N/A'}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Hardening Stage */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Hardening Stage
-                  </CardTitle>
-                  <CardDescription className="text-xs">Hardening phase details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date Moved:</span>
-                    <span className="font-medium">
-                      {batch.move_to_hardening_date 
-                        ? format(new Date(batch.move_to_hardening_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Number of Clones:</span>
-                    <span className="font-medium">{batch.hardening_number_clones || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Area Placed:</span>
-                    <span className="font-medium">{batch.hardening_area_placed || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Rack No:</span>
-                    <span className="font-medium">{batch.hardening_rack_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">No of Days:</span>
-                    <span className="font-medium">{batch.hardening_no_of_days || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mortalities:</span>
-                    <span className="font-medium">
-                      {Array.isArray(batch.hardening_mortalities) && batch.hardening_mortalities.length > 0
-                        ? batch.hardening_mortalities.length
-                        : 0}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Vegetative Stage */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Vegetative Stage
-                  </CardTitle>
-                  <CardDescription className="text-xs">Vegetative growth details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date Moved:</span>
-                    <span className="font-medium">
-                      {batch.move_to_veg_date 
-                        ? format(new Date(batch.move_to_veg_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Number of Plants:</span>
-                    <span className="font-medium">{batch.veg_number_plants || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Table No:</span>
-                    <span className="font-medium">{batch.veg_table_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Expected Days:</span>
-                    <span className="font-medium">{batch.veg_expected_days || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Actual Days:</span>
-                    <span className="font-medium">{batch.veg_actual_days || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Diseases:</span>
-                    <Badge variant={batch.veg_diseases ? "destructive" : "secondary"} className="text-xs">
-                      {batch.veg_diseases ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pests:</span>
-                    <Badge variant={batch.veg_pests ? "destructive" : "secondary"} className="text-xs">
-                      {batch.veg_pests ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Flowering Stage */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Flowering Stage
-                  </CardTitle>
-                  <CardDescription className="text-xs">Flowering phase details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Date Moved:</span>
-                    <span className="font-medium">
-                      {batch.move_to_flowering_date 
-                        ? format(new Date(batch.move_to_flowering_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Number of Plants:</span>
-                    <span className="font-medium">{batch.flowering_number_plants || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Table No:</span>
-                    <span className="font-medium">{batch.flowering_table_no || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Expected Date:</span>
-                    <span className="font-medium">
-                      {batch.expected_flowering_date 
-                        ? format(new Date(batch.expected_flowering_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Actual Date:</span>
-                    <span className="font-medium">
-                      {batch.actual_flowering_date 
-                        ? format(new Date(batch.actual_flowering_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Using Extra Lights:</span>
-                    <Badge variant={batch.using_extra_lights ? "default" : "secondary"} className="text-xs">
-                      {batch.using_extra_lights ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Eight Nodes:</span>
-                    <Badge variant={batch.eight_nodes ? "default" : "secondary"} className="text-xs">
-                      {batch.eight_nodes ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Harvest & Processing */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    Harvest & Processing
-                  </CardTitle>
-                  <CardDescription className="text-xs">Harvest and processing details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Harvest Date:</span>
-                    <span className="font-medium">
-                      {batch.harvest_date 
-                        ? format(new Date(batch.harvest_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Harvested Plants:</span>
-                    <span className="font-medium">{batch.harvest_number_plants || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Wet Weight:</span>
-                    <span className="font-medium">{batch.total_wet_weight ? `${batch.total_wet_weight} kg` : 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Drying Date:</span>
-                    <span className="font-medium">
-                      {batch.drying_date 
-                        ? format(new Date(batch.drying_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Days Drying:</span>
-                    <span className="font-medium">{batch.no_of_days_drying || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Dry Weight:</span>
-                    <span className="font-medium">{batch.total_dry_weight ? `${batch.total_dry_weight} kg` : 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Packing Date:</span>
-                    <span className="font-medium">
-                      {batch.packing_date 
-                        ? format(new Date(batch.packing_date), 'MMM d, yyyy')
-                        : 'N/A'}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="lifecycle" className="mt-4">
+          <TabsContent value="overview" className="space-y-4 mt-4">
+            {/* Lifecycle Timeline */}
             <BatchProgressTimeline 
               currentStage={batch.current_stage}
               stageCompletionDates={{
@@ -714,6 +399,417 @@ export default function BatchDetail() {
                 }
               }}
             />
+
+            {/* Stage-Organized Accordion */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Stage Details</CardTitle>
+                <CardDescription>View detailed information for each lifecycle stage</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Accordion type="multiple" className="w-full">
+                  {/* Cloning Phase */}
+                  <AccordionItem value="cloning">
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <Sprout className="h-5 w-5 text-primary" />
+                        <span className="font-semibold">Cloning Phase</span>
+                        {batch.current_stage === 'cloning' && (
+                          <Badge variant="default" className="ml-2">Current</Badge>
+                        )}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-6 md:grid-cols-2 pt-4">
+                        {/* Initial Information */}
+                        <div className="space-y-3 border-l-2 border-primary/20 pl-4">
+                          <h4 className="font-semibold text-sm text-muted-foreground">Initial Setup</h4>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Batch Number:</span>
+                              <span className="font-medium">{batch.batch_number}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Strain ID:</span>
+                              <span className="font-medium">{getDisplayValue(batch.strain_id || '')}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Dome No:</span>
+                              <span className="font-medium">{batch.dome_no || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Clone / Germination Date:</span>
+                              <span className="font-medium">
+                                {batch.clone_germination_date 
+                                  ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Mother No:</span>
+                              <span className="font-medium">{batch.mother_no || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Total Clones / Plants:</span>
+                              <span className="font-medium">{batch.total_clones_plants || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Clonator 1 – Rack No:</span>
+                              <span className="font-medium">{batch.rack_no || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Clonator Mortalities:</span>
+                              <span className={cn("font-medium", batch.clonator_mortalities > 0 && "text-red-500")}>
+                                {batch.clonator_mortalities || 0}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Expected Rooting Date:</span>
+                              <span className="font-medium">
+                                {batch.expected_rooting_date 
+                                  ? format(new Date(batch.expected_rooting_date), 'MMM d, yyyy')
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Actual Rooting Date:</span>
+                              <span className="font-medium">
+                                {batch.actual_rooting_date 
+                                  ? format(new Date(batch.actual_rooting_date), 'MMM d, yyyy')
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Clonator 2 & Hardening */}
+                        <div className="space-y-6">
+                          <div className="space-y-3 border-l-2 border-primary/20 pl-4">
+                            <h4 className="font-semibold text-sm text-muted-foreground">Clonator 2 Stage</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Clonator 2:</span>
+                                <span className="font-medium">{batch.clonator_2 || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Date Moved:</span>
+                                <span className="font-medium">
+                                  {batch.clonator_2_date 
+                                    ? format(new Date(batch.clonator_2_date), 'MMM d, yyyy')
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Number of Clones:</span>
+                                <span className="font-medium">{batch.clonator_2_number_clones || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Area Placed:</span>
+                                <span className="font-medium">{batch.clonator_2_area_placed || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Rack No:</span>
+                                <span className="font-medium">{batch.clonator_2_rack_no || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">No of Days:</span>
+                                <span className="font-medium">{batch.clonator_2_no_of_days || 'N/A'}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 border-l-2 border-primary/20 pl-4">
+                            <h4 className="font-semibold text-sm text-muted-foreground">Hardening Stage</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Date Moved:</span>
+                                <span className="font-medium">
+                                  {batch.move_to_hardening_date 
+                                    ? format(new Date(batch.move_to_hardening_date), 'MMM d, yyyy')
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Number of Clones:</span>
+                                <span className="font-medium">{batch.hardening_number_clones || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Area Placed:</span>
+                                <span className="font-medium">{batch.hardening_area_placed || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Rack No:</span>
+                                <span className="font-medium">{batch.hardening_rack_no || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">No of Days:</span>
+                                <span className="font-medium">{batch.hardening_no_of_days || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Mortalities:</span>
+                                <span className="font-medium">
+                                  {Array.isArray(batch.hardening_mortalities) && batch.hardening_mortalities.length > 0
+                                    ? batch.hardening_mortalities.length
+                                    : 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Vegetative Phase */}
+                  <AccordionItem value="vegetative">
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <Leaf className="h-5 w-5 text-green-600" />
+                        <span className="font-semibold">Vegetative Phase</span>
+                        {batch.current_stage === 'vegetative' && (
+                          <Badge variant="default" className="ml-2">Current</Badge>
+                        )}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-4 md:grid-cols-2 pt-4">
+                        <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Date Moved:</span>
+                            <span className="font-medium">
+                              {batch.move_to_veg_date 
+                                ? format(new Date(batch.move_to_veg_date), 'MMM d, yyyy')
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Number of Plants:</span>
+                            <span className="font-medium">{batch.veg_number_plants || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Table No:</span>
+                            <span className="font-medium">{batch.veg_table_no || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Expected Days:</span>
+                            <span className="font-medium">{batch.veg_expected_days || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Actual Days:</span>
+                            <span className="font-medium">{batch.veg_actual_days || 'N/A'}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Diseases:</span>
+                            <Badge variant={batch.veg_diseases ? "destructive" : "secondary"} className="text-xs">
+                              {batch.veg_diseases ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Pests:</span>
+                            <Badge variant={batch.veg_pests ? "destructive" : "secondary"} className="text-xs">
+                              {batch.veg_pests ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Mortalities:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.veg_mortalities) && batch.veg_mortalities.length > 0
+                                ? batch.veg_mortalities.length
+                                : 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Flowering Phase */}
+                  <AccordionItem value="flowering">
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <Flower className="h-5 w-5 text-pink-600" />
+                        <span className="font-semibold">Flowering Phase</span>
+                        {batch.current_stage === 'flowering' && (
+                          <Badge variant="default" className="ml-2">Current</Badge>
+                        )}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-4 md:grid-cols-2 pt-4">
+                        <div className="space-y-2 border-l-2 border-pink-600/20 pl-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Date Moved:</span>
+                            <span className="font-medium">
+                              {batch.move_to_flowering_date 
+                                ? format(new Date(batch.move_to_flowering_date), 'MMM d, yyyy')
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Number of Plants:</span>
+                            <span className="font-medium">{batch.flowering_number_plants || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Table No:</span>
+                            <span className="font-medium">{batch.flowering_table_no || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Expected Date:</span>
+                            <span className="font-medium">
+                              {batch.expected_flowering_date 
+                                ? format(new Date(batch.expected_flowering_date), 'MMM d, yyyy')
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Actual Date:</span>
+                            <span className="font-medium">
+                              {batch.actual_flowering_date 
+                                ? format(new Date(batch.actual_flowering_date), 'MMM d, yyyy')
+                                : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="space-y-2 border-l-2 border-pink-600/20 pl-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Using Extra Lights:</span>
+                            <Badge variant={batch.using_extra_lights ? "default" : "secondary"} className="text-xs">
+                              {batch.using_extra_lights ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                          {batch.using_extra_lights && (
+                            <>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">From Day:</span>
+                                <span className="font-medium">{batch.extra_lights_from_day || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">No of Days:</span>
+                                <span className="font-medium">{batch.extra_lights_no_of_days || 'N/A'}</span>
+                              </div>
+                            </>
+                          )}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Eight Nodes:</span>
+                            <Badge variant={batch.eight_nodes ? "default" : "secondary"} className="text-xs">
+                              {batch.eight_nodes ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Diseases:</span>
+                            <Badge variant={batch.flowering_diseases ? "destructive" : "secondary"} className="text-xs">
+                              {batch.flowering_diseases ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Pests:</span>
+                            <Badge variant={batch.flowering_pests ? "destructive" : "secondary"} className="text-xs">
+                              {batch.flowering_pests ? "Yes" : "No"}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Harvest & Processing */}
+                  <AccordionItem value="harvest">
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <Scissors className="h-5 w-5 text-orange-600" />
+                        <span className="font-semibold">Harvest & Processing</span>
+                        {batch.current_stage === 'harvest' && (
+                          <Badge variant="default" className="ml-2">Current</Badge>
+                        )}
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-6 md:grid-cols-2 pt-4">
+                        <div className="space-y-3 border-l-2 border-orange-600/20 pl-4">
+                          <h4 className="font-semibold text-sm text-muted-foreground">Harvest Details</h4>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Harvest Date:</span>
+                              <span className="font-medium">
+                                {batch.harvest_date 
+                                  ? format(new Date(batch.harvest_date), 'MMM d, yyyy')
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Harvested Plants:</span>
+                              <span className="font-medium">{batch.harvest_number_plants || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Table No:</span>
+                              <span className="font-medium">{batch.harvest_table_no || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Inspection Date:</span>
+                              <span className="font-medium">
+                                {batch.inspection_date 
+                                  ? format(new Date(batch.inspection_date), 'MMM d, yyyy')
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Total Wet Weight:</span>
+                              <span className="font-medium">{batch.total_wet_weight ? `${batch.total_wet_weight} kg` : 'N/A'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="space-y-3 border-l-2 border-orange-600/20 pl-4">
+                            <h4 className="font-semibold text-sm text-muted-foreground">Drying & Packing</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Drying Date:</span>
+                                <span className="font-medium">
+                                  {batch.drying_date 
+                                    ? format(new Date(batch.drying_date), 'MMM d, yyyy')
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Days Drying:</span>
+                                <span className="font-medium">{batch.no_of_days_drying || 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Total Dry Weight:</span>
+                                <span className="font-medium">{batch.total_dry_weight ? `${batch.total_dry_weight} kg` : 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Packing Date:</span>
+                                <span className="font-medium">
+                                  {batch.packing_date 
+                                    ? format(new Date(batch.packing_date), 'MMM d, yyyy')
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">A Grade:</span>
+                                <span className="font-medium">{batch.packing_a_grade ? `${batch.packing_a_grade} kg` : 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">B Grade:</span>
+                                <span className="font-medium">{batch.packing_b_grade ? `${batch.packing_b_grade} kg` : 'N/A'}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">C Grade:</span>
+                                <span className="font-medium">{batch.packing_c_grade ? `${batch.packing_c_grade} kg` : 'N/A'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="tasks" className="mt-4">
