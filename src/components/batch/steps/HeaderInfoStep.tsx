@@ -22,45 +22,56 @@ interface HeaderInfoStepProps {
 export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
   const { toast } = useToast();
 
-  // Fetch lookup values for dropdowns
-  const { data: lookupCategories } = useQuery({
-    queryKey: ['lookup-categories-batch-create'],
+  // Fetch all lookup data in one query
+  const { data: allLookupData } = useQuery({
+    queryKey: ['batch-lookup-data'],
     queryFn: async () => {
-      console.log('Fetching lookup categories...');
-      const { data, error } = await supabase
+      console.log('Fetching all lookup data...');
+      
+      // Fetch categories
+      const { data: categories, error: catError } = await supabase
         .from('lookup_categories')
-        .select('id, category_key, category_name')
-        .in('category_key', ['strain_id', 'mother_id', 'dome_no'])
-        .eq('is_active', true);
-      console.log('Categories result:', { data, error });
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: lookupValues } = useQuery({
-    queryKey: ['lookup-values-batch-create', lookupCategories],
-    enabled: !!lookupCategories && lookupCategories.length > 0,
-    queryFn: async () => {
-      if (!lookupCategories || lookupCategories.length === 0) return [];
-      const categoryIds = lookupCategories.map(c => c.id);
-      console.log('Fetching lookup values for categories:', categoryIds);
-      const { data, error } = await supabase
+        .select('*')
+        .in('category_key', ['strain_id', 'mother_id', 'dome_no']);
+        
+      if (catError) {
+        console.error('Categories error:', catError);
+        throw catError;
+      }
+      
+      console.log('Categories fetched:', categories);
+      
+      if (!categories || categories.length === 0) {
+        console.warn('No categories found!');
+        return { categories: [], values: [] };
+      }
+      
+      // Fetch values
+      const categoryIds = categories.map(c => c.id);
+      const { data: values, error: valError } = await supabase
         .from('lookup_values')
-        .select('id, category_id, value_key, value_display, lookup_categories!inner(category_key)')
-        .in('category_id', categoryIds)
-        .eq('is_active', true)
-        .order('sort_order');
-      console.log('Values result:', { data, error });
-      if (error) throw error;
-      return data || [];
+        .select('*')
+        .in('category_id', categoryIds);
+        
+      if (valError) {
+        console.error('Values error:', valError);
+        throw valError;
+      }
+      
+      console.log('Values fetched:', values);
+      
+      return { categories: categories || [], values: values || [] };
     },
   });
 
   const getValuesByCategory = (categoryKey: string) => {
-    if (!lookupValues) return [];
-    return lookupValues.filter(
-      (v: any) => v.lookup_categories?.category_key === categoryKey
+    if (!allLookupData?.values || !allLookupData?.categories) return [];
+    
+    const category = allLookupData.categories.find((c: any) => c.category_key === categoryKey);
+    if (!category) return [];
+    
+    return allLookupData.values.filter(
+      (v: any) => v.category_id === category.id && v.is_active === true
     );
   };
 
