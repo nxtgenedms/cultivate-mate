@@ -90,6 +90,11 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
     
+    --warning: 35 90% 55%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+    
     --gradient-hero: linear-gradient(135deg, hsl(142 70% 35%), hsl(142 60% 45%));
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(45 20% 98%));
     --shadow-soft: 0 4px 20px -2px hsl(140 30% 15% / 0.1);
@@ -141,6 +146,11 @@ All colors MUST be HSL.
     --border: 140 15% 25%;
     --input: 140 15% 25%;
     --ring: 142 60% 50%;
+    
+    --warning: 35 85% 50%;
+    --warning-foreground: 0 0% 100%;
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 100%;
     
     --gradient-hero: linear-gradient(135deg, hsl(142 60% 30%), hsl(142 55% 40%));
     --gradient-card: linear-gradient(180deg, hsl(140 20% 12%), hsl(140 18% 15%));
