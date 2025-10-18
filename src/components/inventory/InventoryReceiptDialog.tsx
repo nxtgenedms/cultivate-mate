@@ -362,29 +362,14 @@ const InventoryReceiptDialog = ({
 
             <div className="space-y-2 col-span-2">
               <Label htmlFor="product_name">Product Name *</Label>
-              <Select
+              <Input
+                id="product_name"
                 value={formData.product_name}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, product_name: value })
+                onChange={(e) =>
+                  setFormData({ ...formData, product_name: e.target.value })
                 }
-              >
-                <SelectTrigger id="product_name" className="bg-background">
-                  <SelectValue placeholder="Select or type product name" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {existingProducts.length === 0 ? (
-                    <SelectItem value="no-products" disabled>
-                      No products available
-                    </SelectItem>
-                  ) : (
-                    existingProducts.map((product) => (
-                      <SelectItem key={product} value={product}>
-                        {product}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+                required
+              />
             </div>
 
             <div className="space-y-2 col-span-2">
