@@ -8,7 +8,7 @@ import { format, differenceInDays, isAfter } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { getStageColor, getStageLabel, STAGE_ORDER } from '@/lib/batchUtils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { AlertCircle, Calendar, Package, TrendingUp } from 'lucide-react';
+import { AlertCircle, Calendar, Package, TrendingUp, Clock, ClipboardList } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Reports() {
@@ -128,6 +128,28 @@ export default function Reports() {
   }, {});
 
   const userTaskData = Object.values(tasksByUser || {});
+
+  // Calculate tasks by batch
+  const tasksByBatch = tasks?.reduce((acc: any, task) => {
+    const batchNumber = batches?.find(b => b.id === task.batch_id)?.batch_number || 'No Batch';
+    acc[batchNumber] = (acc[batchNumber] || 0) + 1;
+    return acc;
+  }, {});
+
+  const batchTaskData = Object.entries(tasksByBatch || {}).map(([name, value]) => ({
+    name,
+    value,
+  })).slice(0, 10); // Show top 10 batches
+
+  const userTaskChartData = Object.entries(tasksByUser || {}).map(([_, data]: [string, any]) => ({
+    name: data.userName,
+    value: data.total,
+  })).slice(0, 10); // Show top 10 users
+
+  const totalTasks = tasks?.length || 0;
+  const overdueTasks = tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).length || 0;
+  const pendingTasks = tasks?.filter(t => t.status === 'pending').length || 0;
+  const inProgressTasks = tasks?.filter(t => t.status === 'in_progress').length || 0;
 
   // Calculate batch metrics
   const batchesByStrain = batches?.reduce((acc: any, batch) => {
@@ -370,121 +392,215 @@ export default function Reports() {
 
           {/* Tasks Overview Report */}
           <TabsContent value="tasks" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5" />
-                  Tasks by User - Overdue Highlighted
-                </CardTitle>
-                <CardDescription>
-                  Pending and in-progress tasks grouped by assignee
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {tasksLoading ? (
-                  <Skeleton className="h-96 w-full" />
-                ) : (
-                  <div className="space-y-6">
-                    <ResponsiveContainer width="100%" height={400}>
-                      <BarChart data={userTaskData}>
-                        <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
-                        <XAxis 
-                          dataKey="userName" 
-                          angle={-45} 
-                          textAnchor="end" 
-                          height={100}
-                          fontSize={12}
-                        />
-                        <YAxis />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Legend 
-                          wrapperStyle={{ paddingTop: '20px' }}
-                          iconType="square"
-                        />
-                        <Bar 
-                          dataKey="pending" 
-                          stackId="a"
-                          fill="hsl(45, 90%, 55%)" 
-                          name="Pending" 
-                          radius={[0, 0, 0, 0]}
-                        />
-                        <Bar 
-                          dataKey="inProgress" 
-                          stackId="a"
-                          fill="hsl(142, 70%, 45%)" 
-                          name="In Progress" 
-                          radius={[0, 0, 0, 0]}
-                        />
-                        <Bar 
-                          dataKey="overdue" 
-                          stackId="a"
-                          fill="hsl(0, 85%, 60%)" 
-                          name="Overdue" 
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {tasksLoading ? (
+              <div className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-64 col-span-2" />
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+              </div>
+            ) : (
+              <>
+                {/* Top Row - 3 Cards */}
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Tasks by Batch Chart - 2 columns */}
+                  <Card className="col-span-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Tasks by Batch</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={batchTaskData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                          <XAxis type="number" fontSize={11} />
+                          <YAxis dataKey="name" type="category" width={100} fontSize={11} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                            {batchTaskData.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={`hsl(${(index * 40 + 200) % 360}, 65%, 55%)`} 
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
 
-            {/* Overdue Tasks Detail */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Overdue Tasks Detail</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {tasksLoading ? (
-                  <Skeleton className="h-32 w-full" />
-                ) : tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).length > 0 ? (
-                  <div className="rounded-lg border overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-muted">
-                        <tr>
-                          <th className="text-left p-3 font-semibold text-sm">Task Name</th>
-                          <th className="text-left p-3 font-semibold text-sm">Assigned To</th>
-                          <th className="text-left p-3 font-semibold text-sm">Due Date</th>
-                          <th className="text-left p-3 font-semibold text-sm">Days Overdue</th>
-                          <th className="text-left p-3 font-semibold text-sm">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tasks?.filter(t => t.due_date && isAfter(new Date(), new Date(t.due_date))).map((task) => (
-                          <tr key={task.id} className="border-t hover:bg-muted/50">
-                            <td className="p-3 text-sm font-medium">{task.name}</td>
-                            <td className="p-3 text-sm">{task.assignee_profile?.full_name || 'Unassigned'}</td>
-                            <td className="p-3 text-sm text-muted-foreground">
-                              {format(new Date(task.due_date), 'MMM dd, yyyy')}
-                            </td>
-                            <td className="p-3">
-                              <Badge variant="destructive" className="font-semibold">
-                                {differenceInDays(new Date(), new Date(task.due_date))} days
-                              </Badge>
-                            </td>
-                            <td className="p-3">
-                              <Badge variant="outline" className="text-xs">
-                                {task.status}
-                              </Badge>
-                            </td>
+                  {/* Tasks by User Chart - 1 column */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Tasks by User</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={userTaskChartData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                          <XAxis type="number" fontSize={11} />
+                          <YAxis dataKey="name" type="category" width={70} fontSize={10} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                            {userTaskChartData.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={`hsl(${(index * 50 + 140) % 360}, 60%, 50%)`} 
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  {/* Metrics Card - 1 column */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">Total Tasks</CardTitle>
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-3">
+                      <div className="text-5xl font-bold mb-6">{totalTasks}</div>
+                      <div className="space-y-3">
+                        <div className="pt-3 border-t">
+                          <div className="flex items-start justify-between mb-1">
+                            <span className="text-xs font-medium text-muted-foreground">Overdue</span>
+                            <AlertCircle className="h-4 w-4 text-destructive" />
+                          </div>
+                          <div className="text-2xl font-bold text-destructive">{overdueTasks}</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Task Status Summary Cards */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">Pending Tasks</CardTitle>
+                        <Clock className="h-5 w-5 text-warning" />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-5xl font-bold text-warning">{pendingTasks}</div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">In Progress Tasks</CardTitle>
+                        <TrendingUp className="h-5 w-5 text-success" />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-5xl font-bold text-success">{inProgressTasks}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Task List Table */}
+                <Card>
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">Task List</CardTitle>
+                    <CardDescription className="text-sm">Detailed view of all pending and in-progress tasks</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-lg border overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted/50">
+                          <tr>
+                            <th className="text-left p-3 font-semibold text-xs">ID</th>
+                            <th className="text-left p-3 font-semibold text-xs">Task Name</th>
+                            <th className="text-left p-3 font-semibold text-xs">Batch</th>
+                            <th className="text-left p-3 font-semibold text-xs">Assigned To</th>
+                            <th className="text-left p-3 font-semibold text-xs">Due Date</th>
+                            <th className="text-left p-3 font-semibold text-xs">Status</th>
+                            <th className="text-left p-3 font-semibold text-xs">Priority</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg">No overdue tasks</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                        </thead>
+                        <tbody>
+                          {tasks && tasks.length > 0 ? (
+                            tasks.map((task, idx) => {
+                              const isOverdue = task.due_date && isAfter(new Date(), new Date(task.due_date));
+                              const batchNumber = batches?.find(b => b.id === task.batch_id)?.batch_number || 'N/A';
+
+                              return (
+                                <tr key={task.id} className={cn(
+                                  "border-t hover:bg-muted/30 transition-colors",
+                                  isOverdue && "bg-destructive/5"
+                                )}>
+                                  <td className="p-3 text-xs">{idx + 1}</td>
+                                  <td className="p-3 text-xs font-medium">{task.name}</td>
+                                  <td className="p-3 text-xs">{batchNumber}</td>
+                                  <td className="p-3 text-xs">{task.assignee_profile?.full_name || 'Unassigned'}</td>
+                                  <td className="p-3 text-xs">
+                                    {task.due_date ? (
+                                      <span className={cn(isOverdue && "text-destructive font-semibold")}>
+                                        {format(new Date(task.due_date), 'yyyy-MM-dd')}
+                                      </span>
+                                    ) : 'N/A'}
+                                  </td>
+                                  <td className="p-3">
+                                    <Badge 
+                                      variant="secondary" 
+                                      className={cn(
+                                        "text-xs font-normal",
+                                        task.status === 'pending' && "bg-warning/20 text-warning",
+                                        task.status === 'in_progress' && "bg-success/20 text-success",
+                                        task.status === 'completed' && "bg-primary/20 text-primary"
+                                      )}
+                                    >
+                                      {task.status.replace('_', ' ')}
+                                    </Badge>
+                                  </td>
+                                  <td className="p-3">
+                                    <Badge 
+                                      variant="outline" 
+                                      className={cn(
+                                        "text-xs",
+                                        task.priority_level === 'high' && "border-destructive text-destructive",
+                                        task.priority_level === 'medium' && "border-warning text-warning",
+                                        task.priority_level === 'low' && "border-muted-foreground text-muted-foreground"
+                                      )}
+                                    >
+                                      {task.priority_level || 'medium'}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={7} className="p-8 text-center text-sm text-muted-foreground">
+                                No tasks found
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           {/* Inventory Levels Report */}
