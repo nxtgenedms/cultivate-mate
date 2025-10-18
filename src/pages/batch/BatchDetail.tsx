@@ -57,14 +57,7 @@ export default function BatchDetail() {
         .from('batch_lifecycle_records')
         .select(`
           *, 
-          created_by_profile:profiles!batch_lifecycle_records_created_by_fkey(full_name),
-          hardening_completed_profile:profiles!batch_lifecycle_records_hardening_completed_by_fkey(full_name),
-          hardening_checked_profile:profiles!batch_lifecycle_records_hardening_checked_by_fkey(full_name),
-          veg_completed_profile:profiles!batch_lifecycle_records_veg_completed_by_fkey(full_name),
-          veg_checked_profile:profiles!batch_lifecycle_records_veg_checked_by_fkey(full_name),
-          flowering_completed_profile:profiles!batch_lifecycle_records_flowering_completed_by_fkey(full_name),
-          flowering_checked_profile:profiles!batch_lifecycle_records_flowering_checked_by_fkey(full_name),
-          harvest_completed_profile:profiles!batch_lifecycle_records_harvest_completed_by_fkey(full_name)
+          created_by_profile:profiles!batch_lifecycle_records_created_by_fkey(full_name)
         `)
         .eq('id', id)
         .single();
@@ -512,19 +505,11 @@ export default function BatchDetail() {
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Completed By:</span>
-                                <span className="font-medium">
-                                  {Array.isArray(batch.hardening_completed_profile) && batch.hardening_completed_profile.length > 0
-                                    ? batch.hardening_completed_profile[0].full_name
-                                    : 'N/A'}
-                                </span>
+                                <span className="font-medium">{batch.hardening_completed_by || 'N/A'}</span>
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Checked By:</span>
-                                <span className="font-medium">
-                                  {Array.isArray(batch.hardening_checked_profile) && batch.hardening_checked_profile.length > 0
-                                    ? batch.hardening_checked_profile[0].full_name
-                                    : 'N/A'}
-                                </span>
+                                <span className="font-medium">{batch.hardening_checked_by || 'N/A'}</span>
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Mortalities:</span>
@@ -608,11 +593,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Completed By:</span>
-                            <span className="font-medium">
-                              {Array.isArray(batch.veg_completed_profile) && batch.veg_completed_profile.length > 0
-                                ? batch.veg_completed_profile[0].full_name
-                                : 'N/A'}
-                            </span>
+                            <span className="font-medium">{batch.veg_completed_by || 'N/A'}</span>
                           </div>
                         </div>
                         <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
@@ -638,11 +619,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Mortality Checked By:</span>
-                            <span className="font-medium">
-                              {Array.isArray(batch.veg_checked_profile) && batch.veg_checked_profile.length > 0
-                                ? batch.veg_checked_profile[0].full_name
-                                : 'N/A'}
-                            </span>
+                            <span className="font-medium">{batch.veg_checked_by || 'N/A'}</span>
                           </div>
                         </div>
                       </div>
@@ -740,11 +717,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Completed By:</span>
-                            <span className="font-medium">
-                              {Array.isArray(batch.flowering_completed_profile) && batch.flowering_completed_profile.length > 0
-                                ? batch.flowering_completed_profile[0].full_name
-                                : 'N/A'}
-                            </span>
+                            <span className="font-medium">{batch.flowering_completed_by || 'N/A'}</span>
                           </div>
                         </div>
                         <div className="space-y-2 border-l-2 border-pink-600/20 pl-4">
@@ -794,11 +767,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Mortality Checked By:</span>
-                            <span className="font-medium">
-                              {Array.isArray(batch.flowering_checked_profile) && batch.flowering_checked_profile.length > 0
-                                ? batch.flowering_checked_profile[0].full_name
-                                : 'N/A'}
-                            </span>
+                            <span className="font-medium">{batch.flowering_checked_by || 'N/A'}</span>
                           </div>
                         </div>
                       </div>
@@ -866,11 +835,7 @@ export default function BatchDetail() {
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Completed By:</span>
-                              <span className="font-medium">
-                                {Array.isArray(batch.harvest_completed_profile) && batch.harvest_completed_profile.length > 0
-                                  ? batch.harvest_completed_profile[0].full_name
-                                  : 'N/A'}
-                              </span>
+                              <span className="font-medium">{batch.harvest_completed_by || 'N/A'}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Inspection Date:</span>
