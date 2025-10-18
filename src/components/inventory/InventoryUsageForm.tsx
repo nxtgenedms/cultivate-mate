@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileCheck } from 'lucide-react';
@@ -13,6 +13,7 @@ import { FileCheck } from 'lucide-react';
 export const InventoryUsageForm = () => {
   const [formData, setFormData] = useState({
     usage_date: new Date().toISOString().split('T')[0],
+    product_type: 'chemical',
     product_name: '',
     quantity: '',
     unit: 'kg',
@@ -23,23 +24,6 @@ export const InventoryUsageForm = () => {
 
   const queryClient = useQueryClient();
 
-  // Fetch existing product names from receipts
-  const { data: existingProducts = [] } = useQuery({
-    queryKey: ['inventory-products'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('inventory_receipts')
-        .select('product_name')
-        .order('product_name');
-      
-      if (error) throw error;
-      
-      // Get unique product names
-      const uniqueProducts = Array.from(new Set(data?.map(r => r.product_name) || []));
-      return uniqueProducts;
-    },
-  });
-
   const createUsageMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -49,6 +33,7 @@ export const InventoryUsageForm = () => {
         .from('inventory_usage')
         .insert([{
           usage_date: data.usage_date,
+          product_type: data.product_type as any,
           product_name: data.product_name,
           quantity: parseFloat(data.quantity),
           unit: data.unit as any,
@@ -74,6 +59,7 @@ export const InventoryUsageForm = () => {
   const resetForm = () => {
     setFormData({
       usage_date: new Date().toISOString().split('T')[0],
+      product_type: 'chemical',
       product_name: '',
       quantity: '',
       unit: 'kg',
@@ -118,28 +104,30 @@ export const InventoryUsageForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="product_name">Product Name *</Label>
+              <Label htmlFor="product_type">Product Type *</Label>
               <Select 
-                value={formData.product_name} 
-                onValueChange={(value) => setFormData({ ...formData, product_name: value })}
+                value={formData.product_type} 
+                onValueChange={(value) => setFormData({ ...formData, product_type: value })}
               >
-                <SelectTrigger id="product_name">
-                  <SelectValue placeholder="Select product" />
+                <SelectTrigger id="product_type">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {existingProducts.length === 0 ? (
-                    <SelectItem value="no-products" disabled>
-                      No products available
-                    </SelectItem>
-                  ) : (
-                    existingProducts.map((product) => (
-                      <SelectItem key={product} value={product}>
-                        {product}
-                      </SelectItem>
-                    ))
-                  )}
+                  <SelectItem value="chemical">Chemical</SelectItem>
+                  <SelectItem value="fertilizer">Fertilizer</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="product_name">Product Name *</Label>
+              <Input
+                id="product_name"
+                value={formData.product_name}
+                onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+                placeholder="Enter product name"
+                required
+              />
             </div>
 
             <div className="space-y-2">

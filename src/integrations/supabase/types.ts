@@ -931,6 +931,7 @@ export type Database = {
           id: string
           notes: string | null
           product_name: string
+          product_type: Database["public"]["Enums"]["inventory_receipt_type"]
           quantity: number
           unit: Database["public"]["Enums"]["inventory_unit"]
           updated_at: string
@@ -945,6 +946,7 @@ export type Database = {
           id?: string
           notes?: string | null
           product_name: string
+          product_type?: Database["public"]["Enums"]["inventory_receipt_type"]
           quantity: number
           unit: Database["public"]["Enums"]["inventory_unit"]
           updated_at?: string
@@ -959,6 +961,7 @@ export type Database = {
           id?: string
           notes?: string | null
           product_name?: string
+          product_type?: Database["public"]["Enums"]["inventory_receipt_type"]
           quantity?: number
           unit?: Database["public"]["Enums"]["inventory_unit"]
           updated_at?: string
