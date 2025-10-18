@@ -86,7 +86,6 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
       if (error) throw error;
       
       handleChange('batch_number', result);
-      toast({ title: 'Batch ID generated successfully' });
     } catch (error: any) {
       toast({
         title: 'Failed to generate Batch ID',
