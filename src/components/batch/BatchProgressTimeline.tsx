@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Circle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Check, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STAGE_ORDER, getStageLabel, getStageIcon, getStageColor } from '@/lib/batchUtils';
 import { format } from 'date-fns';
@@ -33,7 +35,16 @@ interface BatchProgressTimelineProps {
 }
 
 export function BatchProgressTimeline({ currentStage, completedStages = [], stageCompletionDates = {}, stageData = {} }: BatchProgressTimelineProps) {
+  const [currentPage, setCurrentPage] = useState(1);
   const currentIndex = STAGE_ORDER.indexOf(currentStage as any);
+
+  // Split stages into 2 pages
+  // Page 1: Preclone → Flowering/Grow Room (indices 0-4)
+  // Page 2: Preharvest → Packing/Storage (indices 5-8)
+  const PAGE_1_STAGES = STAGE_ORDER.slice(0, 5);
+  const PAGE_2_STAGES = STAGE_ORDER.slice(5, 9);
+  
+  const displayedStages = currentPage === 1 ? PAGE_1_STAGES : PAGE_2_STAGES;
 
   const getCompletionDate = (stage: string) => {
     let dateValue: string | null | undefined;
@@ -86,7 +97,32 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Lifecycle Progress</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Lifecycle Progress</CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Page {currentPage} of 2</span>
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => setCurrentPage(2)}
+                disabled={currentPage === 2}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         {/* Horizontal Timeline */}
@@ -94,18 +130,18 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
           {/* Progress Line */}
           <div className="absolute top-6 left-0 right-0 h-0.5 bg-muted" style={{ left: '24px', right: '24px' }} />
           
-          {/* Stages - Horizontal Layout - Scrollable for 9 stages */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            <div className="flex gap-2 min-w-full">
-              {STAGE_ORDER.map((stage, index) => {
+          {/* Stages - No scrolling needed with pagination */}
+          <div className="grid grid-cols-5 gap-2">
+            {displayedStages.map((stage) => {
+              const index = STAGE_ORDER.indexOf(stage);
                 const isCompleted = completedStages.includes(stage) || index < currentIndex;
                 const isCurrent = stage === currentStage;
                 const isFuture = index > currentIndex;
                 const completionDate = getCompletionDate(stage);
-                const { dome, plants } = getStageInfo(stage);
+              const { dome, plants } = getStageInfo(stage);
 
-                return (
-                  <div key={stage} className="relative flex flex-col items-center text-center min-w-[140px] flex-shrink-0">
+              return (
+                <div key={stage} className="relative flex flex-col items-center text-center">
                   {/* Stage Indicator */}
                   <div
                     className={cn(
@@ -181,7 +217,6 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
                   </div>
                 );
               })}
-            </div>
           </div>
         </div>
       </CardContent>
