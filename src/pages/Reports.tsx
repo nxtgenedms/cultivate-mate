@@ -12,7 +12,7 @@ import { AlertCircle, Calendar, Package, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Reports() {
-  // Fetch all active batches for lifecycle view
+  // Fetch all active batches for lifecycle view with strain info
   const { data: batches, isLoading: batchesLoading } = useQuery({
     queryKey: ['batches-lifecycle'],
     queryFn: async () => {
@@ -26,6 +26,22 @@ export default function Reports() {
       return data;
     },
   });
+
+  // Fetch lookup values separately
+  const { data: lookupValues } = useQuery({
+    queryKey: ['lookup-values-strains'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lookup_values')
+        .select('id, value_display');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getStrainName = (strainId: string) => {
+    return lookupValues?.find(v => v.id === strainId)?.value_display || 'Unknown';
+  };
 
   // Fetch all tasks with user info
   const { data: tasks, isLoading: tasksLoading } = useQuery({
@@ -113,6 +129,42 @@ export default function Reports() {
 
   const userTaskData = Object.values(tasksByUser || {});
 
+  // Calculate batch metrics
+  const batchesByStrain = batches?.reduce((acc: any, batch) => {
+    const strain = getStrainName(batch.strain_id || '');
+    acc[strain] = (acc[strain] || 0) + 1;
+    return acc;
+  }, {});
+
+  const batchesByStage = batches?.reduce((acc: any, batch) => {
+    const stage = getStageLabel(batch.current_stage);
+    acc[stage] = (acc[stage] || 0) + 1;
+    return acc;
+  }, {});
+
+  const strainChartData = Object.entries(batchesByStrain || {}).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  const stageChartData = Object.entries(batchesByStage || {}).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
+  const totalBatches = batches?.length || 0;
+  const totalPlants = batches?.reduce((sum, batch) => {
+    const plants = 
+      batch.current_stage === 'clone_germination' ? batch.total_clones_plants :
+      batch.current_stage === 'hardening' ? batch.hardening_number_clones :
+      batch.current_stage === 'vegetative' ? batch.veg_number_plants :
+      batch.current_stage === 'flowering_grow_room' ? batch.flowering_number_plants :
+      batch.current_stage === 'harvest' ? batch.harvest_number_plants : 0;
+    return sum + (plants || 0);
+  }, 0) || 0;
+
+  const survivalRate = 100; // Default for now, can be calculated based on mortality data
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -131,94 +183,168 @@ export default function Reports() {
 
           {/* Batch Lifecycle Report */}
           <TabsContent value="batches" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Current Batches Lifecycle View
-                </CardTitle>
-                <CardDescription>
-                  Timeline view of all active batches and their current stage
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {batchesLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                  </div>
-                ) : batches && batches.length > 0 ? (
-                  <div className="space-y-3">
-                    {batches.map((batch) => {
-                      const stageIndex = STAGE_ORDER.indexOf(batch.current_stage);
-                      const progress = ((stageIndex + 1) / STAGE_ORDER.length) * 100;
-                      const daysInStage = batch.created_at 
-                        ? differenceInDays(new Date(), new Date(batch.created_at))
-                        : 0;
-
-                      return (
-                        <Card key={batch.id} className="overflow-hidden">
-                          <div className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <h3 className="font-semibold text-lg">{batch.batch_number}</h3>
-                                <Badge className={cn("text-xs", getStageColor(batch.current_stage))}>
-                                  {getStageLabel(batch.current_stage)}
-                                </Badge>
-                                <span className="text-sm text-muted-foreground">
-                                  {daysInStage} days in stage
-                                </span>
-                              </div>
-                              <div className="text-sm font-medium text-primary">
-                                {Math.round(progress)}% Complete
-                              </div>
-                            </div>
-                            
-                            {/* Gantt-style timeline */}
-                            <div className="relative h-10 bg-muted rounded-lg overflow-hidden">
-                              <div 
-                                className="absolute inset-y-0 left-0 bg-primary/20 transition-all"
-                                style={{ width: `${progress}%` }}
+            {batchesLoading ? (
+              <div className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-64 col-span-2" />
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+              </div>
+            ) : (
+              <>
+                {/* Top Summary Cards */}
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Batches per Strain Chart */}
+                  <Card className="col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-base">No. batches per strain</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={strainChartData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" />
+                          <YAxis dataKey="name" type="category" width={100} fontSize={12} />
+                          <Tooltip />
+                          <Bar dataKey="value" fill="hsl(var(--primary))">
+                            {strainChartData.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={`hsl(${(index * 80) % 360}, 65%, 55%)`} 
                               />
-                              <div className="absolute inset-0 flex items-center px-2">
-                                <div className="flex w-full justify-between text-xs font-medium">
-                                  {STAGE_ORDER.map((stage, idx) => (
-                                    <div
-                                      key={stage}
-                                      className={cn(
-                                        "flex items-center gap-1 px-2 py-1 rounded",
-                                        idx <= stageIndex 
-                                          ? "bg-primary text-primary-foreground" 
-                                          : "text-muted-foreground"
-                                      )}
-                                    >
-                                      {idx === stageIndex && "▶ "}
-                                      {getStageLabel(stage).split(' ')[0]}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
 
-                            {/* Stage dates */}
-                            <div className="mt-2 grid grid-cols-5 gap-2 text-xs text-muted-foreground">
-                              <div>Clone: {batch.clone_germination_date ? format(new Date(batch.clone_germination_date), 'MMM dd') : 'N/A'}</div>
-                              <div>Hardening: {batch.move_to_hardening_date ? format(new Date(batch.move_to_hardening_date), 'MMM dd') : 'N/A'}</div>
-                              <div>Veg: {batch.move_to_veg_date ? format(new Date(batch.move_to_veg_date), 'MMM dd') : 'N/A'}</div>
-                              <div>Flowering: {batch.move_to_flowering_date ? format(new Date(batch.move_to_flowering_date), 'MMM dd') : 'N/A'}</div>
-                              <div>Harvest: {batch.harvest_date ? format(new Date(batch.harvest_date), 'MMM dd') : 'N/A'}</div>
-                            </div>
-                          </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-8">No active batches found</p>
-                )}
-              </CardContent>
-            </Card>
+                  {/* Batches per Stage Chart */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">No. batches per stage</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={stageChartData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" />
+                          <YAxis dataKey="name" type="category" width={80} fontSize={12} />
+                          <Tooltip />
+                          <Bar dataKey="value" fill="hsl(var(--primary))">
+                            {stageChartData.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={index === 0 ? 'hsl(220, 80%, 60%)' : 'hsl(150, 60%, 55%)'} 
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  {/* Metric Cards */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm text-muted-foreground">No. Batches</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-success" />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold">{totalBatches}</div>
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Survival Rate</span>
+                          <TrendingUp className="h-4 w-4 text-success" />
+                        </div>
+                        <div className="text-2xl font-bold text-success">{survivalRate}%</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Plants in Active Batches */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm text-muted-foreground">No. Plants in Active Batches</CardTitle>
+                      <Package className="h-4 w-4 text-primary" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-4xl font-bold">{totalPlants.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+
+                {/* Batch List Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Batch List</CardTitle>
+                    <CardDescription>Detailed view of all active batches</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-lg border overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted">
+                          <tr>
+                            <th className="text-left p-3 font-semibold text-sm">ID</th>
+                            <th className="text-left p-3 font-semibold text-sm">Nomenclature</th>
+                            <th className="text-left p-3 font-semibold text-sm">No. Plants</th>
+                            <th className="text-left p-3 font-semibold text-sm">Strain</th>
+                            <th className="text-left p-3 font-semibold text-sm">Plant Stage</th>
+                            <th className="text-left p-3 font-semibold text-sm">Status</th>
+                            <th className="text-left p-3 font-semibold text-sm">Creation Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {batches && batches.length > 0 ? (
+                            batches.map((batch, idx) => {
+                              const currentPlants = 
+                                batch.current_stage === 'clone_germination' ? batch.total_clones_plants :
+                                batch.current_stage === 'hardening' ? batch.hardening_number_clones :
+                                batch.current_stage === 'vegetative' ? batch.veg_number_plants :
+                                batch.current_stage === 'flowering_grow_room' ? batch.flowering_number_plants :
+                                batch.current_stage === 'harvest' ? batch.harvest_number_plants : 0;
+
+                              return (
+                                <tr key={batch.id} className="border-t hover:bg-muted/50">
+                                  <td className="p-3 text-sm">{idx + 1}</td>
+                                  <td className="p-3 text-sm font-medium">{batch.batch_number}</td>
+                                  <td className="p-3 text-sm text-primary font-semibold">
+                                    {currentPlants || 'N/A'}
+                                  </td>
+                                  <td className="p-3 text-sm">{getStrainName(batch.strain_id || '')}</td>
+                                  <td className="p-3">
+                                    <Badge className={cn("text-xs", getStageColor(batch.current_stage))}>
+                                      {getStageLabel(batch.current_stage)}
+                                    </Badge>
+                                  </td>
+                                  <td className="p-3">
+                                    <Badge variant="outline" className="text-xs">
+                                      {batch.status}
+                                    </Badge>
+                                  </td>
+                                  <td className="p-3 text-sm text-muted-foreground">
+                                    {format(new Date(batch.created_at), 'yyyy-MM-dd HH:mm')}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                No active batches found
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           {/* Tasks Overview Report */}
