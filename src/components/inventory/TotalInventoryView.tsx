@@ -1,13 +1,10 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Plus, Package, TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
-import { InventoryUsageDialog } from './InventoryUsageDialog';
 
 interface InventorySummary {
   product_name: string;
@@ -18,7 +15,6 @@ interface InventorySummary {
 }
 
 export const TotalInventoryView = () => {
-  const [showUsageDialog, setShowUsageDialog] = useState(false);
 
   // Fetch all receipts
   const { data: receipts = [] } = useQuery({
@@ -97,16 +93,8 @@ export const TotalInventoryView = () => {
       {/* Summary Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Inventory Summary</CardTitle>
-              <CardDescription>Total available quantity by product</CardDescription>
-            </div>
-            <Button onClick={() => setShowUsageDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Record Usage
-            </Button>
-          </div>
+          <CardTitle>Inventory Summary</CardTitle>
+          <CardDescription>Total available quantity by product</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -244,11 +232,6 @@ export const TotalInventoryView = () => {
           </CardContent>
         </Card>
       </div>
-
-      <InventoryUsageDialog 
-        open={showUsageDialog} 
-        onOpenChange={setShowUsageDialog}
-      />
     </div>
   );
 };

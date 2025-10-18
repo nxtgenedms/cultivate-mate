@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, Leaf, BarChart3 } from 'lucide-react';
+import { Package, Leaf, BarChart3, FileCheck } from 'lucide-react';
 import InventoryReceiptList from '@/components/inventory/InventoryReceiptList';
 import { TotalInventoryView } from '@/components/inventory/TotalInventoryView';
+import { InventoryUsageForm } from '@/components/inventory/InventoryUsageForm';
 
 const InventoryManagement = () => {
   const [activeTab, setActiveTab] = useState('total');
@@ -13,7 +14,7 @@ const InventoryManagement = () => {
     <Layout>
       <div className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-3xl grid-cols-3">
+          <TabsList className="grid w-full max-w-4xl grid-cols-4">
             <TabsTrigger value="total" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Total Inventory
@@ -21,6 +22,10 @@ const InventoryManagement = () => {
             <TabsTrigger value="receipts" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Receipts
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="flex items-center gap-2">
+              <FileCheck className="h-4 w-4" />
+              Record Usage
             </TabsTrigger>
             <TabsTrigger value="harvest" className="flex items-center gap-2">
               <Leaf className="h-4 w-4" />
@@ -44,6 +49,10 @@ const InventoryManagement = () => {
                 <InventoryReceiptList />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="usage" className="mt-6">
+            <InventoryUsageForm />
           </TabsContent>
 
           <TabsContent value="harvest" className="mt-6">
