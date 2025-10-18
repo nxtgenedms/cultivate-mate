@@ -116,31 +116,42 @@ export const RequiredFieldsStep = ({
   const { data: profiles } = useQuery({
     queryKey: ['profiles-with-roles'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id, 
-          full_name, 
-          email,
-          user_roles:user_roles(role)
-        `)
+        .select('id, full_name, email')
         .eq('is_active', true)
         .order('full_name');
-      if (error) throw error;
       
-      // Transform to include role display
-      return data?.map(profile => ({
-        ...profile,
-        roleDisplay: Array.isArray(profile.user_roles) && profile.user_roles.length > 0
-          ? profile.user_roles.map((r: any) => {
+      if (profilesError) throw profilesError;
+      if (!profilesData) return [];
+
+      // Fetch all user roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', profilesData.map(p => p.id));
+      
+      if (rolesError) throw rolesError;
+
+      // Combine profiles with their roles
+      return profilesData.map(profile => {
+        const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
+        const roleDisplay = userRoles.length > 0
+          ? userRoles.map(r => {
               // Format role for display
               const role = r.role as string;
               return role.split('_').map(word => 
                 word.charAt(0).toUpperCase() + word.slice(1)
               ).join(' ');
             }).join(', ')
-          : 'No Role'
-      })) || [];
+          : 'No Role';
+        
+        return {
+          ...profile,
+          roleDisplay
+        };
+      });
     },
   });
 
@@ -182,7 +193,7 @@ export const RequiredFieldsStep = ({
                 'Select...'
               } />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-50 bg-background">
               {fieldDef.options === 'domes' && domeValues.map((dome) => (
                 <SelectItem key={dome.value_key} value={dome.value_key}>
                   {dome.value_display}
@@ -190,9 +201,9 @@ export const RequiredFieldsStep = ({
               ))}
               {fieldDef.options === 'profiles' && profiles?.map((profile) => (
                 <SelectItem key={profile.id} value={profile.id}>
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full gap-2">
                     <span className="font-medium">{profile.full_name}</span>
-                    <span className="text-xs text-muted-foreground ml-2">({profile.roleDisplay})</span>
+                    <span className="text-xs text-muted-foreground">({profile.roleDisplay})</span>
                   </div>
                 </SelectItem>
               ))}
