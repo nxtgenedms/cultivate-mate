@@ -1,7 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { PhaseChangeButton } from './PhaseChangeButton';
 import { getStageColor, getStageLabel, calculateDaysInStage, getStageProgress } from '@/lib/batchUtils';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -16,31 +15,6 @@ interface BatchDetailAccordionsProps {
 export function BatchDetailAccordions({ batch, getUserName, getDisplayValue }: BatchDetailAccordionsProps) {
   const daysInStage = batch.created_at ? calculateDaysInStage(batch.created_at) : 0;
   const stageProgress = getStageProgress(batch.current_stage);
-
-  const getCurrentQuantity = () => {
-    switch (batch.current_stage) {
-      case 'preclone':
-        return null;
-      case 'clone_germination':
-        return batch.total_clones_plants || 0;
-      case 'hardening':
-        return batch.hardening_number_clones || 0;
-      case 'vegetative':
-        return batch.veg_number_plants || 0;
-      case 'flowering_grow_room':
-        return batch.flowering_number_plants || 0;
-      case 'preharvest':
-        return batch.flowering_number_plants || 0;
-      case 'harvest':
-        return batch.harvest_number_plants || 0;
-      case 'processing_drying':
-        return batch.drying_total_plants || 0;
-      case 'packing_storage':
-        return batch.dry_weight_no_plants || 0;
-      default:
-        return 0;
-    }
-  };
 
   const renderStageProgress = (stage: string) => {
     if (batch.current_stage !== stage) return null;
@@ -59,15 +33,7 @@ export function BatchDetailAccordions({ batch, getUserName, getDisplayValue }: B
             <p className="text-xs text-muted-foreground">Complete</p>
           </div>
         </div>
-        <Progress value={stageProgress} className="h-2 mb-4" />
-        <PhaseChangeButton
-          batchId={batch.id}
-          batchNumber={batch.batch_number}
-          currentStage={batch.current_stage}
-          currentQuantity={getCurrentQuantity()}
-          currentDome={batch.dome_no}
-          disabled={batch.status !== 'in_progress'}
-        />
+        <Progress value={stageProgress} className="h-2" />
       </div>
     );
   };
