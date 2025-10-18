@@ -191,25 +191,37 @@ export default function Reports() {
               </div>
             ) : (
               <>
-                {/* Top Summary Cards */}
+                {/* Top Row - 3 Cards */}
                 <div className="grid grid-cols-4 gap-4">
-                  {/* Batches per Strain Chart */}
+                  {/* Batches per Strain Chart - 2 columns */}
                   <Card className="col-span-2">
-                    <CardHeader>
-                      <CardTitle className="text-base">No. batches per strain</CardTitle>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">No. batches per strain</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={strainChartData} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis type="number" />
-                          <YAxis dataKey="name" type="category" width={100} fontSize={12} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="hsl(var(--primary))">
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={strainChartData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                          <XAxis type="number" fontSize={11} />
+                          <YAxis dataKey="name" type="category" width={80} fontSize={11} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                             {strainChartData.map((entry, index) => (
                               <Cell 
                                 key={`cell-${index}`} 
-                                fill={`hsl(${(index * 80) % 360}, 65%, 55%)`} 
+                                fill={
+                                  index === 0 ? 'hsl(0, 70%, 60%)' :
+                                  index === 1 ? 'hsl(100, 60%, 50%)' :
+                                  index === 2 ? 'hsl(200, 65%, 55%)' :
+                                  `hsl(${(index * 60) % 360}, 60%, 55%)`
+                                } 
                               />
                             ))}
                           </Bar>
@@ -218,23 +230,36 @@ export default function Reports() {
                     </CardContent>
                   </Card>
 
-                  {/* Batches per Stage Chart */}
+                  {/* Batches per Stage Chart - 1 column */}
                   <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">No. batches per stage</CardTitle>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">No. batches per stage</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={stageChartData} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis type="number" />
-                          <YAxis dataKey="name" type="category" width={80} fontSize={12} />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="hsl(var(--primary))">
+                      <ResponsiveContainer width="100%" height={220}>
+                        <BarChart data={stageChartData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                          <XAxis type="number" fontSize={11} />
+                          <YAxis dataKey="name" type="category" width={70} fontSize={10} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--background))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '6px',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                             {stageChartData.map((entry, index) => (
                               <Cell 
                                 key={`cell-${index}`} 
-                                fill={index === 0 ? 'hsl(220, 80%, 60%)' : 'hsl(150, 60%, 55%)'} 
+                                fill={
+                                  entry.name.includes('Hardening') ? 'hsl(220, 70%, 60%)' :
+                                  entry.name.includes('Clone') || entry.name.includes('Germination') ? 'hsl(150, 60%, 50%)' :
+                                  entry.name.includes('Vegetative') ? 'hsl(140, 55%, 50%)' :
+                                  entry.name.includes('Harvest') ? 'hsl(160, 55%, 50%)' :
+                                  'hsl(200, 60%, 55%)'
+                                } 
                               />
                             ))}
                           </Bar>
@@ -243,58 +268,58 @@ export default function Reports() {
                     </CardContent>
                   </Card>
 
-                  {/* Metric Cards */}
+                  {/* Metrics Card - 1 column */}
                   <Card>
                     <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm text-muted-foreground">No. Batches</CardTitle>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-xs font-medium text-muted-foreground">No. Batches</CardTitle>
                         <TrendingUp className="h-4 w-4 text-success" />
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold">{totalBatches}</div>
-                      <div className="mt-4 pt-4 border-t">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Survival Rate</span>
+                    <CardContent className="pb-3">
+                      <div className="text-5xl font-bold mb-6">{totalBatches}</div>
+                      <div className="pt-4 border-t">
+                        <div className="flex items-start justify-between mb-1">
+                          <span className="text-xs font-medium text-muted-foreground">Survival Rate</span>
                           <TrendingUp className="h-4 w-4 text-success" />
                         </div>
-                        <div className="text-2xl font-bold text-success">{survivalRate}%</div>
+                        <div className="text-3xl font-bold text-success">{survivalRate}%</div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
 
-                {/* Plants in Active Batches */}
+                {/* Full Width - Plants in Active Batches */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-muted-foreground">No. Plants in Active Batches</CardTitle>
-                      <Package className="h-4 w-4 text-primary" />
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-xs font-medium text-muted-foreground">No. Plants in Active Batches</CardTitle>
+                      <Package className="h-5 w-5 text-success" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-4xl font-bold">{totalPlants.toLocaleString()}</div>
+                    <div className="text-5xl font-bold">{totalPlants.toLocaleString()}</div>
                   </CardContent>
                 </Card>
 
                 {/* Batch List Table */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Batch List</CardTitle>
-                    <CardDescription>Detailed view of all active batches</CardDescription>
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">Batch List</CardTitle>
+                    <CardDescription className="text-sm">Detailed view of all active batches</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="rounded-lg border overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-muted">
+                        <thead className="bg-muted/50">
                           <tr>
-                            <th className="text-left p-3 font-semibold text-sm">ID</th>
-                            <th className="text-left p-3 font-semibold text-sm">Nomenclature</th>
-                            <th className="text-left p-3 font-semibold text-sm">No. Plants</th>
-                            <th className="text-left p-3 font-semibold text-sm">Strain</th>
-                            <th className="text-left p-3 font-semibold text-sm">Plant Stage</th>
-                            <th className="text-left p-3 font-semibold text-sm">Status</th>
-                            <th className="text-left p-3 font-semibold text-sm">Creation Date</th>
+                            <th className="text-left p-3 font-semibold text-xs">ID</th>
+                            <th className="text-left p-3 font-semibold text-xs">Nomenclature</th>
+                            <th className="text-left p-3 font-semibold text-xs">No. Plants</th>
+                            <th className="text-left p-3 font-semibold text-xs">Strain</th>
+                            <th className="text-left p-3 font-semibold text-xs">Plant Stage</th>
+                            <th className="text-left p-3 font-semibold text-xs">Status</th>
+                            <th className="text-left p-3 font-semibold text-xs">Creation Date</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -308,24 +333,20 @@ export default function Reports() {
                                 batch.current_stage === 'harvest' ? batch.harvest_number_plants : 0;
 
                               return (
-                                <tr key={batch.id} className="border-t hover:bg-muted/50">
-                                  <td className="p-3 text-sm">{idx + 1}</td>
-                                  <td className="p-3 text-sm font-medium">{batch.batch_number}</td>
-                                  <td className="p-3 text-sm text-primary font-semibold">
+                                <tr key={batch.id} className="border-t hover:bg-muted/30 transition-colors">
+                                  <td className="p-3 text-xs">{idx + 1}</td>
+                                  <td className="p-3 text-xs font-medium">{batch.batch_number}</td>
+                                  <td className="p-3 text-xs font-bold text-success">
                                     {currentPlants || 'N/A'}
                                   </td>
-                                  <td className="p-3 text-sm">{getStrainName(batch.strain_id || '')}</td>
+                                  <td className="p-3 text-xs">{getStrainName(batch.strain_id || '')}</td>
                                   <td className="p-3">
-                                    <Badge className={cn("text-xs", getStageColor(batch.current_stage))}>
+                                    <Badge variant="secondary" className="text-xs font-normal">
                                       {getStageLabel(batch.current_stage)}
                                     </Badge>
                                   </td>
-                                  <td className="p-3">
-                                    <Badge variant="outline" className="text-xs">
-                                      {batch.status}
-                                    </Badge>
-                                  </td>
-                                  <td className="p-3 text-sm text-muted-foreground">
+                                  <td className="p-3 text-xs">{batch.status}</td>
+                                  <td className="p-3 text-xs text-muted-foreground">
                                     {format(new Date(batch.created_at), 'yyyy-MM-dd HH:mm')}
                                   </td>
                                 </tr>
@@ -333,7 +354,7 @@ export default function Reports() {
                             })
                           ) : (
                             <tr>
-                              <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                              <td colSpan={7} className="p-8 text-center text-sm text-muted-foreground">
                                 No active batches found
                               </td>
                             </tr>
