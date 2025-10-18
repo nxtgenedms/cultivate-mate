@@ -290,73 +290,47 @@ export default function BatchDetail() {
           </Button>
         </div>
 
-        {/* Unified Stage Progress & Key Metrics Card */}
-        <Card className="border-2 border-primary/20">
-          <CardContent className="p-3">
-            <div className="grid gap-3 md:grid-cols-6">
-              {/* Stage Progress Section - Takes 2 columns */}
-              <div className="md:col-span-2 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Badge className={cn("border text-xs", getStageColor(batch.current_stage))}>
-                    {getStageLabel(batch.current_stage)}
-                  </Badge>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-primary">{Math.round(stageProgress)}%</p>
-                    <p className="text-[10px] text-muted-foreground leading-none">Complete</p>
-                  </div>
+        {/* Key Batch Metrics */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Strain ID</p>
+                  <Package className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <p className="text-[10px] text-muted-foreground">{daysInStage} days in current stage</p>
-                <Progress value={stageProgress} className="h-1.5" />
-                <PhaseChangeButton
-                  batchId={batch.id}
-                  batchNumber={batch.batch_number}
-                  currentStage={batch.current_stage}
-                  currentQuantity={getCurrentQuantity()}
-                  currentDome={batch.dome_no}
-                  disabled={batch.status !== 'in_progress'}
-                />
+                <p className="text-xl font-bold">{getDisplayValue(batch.strain_id || '')}</p>
               </div>
 
-              {/* Key Metrics - 4 columns */}
-              <div className="md:col-span-4 grid grid-cols-4 gap-2">
-                <div className="border rounded-lg p-2 bg-muted/30">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-[10px] font-medium text-muted-foreground">Strain ID</p>
-                    <Package className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <p className="text-lg font-bold leading-tight">{getDisplayValue(batch.strain_id || '')}</p>
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Mother ID</p>
+                  <Users className="h-4 w-4 text-muted-foreground" />
                 </div>
+                <p className="text-xl font-bold">{batch.mother_no || 'N/A'}</p>
+              </div>
 
-                <div className="border rounded-lg p-2 bg-muted/30">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-[10px] font-medium text-muted-foreground">Mother ID</p>
-                    <Users className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <p className="text-lg font-bold leading-tight">{batch.mother_no || 'N/A'}</p>
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Total Plants</p>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </div>
+                <p className="text-xl font-bold">{batch.total_clones_plants || 0}</p>
+                {batch.clonator_mortalities > 0 && (
+                  <p className="text-xs text-red-500 leading-none mt-1">-{batch.clonator_mortalities} lost</p>
+                )}
+              </div>
 
-                <div className="border rounded-lg p-2 bg-muted/30">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-[10px] font-medium text-muted-foreground">Total Plants</p>
-                    <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <p className="text-lg font-bold leading-tight">{batch.total_clones_plants || 0}</p>
-                  {batch.clonator_mortalities > 0 && (
-                    <p className="text-[10px] text-red-500 leading-none mt-0.5">-{batch.clonator_mortalities} lost</p>
-                  )}
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-medium text-muted-foreground">Start Date</p>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
                 </div>
-
-                <div className="border rounded-lg p-2 bg-muted/30">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-[10px] font-medium text-muted-foreground">Start Date</p>
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm font-bold leading-tight">
-                    {batch.clone_germination_date 
-                      ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
-                      : 'N/A'}
-                  </p>
-                </div>
+                <p className="text-base font-bold">
+                  {batch.clone_germination_date 
+                    ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
+                    : 'N/A'}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -420,6 +394,33 @@ export default function BatchDetail() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      {/* Stage Progress & Action */}
+                      {batch.current_stage === 'cloning' && (
+                        <div className="mb-6 p-4 border rounded-lg bg-primary/5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <Badge className={cn("border mb-2", getStageColor(batch.current_stage))}>
+                                {getStageLabel(batch.current_stage)}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">{daysInStage} days in current stage</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-3xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                              <p className="text-xs text-muted-foreground">Complete</p>
+                            </div>
+                          </div>
+                          <Progress value={stageProgress} className="h-2 mb-4" />
+                          <PhaseChangeButton
+                            batchId={batch.id}
+                            batchNumber={batch.batch_number}
+                            currentStage={batch.current_stage}
+                            currentQuantity={getCurrentQuantity()}
+                            currentDome={batch.dome_no}
+                            disabled={batch.status !== 'in_progress'}
+                          />
+                        </div>
+                      )}
+                      
                       <div className="grid gap-6 md:grid-cols-2 pt-4">
                         {/* Initial Information */}
                         <div className="space-y-3 border-l-2 border-primary/20 pl-4">
