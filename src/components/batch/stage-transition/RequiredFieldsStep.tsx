@@ -37,7 +37,7 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'veg_number_plants', label: 'Number of Plants (Veg)', type: 'number' },
     ],
     optional: [
-      // Clonator 2 fields
+      // Clonator 2 fields (completion data)
       { field: 'clonator_2_date', label: 'Clonator 2 - Date Moved', type: 'date' },
       { field: 'clonator_2', label: 'Clonator 2 - Unit Name', type: 'text' },
       { field: 'clonator_2_number_clones', label: 'Clonator 2 - Number of Clones', type: 'number' },
@@ -45,41 +45,28 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
       { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },
       
-      // Hardening stage fields
+      // Hardening stage completion fields
       { field: 'hardening_area_placed', label: 'Hardening - Area Placed', type: 'text' },
       { field: 'hardening_rack_no', label: 'Hardening - Rack No', type: 'text' },
       { field: 'hardening_no_of_days', label: 'Hardening - No of Days', type: 'number' },
       { field: 'hardening_completed_by', label: 'Hardening - Completed By', type: 'select', options: 'profiles' },
       { field: 'hardening_checked_by', label: 'Hardening - Checked By', type: 'select', options: 'profiles' },
-      
-      // Veg preparation fields
-      { field: 'veg_table_no', label: 'Veg - Table No', type: 'text' },
-      { field: 'veg_expected_days', label: 'Veg - Expected Days', type: 'number' },
-      { field: 'veg_completed_by', label: 'Veg - Completed By', type: 'select', options: 'profiles' },
     ],
   },
   vegetative_to_flowering: {
     required: [
       { field: 'move_to_flowering_date', label: 'Move to Flowering Date', type: 'date' },
-      { field: 'flowering_number_plants', label: 'Number of Plants', type: 'number' },
+      { field: 'flowering_number_plants', label: 'Number of Plants (Entering Flowering)', type: 'number' },
       { field: 'veg_actual_days', label: 'Actual Days in Veg', type: 'number' },
-      { field: 'flowering_table_no', label: 'Flowering Table No', type: 'text' },
     ],
     optional: [
+      // Veg stage completion data
+      { field: 'veg_table_no', label: 'Veg - Table No', type: 'text' },
+      { field: 'veg_expected_days', label: 'Veg - Expected Days', type: 'number' },
+      { field: 'veg_completed_by', label: 'Veg - Completed By', type: 'select', options: 'profiles' },
       { field: 'veg_diseases', label: 'Veg - Diseases Detected', type: 'checkbox' },
       { field: 'veg_pests', label: 'Veg - Pests Detected', type: 'checkbox' },
       { field: 'veg_checked_by', label: 'Veg - Mortality Checked By', type: 'select', options: 'profiles' },
-      
-      // Flowering preparation fields
-      { field: 'nutrients_used', label: 'Flowering - Nutrients Used', type: 'text' },
-      { field: 'using_extra_lights', label: 'Flowering - Using Extra Lights', type: 'checkbox' },
-      { field: 'extra_lights_from_day', label: 'Extra Lights - From Day', type: 'number' },
-      { field: 'extra_lights_no_of_days', label: 'Extra Lights - No of Days', type: 'number' },
-      { field: 'eight_nodes', label: 'Flowering - Eight Nodes', type: 'checkbox' },
-      { field: 'increase_in_yield', label: 'Flowering - Increase in Yield', type: 'text' },
-      { field: 'expected_flowering_date', label: 'Expected Flowering Date', type: 'date' },
-      { field: 'estimated_days', label: 'Estimated Days (Flowering)', type: 'number' },
-      { field: 'flowering_completed_by', label: 'Flowering - Completed By', type: 'select', options: 'profiles' },
     ],
   },
   flowering_to_harvest: {
@@ -90,13 +77,20 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'actual_days', label: 'Actual Days (Flowering)', type: 'number' },
     ],
     optional: [
+      // Flowering stage completion data
+      { field: 'flowering_table_no', label: 'Flowering - Table No', type: 'text' },
+      { field: 'nutrients_used', label: 'Flowering - Nutrients Used', type: 'text' },
+      { field: 'using_extra_lights', label: 'Flowering - Using Extra Lights', type: 'checkbox' },
+      { field: 'extra_lights_from_day', label: 'Extra Lights - From Day', type: 'number' },
+      { field: 'extra_lights_no_of_days', label: 'Extra Lights - No of Days', type: 'number' },
+      { field: 'eight_nodes', label: 'Flowering - Eight Nodes', type: 'checkbox' },
+      { field: 'increase_in_yield', label: 'Flowering - Increase in Yield', type: 'text' },
+      { field: 'expected_flowering_date', label: 'Expected Flowering Date', type: 'date' },
+      { field: 'estimated_days', label: 'Estimated Days (Flowering)', type: 'number' },
+      { field: 'flowering_completed_by', label: 'Flowering - Completed By', type: 'select', options: 'profiles' },
       { field: 'flowering_diseases', label: 'Flowering - Diseases Detected', type: 'checkbox' },
       { field: 'flowering_pests', label: 'Flowering - Pests Detected', type: 'checkbox' },
       { field: 'flowering_checked_by', label: 'Flowering - Mortality Checked By', type: 'select', options: 'profiles' },
-      
-      // Harvest preparation fields
-      { field: 'harvest_table_no', label: 'Harvest - Table No', type: 'text' },
-      { field: 'harvest_completed_by', label: 'Harvest - Completed By', type: 'select', options: 'profiles' },
     ],
   },
 };
