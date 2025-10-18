@@ -16,6 +16,7 @@ import BatchDetail from "./pages/batch/BatchDetail";
 import NomenclatureManagement from "./pages/admin/NomenclatureManagement";
 import InventoryManagement from "./pages/InventoryManagement";
 import ChecklistManagement from "./pages/admin/ChecklistManagement";
+import TaskFieldMappings from "./pages/admin/TaskFieldMappings";
 import TaskManagement from "./pages/TaskManagement";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/admin/lookups" element={<LookupManagement />} />
             <Route path="/admin/nomenclature" element={<NomenclatureManagement />} />
             <Route path="/admin/checklists" element={<ChecklistManagement />} />
+            <Route path="/admin/task-mappings" element={<TaskFieldMappings />} />
             <Route path="/batch/dashboard" element={<BatchDashboard />} />
             <Route path="/batch/master-record" element={<MasterRecord />} />
             <Route path="/batch/detail/:id" element={<BatchDetail />} />
