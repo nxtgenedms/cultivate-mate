@@ -586,184 +586,265 @@ export default function BatchDetail() {
           <TabsContent value="reconciliation" className="mt-4">
             <Card>
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Post-Harvest Batch Reconciliation</CardTitle>
+                <CardTitle className="text-lg">Batch Lifecycle Reconciliation</CardTitle>
                 <CardDescription className="text-sm">
-                  Timeline view of post-harvest processing stages
+                  Complete timeline view of all batch lifecycle stages
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {(batch.current_stage === 'harvest' || 
-                  batch.current_stage === 'processing_drying' || 
-                  batch.current_stage === 'packing_storage' ||
-                  batch.harvest_date) ? (
-                  <div className="space-y-4">
-                    {/* Batch Info Header */}
-                    <div className="p-4 bg-muted/30 rounded-lg border">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-base font-semibold">{batch.batch_number} - Post-harvest Processing</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {batch.harvest_date 
-                              ? `Started: ${format(new Date(batch.harvest_date), 'MMM dd, yyyy')}`
-                              : 'Processing timeline'
-                            }
-                          </p>
+                <div className="space-y-4">
+                  {/* Batch Info Header */}
+                  <div className="p-4 bg-muted/30 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-base font-semibold">{batch.batch_number} - Lifecycle Timeline</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Current Stage: {getStageLabel(batch.current_stage)}
+                          {batch.created_at && ` • Started: ${format(new Date(batch.created_at), 'MMM dd, yyyy')}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">
+                          Status: <span className={cn("font-semibold", getStatusColor(batch.status))}>
+                            {batch.status?.toUpperCase()}
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium">
-                            Total: {batch.harvest_number_plants || 0} plants
+                        {batch.total_clones_plants && (
+                          <div className="text-sm text-muted-foreground">
+                            Initial: {batch.total_clones_plants} plants
                           </div>
-                          {batch.total_dry_weight && (
-                            <div className="text-sm text-muted-foreground">
-                              Dry weight: {batch.total_dry_weight} kg
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Timeline Visualization */}
-                    <div className="relative">
-                      {(() => {
-                        const stages = [
-                          {
-                            name: 'Harvest',
-                            color: 'hsl(220, 70%, 70%)',
-                            completed: !!batch.harvest_date,
-                            date: batch.harvest_date,
-                            duration: 1,
-                          },
-                          {
-                            name: 'Processing',
-                            color: 'hsl(160, 60%, 60%)',
-                            completed: !!batch.drying_date,
-                            date: batch.drying_date,
-                            duration: 7,
-                          },
-                          {
-                            name: 'Drying',
-                            color: 'hsl(45, 75%, 60%)',
-                            completed: !!batch.dry_weight_date,
-                            date: batch.dry_weight_date,
-                            duration: batch.no_of_days_drying || 10,
-                          },
-                          {
-                            name: 'Dry Weight Check',
-                            color: 'hsl(200, 60%, 65%)',
-                            completed: !!batch.dry_weight_date,
-                            date: batch.dry_weight_date,
-                            duration: 1,
-                          },
-                          {
-                            name: 'Packing',
-                            color: 'hsl(280, 55%, 65%)',
-                            completed: !!batch.packing_date,
-                            date: batch.packing_date,
-                            duration: 2,
-                          },
-                        ];
+                  {/* Complete Lifecycle Timeline */}
+                  <div className="relative">
+                    {(() => {
+                      const allStages = [
+                        {
+                          name: 'Preclone',
+                          color: 'hsl(200, 60%, 70%)',
+                          completed: batch.current_stage !== 'preclone',
+                          date: null,
+                          duration: 1,
+                          plants: null,
+                        },
+                        {
+                          name: 'Clone/Germination',
+                          color: 'hsl(140, 60%, 60%)',
+                          completed: batch.clone_germination_date != null,
+                          date: batch.clone_germination_date,
+                          duration: 14,
+                          plants: batch.total_clones_plants,
+                        },
+                        {
+                          name: 'Hardening',
+                          color: 'hsl(180, 55%, 65%)',
+                          completed: batch.move_to_hardening_date != null,
+                          date: batch.move_to_hardening_date,
+                          duration: batch.clonator_2_no_of_days || 7,
+                          plants: batch.hardening_number_clones,
+                        },
+                        {
+                          name: 'Vegetative',
+                          color: 'hsl(100, 60%, 55%)',
+                          completed: batch.move_to_veg_date != null,
+                          date: batch.move_to_veg_date,
+                          duration: batch.veg_actual_days || batch.veg_expected_days || 21,
+                          plants: batch.veg_number_plants,
+                        },
+                        {
+                          name: 'Flowering',
+                          color: 'hsl(280, 55%, 65%)',
+                          completed: batch.move_to_flowering_date != null,
+                          date: batch.move_to_flowering_date,
+                          duration: batch.actual_days || batch.estimated_days || 56,
+                          plants: batch.flowering_number_plants,
+                        },
+                        {
+                          name: 'Harvest',
+                          color: 'hsl(220, 70%, 70%)',
+                          completed: batch.harvest_date != null,
+                          date: batch.harvest_date,
+                          duration: 1,
+                          plants: batch.harvest_number_plants,
+                        },
+                        {
+                          name: 'Processing',
+                          color: 'hsl(160, 60%, 60%)',
+                          completed: batch.drying_date != null,
+                          date: batch.drying_date,
+                          duration: 7,
+                          plants: batch.drying_total_plants,
+                        },
+                        {
+                          name: 'Drying',
+                          color: 'hsl(45, 75%, 60%)',
+                          completed: batch.dry_weight_date != null,
+                          date: batch.dry_weight_date,
+                          duration: batch.no_of_days_drying || 10,
+                          plants: null,
+                        },
+                        {
+                          name: 'Packing',
+                          color: 'hsl(320, 55%, 70%)',
+                          completed: batch.packing_date != null,
+                          date: batch.packing_date,
+                          duration: 2,
+                          plants: null,
+                        },
+                      ];
 
-                        const totalDuration = stages.reduce((sum, s) => sum + s.duration, 0);
-                        
-                        return (
-                          <>
-                            {/* Timeline bars */}
-                            <div className="flex h-24 rounded-lg overflow-hidden border">
-                              {stages.map((stage, idx) => {
-                                const widthPercent = (stage.duration / totalDuration) * 100;
-                                return (
-                                  <div
-                                    key={idx}
-                                    className={cn(
-                                      "relative flex items-center justify-center transition-all border-r last:border-r-0",
-                                      !stage.completed && "opacity-40"
-                                    )}
-                                    style={{
-                                      width: `${widthPercent}%`,
-                                      backgroundColor: stage.color,
-                                    }}
-                                  >
-                                    <div className="text-center px-2">
-                                      <div className="font-semibold text-sm text-gray-800">
-                                        {stage.name}
-                                      </div>
-                                      {stage.date && (
-                                        <div className="text-xs text-gray-700 mt-1">
-                                          {format(new Date(stage.date), 'MMM dd')}
-                                        </div>
-                                      )}
+                      const totalDuration = allStages.reduce((sum, s) => sum + s.duration, 0);
+                      
+                      return (
+                        <>
+                          {/* Timeline bars */}
+                          <div className="flex h-28 rounded-lg overflow-hidden border">
+                            {allStages.map((stage, idx) => {
+                              const widthPercent = (stage.duration / totalDuration) * 100;
+                              return (
+                                <div
+                                  key={idx}
+                                  className={cn(
+                                    "relative flex flex-col items-center justify-center transition-all border-r last:border-r-0 p-1",
+                                    !stage.completed && "opacity-40"
+                                  )}
+                                  style={{
+                                    width: `${widthPercent}%`,
+                                    backgroundColor: stage.color,
+                                  }}
+                                >
+                                  <div className="text-center">
+                                    <div className="font-semibold text-xs text-gray-800">
+                                      {stage.name}
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            {/* Stage details */}
-                            <div className="mt-4 grid grid-cols-5 gap-3">
-                              {stages.map((stage, idx) => (
-                                <div key={idx} className="text-center">
-                                  <div className="flex items-center justify-center gap-2">
-                                    {stage.completed ? (
-                                      <div className="h-2 w-2 rounded-full bg-success" />
-                                    ) : (
-                                      <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+                                    {stage.date && (
+                                      <div className="text-[10px] text-gray-700 mt-0.5">
+                                        {format(new Date(stage.date), 'MMM dd')}
+                                      </div>
                                     )}
-                                    <span className="text-xs font-medium">
-                                      {stage.completed ? 'Completed' : 'Pending'}
-                                    </span>
-                                  </div>
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    {stage.duration} {stage.duration === 1 ? 'day' : 'days'}
+                                    {stage.plants && (
+                                      <div className="text-[10px] font-semibold text-gray-900 mt-0.5">
+                                        {stage.plants} plants
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
+                              );
+                            })}
+                          </div>
 
-                    {/* Processing Summary */}
-                    {(batch.total_wet_weight || batch.total_dry_weight || batch.packing_a_grade) && (
-                      <div className="mt-6 pt-4 border-t">
-                        <h4 className="text-sm font-semibold mb-3">Processing Summary</h4>
-                        <div className="grid grid-cols-4 gap-4">
-                          {batch.total_wet_weight && (
-                            <div>
-                              <div className="text-xs text-muted-foreground">Wet Weight</div>
-                              <div className="text-sm font-semibold">{batch.total_wet_weight} kg</div>
-                            </div>
-                          )}
-                          {batch.total_dry_weight && (
-                            <div>
-                              <div className="text-xs text-muted-foreground">Dry Weight</div>
-                              <div className="text-sm font-semibold">{batch.total_dry_weight} kg</div>
-                            </div>
-                          )}
-                          {batch.packing_a_grade && (
-                            <div>
-                              <div className="text-xs text-muted-foreground">A Grade</div>
-                              <div className="text-sm font-semibold text-success">{batch.packing_a_grade} kg</div>
-                            </div>
-                          )}
-                          {batch.packing_b_grade && (
-                            <div>
-                              <div className="text-xs text-muted-foreground">B Grade</div>
-                              <div className="text-sm font-semibold text-warning">{batch.packing_b_grade} kg</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                          {/* Stage details */}
+                          <div className="mt-4 grid grid-cols-9 gap-2">
+                            {allStages.map((stage, idx) => (
+                              <div key={idx} className="text-center">
+                                <div className="flex items-center justify-center gap-1 mb-1">
+                                  {stage.completed ? (
+                                    <div className="h-2 w-2 rounded-full bg-success" />
+                                  ) : (
+                                    <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+                                  )}
+                                  <span className="text-[10px] font-medium">
+                                    {stage.completed ? 'Done' : 'Pending'}
+                                  </span>
+                                </div>
+                                <div className="text-[10px] text-muted-foreground">
+                                  {stage.duration} {stage.duration === 1 ? 'day' : 'days'}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">This batch has not reached harvest stage yet</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Post-harvest reconciliation will be available once the batch reaches harvest
-                    </p>
+
+                  {/* Stage Summaries */}
+                  <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
+                    {/* Pre-Harvest Summary */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-xs font-semibold">Pre-Harvest Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {batch.total_clones_plants && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Initial Clones:</span>
+                            <span className="font-semibold">{batch.total_clones_plants}</span>
+                          </div>
+                        )}
+                        {batch.veg_number_plants && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Veg Stage:</span>
+                            <span className="font-semibold">{batch.veg_number_plants}</span>
+                          </div>
+                        )}
+                        {batch.flowering_number_plants && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Flowering:</span>
+                            <span className="font-semibold">{batch.flowering_number_plants}</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Harvest Summary */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-xs font-semibold">Harvest Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {batch.harvest_number_plants && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Plants Harvested:</span>
+                            <span className="font-semibold">{batch.harvest_number_plants}</span>
+                          </div>
+                        )}
+                        {batch.total_wet_weight && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Wet Weight:</span>
+                            <span className="font-semibold">{batch.total_wet_weight} kg</span>
+                          </div>
+                        )}
+                        {batch.total_dry_weight && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Dry Weight:</span>
+                            <span className="font-semibold">{batch.total_dry_weight} kg</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Packing Summary */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-xs font-semibold">Packing Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {batch.packing_a_grade && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">A Grade:</span>
+                            <span className="font-semibold text-success">{batch.packing_a_grade} kg</span>
+                          </div>
+                        )}
+                        {batch.packing_b_grade && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">B Grade:</span>
+                            <span className="font-semibold text-warning">{batch.packing_b_grade} kg</span>
+                          </div>
+                        )}
+                        {batch.packing_c_grade && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">C Grade:</span>
+                            <span className="font-semibold text-destructive">{batch.packing_c_grade} kg</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
