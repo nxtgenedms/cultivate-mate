@@ -63,7 +63,6 @@ export const TwoLevelCategoryFilter = ({
             >
               <span className="mr-2">{group.icon}</span>
               {group.label}
-              <span className="ml-2 text-xs opacity-70">({group.categories.length})</span>
             </Badge>
           ))}
         </div>
