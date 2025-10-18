@@ -24,21 +24,51 @@ export const InventoryUsageForm = () => {
 
   const queryClient = useQueryClient();
 
-  // Fetch existing product names from receipts filtered by product type
-  const { data: existingProducts = [] } = useQuery({
-    queryKey: ['inventory-products', formData.product_type],
+  // Fetch existing product names with availability from receipts and usage
+  const { data: productsWithAvailability = [] } = useQuery({
+    queryKey: ['inventory-products-availability', formData.product_type],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch receipts for the selected product type
+      const { data: receipts, error: receiptsError } = await supabase
         .from('inventory_receipts')
-        .select('product_name')
-        .eq('receipt_type', formData.product_type as any)
-        .order('product_name');
+        .select('product_name, quantity, unit')
+        .eq('receipt_type', formData.product_type as any);
       
-      if (error) throw error;
+      if (receiptsError) throw receiptsError;
+
+      // Fetch all usage records
+      const { data: usageRecords, error: usageError } = await supabase
+        .from('inventory_usage')
+        .select('product_name, quantity, unit, product_type')
+        .eq('product_type', formData.product_type as any);
       
-      // Get unique product names
-      const uniqueProducts = Array.from(new Set(data?.map(r => r.product_name) || []));
-      return uniqueProducts;
+      if (usageError) throw usageError;
+
+      // Calculate availability for each product
+      const availabilityMap = new Map<string, { productName: string; available: number; unit: string }>();
+
+      receipts?.forEach((receipt) => {
+        const key = `${receipt.product_name}-${receipt.unit}`;
+        if (!availabilityMap.has(key)) {
+          availabilityMap.set(key, {
+            productName: receipt.product_name,
+            available: 0,
+            unit: receipt.unit,
+          });
+        }
+        const item = availabilityMap.get(key)!;
+        item.available += Number(receipt.quantity);
+      });
+
+      usageRecords?.forEach((usage) => {
+        const key = `${usage.product_name}-${usage.unit}`;
+        if (availabilityMap.has(key)) {
+          const item = availabilityMap.get(key)!;
+          item.available -= Number(usage.quantity);
+        }
+      });
+
+      return Array.from(availabilityMap.values()).filter(item => item.available > 0);
     },
   });
 
@@ -147,14 +177,14 @@ export const InventoryUsageForm = () => {
                   <SelectValue placeholder="Select product" />
                 </SelectTrigger>
                 <SelectContent>
-                  {existingProducts.length === 0 ? (
+                  {productsWithAvailability.length === 0 ? (
                     <SelectItem value="no-products" disabled>
                       No products available for this type
                     </SelectItem>
                   ) : (
-                    existingProducts.map((product) => (
-                      <SelectItem key={product} value={product}>
-                        {product}
+                    productsWithAvailability.map((product) => (
+                      <SelectItem key={product.productName} value={product.productName}>
+                        {product.productName} (Available: {product.available.toFixed(2)} {product.unit})
                       </SelectItem>
                     ))
                   )}
