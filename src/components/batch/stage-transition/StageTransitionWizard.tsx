@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -296,16 +296,33 @@ export const StageTransitionWizard = ({
           {currentStep === 1 && !canProceed() && (
             <Alert variant="destructive" className="w-full">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
+              <AlertTitle className="font-bold">Cannot Proceed</AlertTitle>
+              <AlertDescription className="space-y-2">
                 {tasks.filter(t => t.lifecycle_stage === currentStage).length === 0 ? (
-                  <span>
-                    <strong>Cannot proceed:</strong> No stage-specific tasks have been created for the <strong>{currentStage}</strong> stage. 
-                    Please create and complete the required tasks before proceeding.
-                  </span>
+                  <div>
+                    <p className="font-medium mb-2">
+                      No stage-specific tasks have been created for the <strong>{currentStage}</strong> stage.
+                    </p>
+                    <p className="text-sm">
+                      Please create and complete the required tasks before proceeding.
+                    </p>
+                  </div>
                 ) : (
-                  <span>
-                    <strong>Cannot proceed:</strong> Complete all required stage-specific tasks before moving to the next step.
-                  </span>
+                  <div>
+                    <p className="font-medium mb-2">
+                      The following required tasks for <strong>{currentStage}</strong> stage must be completed:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                      {tasks
+                        .filter(t => t.lifecycle_stage === currentStage && t.status !== 'completed')
+                        .map(task => (
+                          <li key={task.id}>
+                            <strong>{task.name}</strong> - Status: {task.status}
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
                 )}
               </AlertDescription>
             </Alert>

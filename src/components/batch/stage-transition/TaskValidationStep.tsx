@@ -62,53 +62,18 @@ export const TaskValidationStep = ({
           <h4 className="text-base font-bold">Required Tasks for {currentStage} Stage</h4>
         </div>
 
-        {/* Critical Warning: No stage tasks created */}
+        {/* Show message if no tasks exist for this stage */}
         {hasNoStageTasksCreated && (
-          <Alert variant="destructive" className="border-2">
-            <AlertTriangle className="h-5 w-5" />
-            <AlertTitle className="font-bold">🚫 No Required Tasks Created</AlertTitle>
-            <AlertDescription className="mt-2">
-              <div className="space-y-2">
-                <p className="font-medium">
-                  No tasks have been created for the <strong>{currentStage}</strong> lifecycle stage.
-                </p>
-                <p className="text-sm font-semibold">
-                  ⚠️ You must create and complete all required stage-specific tasks before proceeding to the next stage.
-                </p>
-                <p className="text-sm mt-2">
-                  Please close this dialog, create the required tasks for this stage, complete them, and try again.
-                </p>
-              </div>
+          <Alert className="bg-muted">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              No tasks have been created for the <strong>{currentStage}</strong> lifecycle stage yet.
+              Create the required tasks for this stage before proceeding.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Warning: Incomplete stage tasks */}
-        {!hasNoStageTasksCreated && hasIncompleteStageTasks && (
-          <Alert variant="destructive" className="border-2">
-            <AlertTriangle className="h-5 w-5" />
-            <AlertTitle className="font-bold">⚠️ Mandatory Tasks Incomplete</AlertTitle>
-            <AlertDescription className="mt-2">
-              <div className="space-y-2">
-                <p className="font-medium">
-                  You have {stagePending.length} incomplete required task{stagePending.length > 1 ? 's' : ''}:
-                </p>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  {stagePending.map(task => (
-                    <li key={task.id} className="text-sm">
-                      <strong>{task.name}</strong> - Status: {task.status}
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-sm mt-2 font-semibold">
-                  ⚠️ Complete all stage-specific tasks before proceeding.
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Stage Task Progress */}
+        {/* Stage Task Progress - Only show if tasks exist */}
         {stageSpecificTasks.length > 0 && (
           <Card className="border-primary/30">
             <CardHeader className="pb-3">
@@ -135,7 +100,7 @@ export const TaskValidationStep = ({
             </h5>
             <div className="space-y-2">
               {stagePending.map(task => (
-                <Card key={task.id} className="border-2 border-destructive/50 bg-destructive/5">
+                <Card key={task.id} className="border-2 border-orange-200 bg-orange-50/30 dark:bg-orange-950/20 dark:border-orange-900">
                   <CardContent className="p-3">
                     <div className="flex items-start gap-3">
                       <Checkbox
@@ -143,7 +108,6 @@ export const TaskValidationStep = ({
                         checked={selectedTaskIds.includes(task.id)}
                         onCheckedChange={(checked) => onTaskSelectionChange(task.id, checked as boolean)}
                         className="mt-1"
-                        disabled
                       />
                       <div className="flex-1 space-y-2">
                         <Label
@@ -156,12 +120,17 @@ export const TaskValidationStep = ({
                           <p className="text-xs text-muted-foreground">{task.description}</p>
                         )}
                         <div className="flex gap-2 flex-wrap">
-                          <Badge variant="destructive">
-                            ⚠️ {task.status === 'in_progress' ? 'In Progress' : 'Not Started'}
+                          <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                            {task.status === 'in_progress' ? 'In Progress' : 'Not Started'}
                           </Badge>
                           {task.task_category && (
                             <Badge variant="outline" className="text-xs">
                               {task.task_category}
+                            </Badge>
+                          )}
+                          {task.due_date && (
+                            <Badge variant="outline" className="text-xs">
+                              Due: {new Date(task.due_date).toLocaleDateString()}
                             </Badge>
                           )}
                         </div>
@@ -209,6 +178,11 @@ export const TaskValidationStep = ({
                               Approved
                             </Badge>
                           )}
+                          {task.task_category && (
+                            <Badge variant="outline" className="text-xs">
+                              {task.task_category}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -217,6 +191,16 @@ export const TaskValidationStep = ({
               ))}
             </div>
           </div>
+        )}
+
+        {/* Success message when all required tasks are complete */}
+        {stageSpecificTasks.length > 0 && stagePending.length === 0 && (
+          <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              ✅ All required stage-specific tasks are completed!
+            </AlertDescription>
+          </Alert>
         )}
       </div>
 
@@ -322,22 +306,12 @@ export const TaskValidationStep = ({
         </div>
       )}
 
-      {/* Selection Warning */}
+      {/* Selection Warning - Only for selected incomplete tasks */}
       {hasIncompleteSelectedTasks && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Some selected tasks are not completed. You cannot proceed until all selected tasks are completed, or you deselect them.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Info about next steps */}
-      {!hasNoStageTasksCreated && !hasIncompleteStageTasks && (
-        <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
-            ✅ All required stage-specific tasks are completed! Select any additional tasks you want to associate with this transition, then proceed to the next step.
           </AlertDescription>
         </Alert>
       )}
