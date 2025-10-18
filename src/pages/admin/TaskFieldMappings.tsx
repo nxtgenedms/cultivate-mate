@@ -110,15 +110,23 @@ export default function TaskFieldMappings() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('checklist_templates')
-        .select('*, checklist_template_items(*)')
-        .eq('is_active', true)
+        .select('*, checklist_template_items!inner(*)')
         .order('template_name');
       if (error) throw error;
+      console.log('Loaded templates:', data);
       return data;
     },
   });
 
   const selectedTemplateData = templates?.find(t => t.id === selectedTemplate);
+  
+  // Get available task fields (not yet mapped)
+  const availableTaskFields = selectedTemplateData?.checklist_template_items?.filter(
+    (item: any) => !fieldMappings.some(fm => fm.taskField === item.item_label)
+  ) || [];
+  
+  console.log('Selected template:', selectedTemplateData);
+  console.log('Available fields:', availableTaskFields);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -486,11 +494,17 @@ export default function TaskFieldMappings() {
                         <SelectValue placeholder="Select task field" />
                       </SelectTrigger>
                       <SelectContent>
-                        {selectedTemplateData?.checklist_template_items?.map((item: any) => (
-                          <SelectItem key={item.id} value={item.item_label}>
-                            {item.item_label}
-                          </SelectItem>
-                        ))}
+                        {availableTaskFields.length === 0 ? (
+                          <div className="px-2 py-1 text-sm text-muted-foreground">
+                            {selectedTemplateData ? 'All fields mapped' : 'Select a template first'}
+                          </div>
+                        ) : (
+                          availableTaskFields.map((item: any) => (
+                            <SelectItem key={item.id} value={item.item_label}>
+                              {item.item_label}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
