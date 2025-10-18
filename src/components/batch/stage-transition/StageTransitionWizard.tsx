@@ -56,7 +56,7 @@ export const StageTransitionWizard = ({
     enabled: open,
   });
 
-  // Fetch task field mappings
+  // Fetch task field mappings (optional - only used for field data copying)
   const { data: mappings = [] } = useQuery({
     queryKey: ['task-field-mappings', currentStage],
     queryFn: async () => {
@@ -66,7 +66,10 @@ export const StageTransitionWizard = ({
         .contains('applicable_stages', [currentStage])
         .eq('is_active', true);
       
-      if (error) throw error;
+      if (error) {
+        console.warn('Failed to fetch task field mappings:', error);
+        return [];
+      }
       
       // Transform data to match TaskFieldMapping interface
       return (data || []).map(item => ({

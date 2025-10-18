@@ -49,9 +49,9 @@ export const TaskDataCopyStep = ({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Copy Task Data</h3>
+        <h3 className="text-lg font-semibold mb-2">Copy Task Data (Optional)</h3>
         <p className="text-sm text-muted-foreground">
-          Select completed tasks to auto-fill form fields with their data. This reduces manual entry.
+          If available, you can auto-fill form fields with data from completed tasks. This step is optional - you can skip it and manually enter all fields in the next step.
         </p>
       </div>
 
@@ -59,7 +59,7 @@ export const TaskDataCopyStep = ({
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            No completed tasks selected in the previous step. Select completed tasks to copy their data.
+            No completed tasks selected. You can skip this step and manually fill the required fields.
           </AlertDescription>
         </Alert>
       ) : (
@@ -113,7 +113,7 @@ export const TaskDataCopyStep = ({
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            No field mappings configured for the selected tasks. You can still proceed to fill the form manually.
+            No field mappings configured for the selected tasks. You can proceed to the next step and manually enter the required fields.
           </AlertDescription>
         </Alert>
       )}

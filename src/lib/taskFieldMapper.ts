@@ -73,12 +73,13 @@ export function getApplicableMappings(
 }
 
 /**
- * Check if a task is relevant for the current stage transition
+ * Check if a task has field mappings available for data extraction
  */
 export function isTaskRelevantForStage(
   task: TaskData,
   mappings: TaskFieldMapping[]
 ): boolean {
+  // This now only checks if mappings exist for optional data copying
   return mappings.some(mapping =>
     task.name.includes(mapping.sof_number) ||
     task.task_category === mapping.task_category

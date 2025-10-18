@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
-import { groupTasksByStatus, isTaskRelevantForStage, TaskData, TaskFieldMapping } from "@/lib/taskFieldMapper";
+import { groupTasksByStatus, TaskData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 
 interface TaskValidationStepProps {
   tasks: TaskData[];
@@ -18,11 +18,11 @@ export const TaskValidationStep = ({
   selectedTaskIds,
   onTaskSelectionChange,
 }: TaskValidationStepProps) => {
-  const relevantTasks = tasks.filter(task => isTaskRelevantForStage(task, mappings));
-  const { completed, pending, other } = groupTasksByStatus(relevantTasks);
+  // Show ALL tasks for this batch (mappings are only used for optional data copying later)
+  const { completed, pending } = groupTasksByStatus(tasks);
 
   const hasIncompleteSelectedTasks = selectedTaskIds.some(id => {
-    const task = relevantTasks.find(t => t.id === id);
+    const task = tasks.find(t => t.id === id);
     return task && task.status !== 'completed';
   });
 
@@ -117,11 +117,11 @@ export const TaskValidationStep = ({
         </div>
       )}
 
-      {relevantTasks.length === 0 && (
+      {tasks.length === 0 && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No relevant tasks found for this stage transition.
+            No tasks found for this batch.
           </AlertDescription>
         </Alert>
       )}
