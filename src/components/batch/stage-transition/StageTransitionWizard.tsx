@@ -121,7 +121,9 @@ export const StageTransitionWizard = ({
         title: "Stage Updated",
         description: `Batch ${batchNumber} moved to ${nextStage} stage successfully.`,
       });
-      queryClient.invalidateQueries({ queryKey: ['batch', batchId] });
+      // Invalidate all related queries with correct keys
+      queryClient.invalidateQueries({ queryKey: ['batch-detail', batchId] });
+      queryClient.invalidateQueries({ queryKey: ['batch-tasks', batchId] });
       queryClient.invalidateQueries({ queryKey: ['batches'] });
       onOpenChange(false);
       resetWizard();
