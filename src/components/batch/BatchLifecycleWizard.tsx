@@ -23,24 +23,9 @@ export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecy
       errors.push("Please select a batch source (Mother Plant or Seed)");
     }
     
-    // Check Strain ID
-    if (!formData.strain_id) {
-      errors.push("Strain ID is required");
-    }
-    
-    // Check Mother ID (if starting from mother plant)
-    if (formData.starting_phase === 'mother_plant' && !formData.mother_no) {
-      errors.push("Mother ID is required");
-    }
-    
-    // Check Quantity
-    if (!formData.total_clones_plants || formData.total_clones_plants <= 0) {
-      errors.push("Quantity is required and must be greater than 0");
-    }
-    
-    // Check Dome No
-    if (!formData.dome_no) {
-      errors.push("Dome No is required");
+    // Check batch number
+    if (!formData.batch_number) {
+      errors.push("Batch Number is required");
     }
     
     // If there are validation errors, show them and return

@@ -89,11 +89,18 @@ export function BatchDetailAccordions({ batch, getUserName, getDisplayValue }: B
           {renderStageProgress('preclone')}
           <div className="grid gap-4 md:grid-cols-2 pt-4">
             <div className="space-y-3 border-l-2 border-slate-600/20 pl-4">
-              <h4 className="font-semibold text-sm text-muted-foreground">Preclone Information</h4>
+              <h4 className="font-semibold text-sm text-muted-foreground">Batch Information</h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Batch Number:</span>
                   <span className="font-medium">{batch.batch_number}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Batch Source:</span>
+                  <Badge variant="outline">
+                    {batch.starting_phase === 'mother_plant' ? 'Clone from Mother Plant' : 
+                     batch.starting_phase === 'seed' ? 'Seed Germination' : 'N/A'}
+                  </Badge>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Status:</span>
@@ -108,6 +115,12 @@ export function BatchDetailAccordions({ batch, getUserName, getDisplayValue }: B
                   </span>
                 </div>
               </div>
+            </div>
+            <div className="space-y-3 border-l-2 border-slate-600/20 pl-4">
+              <h4 className="font-semibold text-sm text-muted-foreground">Note</h4>
+              <p className="text-sm text-muted-foreground">
+                Detailed information like Strain ID, Mother No, Dome No, Clone/Germination Date, etc. will be collected when transitioning to the Clone/Germination stage.
+              </p>
             </div>
           </div>
         </AccordionContent>
