@@ -206,15 +206,15 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
                   <SelectValue placeholder="Select phase" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cloning">Cloning</SelectItem>
-                  <SelectItem value="rooting">Rooting</SelectItem>
+                  <SelectItem value="preclone">Preclone</SelectItem>
+                  <SelectItem value="clone_germination">Clone / Germination</SelectItem>
                   <SelectItem value="hardening">Hardening</SelectItem>
                   <SelectItem value="vegetative">Vegetative</SelectItem>
-                  <SelectItem value="flowering">Flowering</SelectItem>
+                  <SelectItem value="flowering_grow_room">Flowering / Grow Room</SelectItem>
+                  <SelectItem value="preharvest">Preharvest</SelectItem>
                   <SelectItem value="harvest">Harvest</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="drying">Drying</SelectItem>
-                  <SelectItem value="packaging">Packaging</SelectItem>
+                  <SelectItem value="processing_drying">Processing / Drying</SelectItem>
+                  <SelectItem value="packing_storage">Packing / Storage</SelectItem>
                 </SelectContent>
               </Select>
             </div>
