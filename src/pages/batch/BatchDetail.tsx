@@ -9,7 +9,8 @@ import { BatchProgressTimeline } from '@/components/batch/BatchProgressTimeline'
 import { BatchDetailAccordions } from '@/components/batch/BatchDetailAccordions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock, Info } from 'lucide-react';
+import { ArrowLeft, Edit, TrendingUp, Calendar, Users, Package, ListChecks, Clock, Info, FileText } from 'lucide-react';
+import { generateBatchRecordPDF } from '@/lib/batchPdfGenerator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -270,10 +271,21 @@ export default function BatchDetail() {
               • Created by {batch.created_by_profile?.full_name || 'Unknown'} • {format(new Date(batch.created_at), 'MMM d, yyyy')}
             </span>
           </div>
-          <Button size="sm" onClick={() => navigate(`/batch/master-record?edit=${batch.id}`)} className="h-8">
-            <Edit className="h-3 w-3 mr-1" />
-            Edit Batch
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => generateBatchRecordPDF(batch, getUserName, getDisplayValue)} 
+              className="h-8"
+            >
+              <FileText className="h-3 w-3 mr-1" />
+              Batch Record Report
+            </Button>
+            <Button size="sm" onClick={() => navigate(`/batch/master-record?edit=${batch.id}`)} className="h-8">
+              <Edit className="h-3 w-3 mr-1" />
+              Edit Batch
+            </Button>
+          </div>
         </div>
 
         {/* Tabbed Content */}
