@@ -18,6 +18,9 @@ export interface TaskData {
   approval_status: string;
   checklist_items?: any[];
   task_category?: string;
+  lifecycle_stage?: string;
+  description?: string;
+  due_date?: string;
 }
 
 export interface ExtractedFieldData {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +10,7 @@ import { TaskValidationStep } from "./TaskValidationStep";
 import { TaskDataCopyStep } from "./TaskDataCopyStep";
 import { RequiredFieldsStep } from "./RequiredFieldsStep";
 import { ExtractedFieldData, TaskFieldMapping } from "@/lib/taskFieldMapper";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 
 interface StageTransitionWizardProps {
   open: boolean;
@@ -209,12 +210,26 @@ export const StageTransitionWizard = ({
 
   const canProceed = () => {
     if (currentStep === 1) {
-      // Check if any incomplete tasks are selected
-      const hasIncomplete = selectedTaskIds.some(id => {
+      // Filter tasks by current stage
+      const stageSpecificTasks = tasks.filter(t => t.lifecycle_stage === currentStage);
+      
+      // Check if there are any incomplete stage-specific tasks
+      const hasIncompleteStageTasks = stageSpecificTasks.some(task => 
+        task.status !== 'completed'
+      );
+      
+      // Block proceeding if there are incomplete stage tasks
+      if (hasIncompleteStageTasks) {
+        return false;
+      }
+      
+      // Also check if any selected tasks are incomplete
+      const hasIncompleteSelectedTasks = selectedTaskIds.some(id => {
         const task = tasks.find(t => t.id === id);
         return task && task.status !== 'completed';
       });
-      return !hasIncomplete;
+      
+      return !hasIncompleteSelectedTasks;
     }
     return true;
   };
@@ -243,6 +258,7 @@ export const StageTransitionWizard = ({
                 }))}
                 mappings={mappings}
                 selectedTaskIds={selectedTaskIds}
+                currentStage={currentStage}
                 onTaskSelectionChange={handleTaskSelection}
               />
             )}
@@ -272,36 +288,47 @@ export const StageTransitionWizard = ({
           </div>
         </div>
 
-        <DialogFooter className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentStep === 1}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Previous
-          </Button>
-
-          {currentStep < 3 ? (
-            <Button onClick={handleNext} disabled={!canProceed()}>
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleComplete}
-              disabled={updateBatchMutation.isPending}
-            >
-              {updateBatchMutation.isPending ? (
-                "Updating..."
-              ) : (
-                <>
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Complete Transition
-                </>
-              )}
-            </Button>
+        <DialogFooter className="flex-col gap-2">
+          {currentStep === 1 && !canProceed() && (
+            <Alert variant="destructive" className="w-full">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Complete all required stage-specific tasks before proceeding to the next step.
+              </AlertDescription>
+            </Alert>
           )}
+          
+          <div className="flex justify-between w-full">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 1}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Previous
+            </Button>
+
+            {currentStep < 3 ? (
+              <Button onClick={handleNext} disabled={!canProceed()}>
+                Next
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleComplete}
+                disabled={updateBatchMutation.isPending}
+              >
+                {updateBatchMutation.isPending ? (
+                  "Updating..."
+                ) : (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Complete Transition
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
