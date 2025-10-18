@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -194,10 +195,38 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                       
                       {/* Render input based on item type - Generic logic */}
                       {item.item_type === 'checkbox' ? (
-                        // Checkbox type: Just the checkbox itself (yes/no), no additional input
-                        <p className="text-xs text-muted-foreground">
-                          Check the box to confirm
-                        </p>
+                        // Checkbox type: Yes/No toggle buttons
+                        <div className="space-y-2">
+                          <ToggleGroup 
+                            type="single" 
+                            value={item.response_value || ""}
+                            onValueChange={(value) => {
+                              if (value) {
+                                handleResponseValueChange(item.id, value);
+                              }
+                            }}
+                            disabled={readOnly}
+                            className="justify-start"
+                          >
+                            <ToggleGroupItem 
+                              value="yes" 
+                              aria-label="Yes"
+                              className="data-[state=on]:bg-green-100 data-[state=on]:text-green-900 dark:data-[state=on]:bg-green-900 dark:data-[state=on]:text-green-100"
+                            >
+                              Yes
+                            </ToggleGroupItem>
+                            <ToggleGroupItem 
+                              value="no" 
+                              aria-label="No"
+                              className="data-[state=on]:bg-red-100 data-[state=on]:text-red-900 dark:data-[state=on]:bg-red-900 dark:data-[state=on]:text-red-100"
+                            >
+                              No
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                          <p className="text-xs text-muted-foreground">
+                            Select Yes or No to confirm
+                          </p>
+                        </div>
                       ) : item.item_type === 'date' ? (
                         <Popover open={datePickerOpen === item.id} onOpenChange={(open) => {
                           if (open && !readOnly) {
