@@ -49,15 +49,29 @@ export function extractFieldsFromTask(
   task.checklist_items.forEach((item: any) => {
     const itemKey = item.item_key || item.label?.toLowerCase().replace(/\s+/g, '_');
     
-    if (itemKey && item_mappings[itemKey]) {
-      const fieldName = item_mappings[itemKey];
+    // Try to find matching mapping (case-insensitive)
+    let mappedField: string | undefined;
+    let mappingKey: string | undefined;
+    
+    for (const [key, field] of Object.entries(item_mappings)) {
+      if (key.toLowerCase() === itemKey?.toLowerCase()) {
+        mappedField = field as string;
+        mappingKey = key;
+        break;
+      }
+    }
+    
+    if (mappedField) {
       const value = item.response_value || item.is_completed;
-
-      extractedData.push({
-        fieldName,
-        value,
-        source: `${task.name} - ${item.label || item.item_key}`
-      });
+      
+      // Only include if value is not empty/null
+      if (value !== null && value !== undefined && value !== '') {
+        extractedData.push({
+          fieldName: mappedField,
+          value,
+          source: `${task.name} - ${item.label || item.item_key}`
+        });
+      }
     }
   });
 
