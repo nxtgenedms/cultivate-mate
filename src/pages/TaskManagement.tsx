@@ -334,194 +334,137 @@ export default function TaskManagement() {
       const showProgress = hasItems && progress.total > 0 && progressPercent < 100;
 
       return (
-        <Card key={task.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
-          <CardContent className="p-6">
-            {/* Header Section */}
-            <div className="flex items-start justify-between gap-4 mb-4">
+        <Card key={task.id} className="group hover:shadow-md transition-shadow">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: Task info + badges */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-lg font-semibold text-foreground truncate">
-                    {task.name}
-                  </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-semibold truncate">{task.name}</h3>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
-                      >
-                        <Info className="h-4 w-4" />
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 opacity-60 hover:opacity-100">
+                        <Info className="h-3 w-3" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-96 p-4 bg-popover z-50" align="start">
                       <TaskDetailsPopoverContent task={task} />
                     </PopoverContent>
                   </Popover>
+                  <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{task.task_number}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                  <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded">{task.task_number}</span>
-                  {task.description && (
-                    <>
-                      <span>•</span>
-                      <span className="line-clamp-1">{task.description}</span>
-                    </>
+                
+                {/* Badges + Info in one line */}
+                <div className="flex items-center gap-2 flex-wrap text-xs">
+                  {task.task_category && (
+                    <Badge variant="outline" className={`${getCategoryColor(task.task_category)} border-0 text-xs py-0`}>
+                      {TASK_CATEGORIES[task.task_category as TaskCategory]}
+                    </Badge>
                   )}
-                </div>
-              </div>
-              
-              {/* Actions Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
+                  {task.task_category && (
+                    <ApprovalProgressBadge
+                      category={task.task_category}
+                      currentStage={task.current_approval_stage || 0}
+                      approvalStatus={task.approval_status || "draft"}
+                    />
+                  )}
                   {hasItems && (
-                    <>
+                    <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-0 text-xs py-0">
+                      <ListChecks className="mr-1 h-3 w-3" />
+                      {progress.completed}/{progress.total}
+                    </Badge>
+                  )}
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-muted-foreground">
+                    {task.approval_status === 'pending_approval' ? 'Pending Approval' :
+                     task.status === 'completed' ? 'Completed' :
+                     task.status === 'in_progress' ? 'In Progress' : 'Cancelled'}
+                  </span>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-muted-foreground">{task.assigned_to?.full_name || 'Unassigned'}</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-muted-foreground">
+                    {task.due_date ? format(new Date(task.due_date), "MMM dd, yyyy") : 'No due date'}
+                  </span>
+                </div>
+                
+                {/* Progress bar inline if needed */}
+                {showProgress && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Progress value={progressPercent} className="h-1.5 flex-1" />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{Math.round(progressPercent)}%</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: Actions */}
+              <div className="flex items-center gap-1.5">
+                {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      if (hasItems && progress.completed < progress.total) {
+                        toast.error("Please complete all checklist items first");
+                        return;
+                      }
+                      setTaskToSubmit(task.id);
+                      setShowSubmitDialog(true);
+                    }}
+                  >
+                    <Send className="mr-1 h-3 w-3" />
+                    Submit
+                  </Button>
+                )}
+                {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && task.approval_status === 'pending_approval' && (
+                  <TaskApprovalActions
+                    taskId={task.id}
+                    taskName={task.name}
+                    currentStage={task.current_approval_stage || 0}
+                    totalStages={getApprovalWorkflow(task.task_category).totalStages}
+                  />
+                )}
+                {hasItems && !isCompleted && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => handleManageItems(task)}
+                  >
+                    <ListChecks className="mr-1 h-3 w-3" />
+                    Manage
+                  </Button>
+                )}
+                {hasItems && isCompleted && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => handleManageItems(task)}
+                  >
+                    <Eye className="mr-1 h-3 w-3" />
+                    View
+                  </Button>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <MoreVertical className="h-3.5 w-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40 bg-popover z-50">
+                    {!isCompleted && (
                       <DropdownMenuItem 
-                        onClick={() => handleManageItems(task)}
-                        className="cursor-pointer"
+                        onClick={() => handleDelete(task.id)}
+                        className="cursor-pointer text-destructive focus:text-destructive text-sm"
                       >
-                        {isCompleted ? (
-                          <>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Items
-                          </>
-                        ) : (
-                          <>
-                            <ListChecks className="mr-2 h-4 w-4" />
-                            Manage Items
-                          </>
-                        )}
+                        <Trash2 className="mr-2 h-3.5 w-3.5" />
+                        Delete
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  {!isCompleted && (
-                    <DropdownMenuItem 
-                      onClick={() => handleDelete(task.id)}
-                      className="cursor-pointer text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Badges Section */}
-            <div className="flex items-center gap-2 flex-wrap mb-4">
-              {task.task_category && (
-                <Badge variant="outline" className={`${getCategoryColor(task.task_category)} border-0`}>
-                  {TASK_CATEGORIES[task.task_category as TaskCategory]}
-                </Badge>
-              )}
-              {task.task_category && (
-                <ApprovalProgressBadge
-                  category={task.task_category}
-                  currentStage={task.current_approval_stage || 0}
-                  approvalStatus={task.approval_status || "draft"}
-                />
-              )}
-              {hasItems && (
-                <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-0">
-                  <ListChecks className="mr-1 h-3 w-3" />
-                  {progress.completed}/{progress.total}
-                </Badge>
-              )}
-            </div>
-
-            {/* Progress Bar - Only show if not 100% */}
-            {showProgress && (
-              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">Task Progress</span>
-                  <span className="text-xs font-semibold text-foreground">{Math.round(progressPercent)}%</span>
-                </div>
-                <Progress value={progressPercent} className="h-2" />
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            )}
-
-            {/* Info Grid */}
-            <div className="grid grid-cols-3 gap-4 p-3 bg-muted/30 rounded-lg text-sm">
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Status</div>
-                <div className="font-medium">
-                  {task.approval_status === 'pending_approval' ? (
-                    <span className="text-blue-600 dark:text-blue-400">Pending Approval</span>
-                  ) : task.status === 'completed' ? (
-                    <span className="text-success">Completed</span>
-                  ) : task.status === 'in_progress' ? (
-                    <span className="text-warning">In Progress</span>
-                  ) : (
-                    <span className="text-muted-foreground">Cancelled</span>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Assignee</div>
-                <div className="font-medium truncate" title={task.assigned_to?.full_name || 'Unassigned'}>
-                  {task.assigned_to?.full_name || <span className="text-muted-foreground">Unassigned</span>}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Due Date</div>
-                <div className="font-medium">
-                  {task.due_date ? (
-                    <span>{format(new Date(task.due_date), "MMM dd, yyyy")}</span>
-                  ) : (
-                    <span className="text-muted-foreground">No due date</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons - Primary Actions */}
-            <div className="flex items-center gap-2 mt-4">
-              {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
-                <Button
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => {
-                    if (hasItems && progress.completed < progress.total) {
-                      toast.error("Please complete all checklist items first");
-                      return;
-                    }
-                    setTaskToSubmit(task.id);
-                    setShowSubmitDialog(true);
-                  }}
-                >
-                  <Send className="mr-2 h-4 w-4" />
-                  Submit for Approval
-                </Button>
-              )}
-              {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && task.approval_status === 'pending_approval' && (
-                <TaskApprovalActions
-                  taskId={task.id}
-                  taskName={task.name}
-                  currentStage={task.current_approval_stage || 0}
-                  totalStages={getApprovalWorkflow(task.task_category).totalStages}
-                />
-              )}
-              {hasItems && !isCompleted && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => handleManageItems(task)}
-                >
-                  <ListChecks className="mr-2 h-4 w-4" />
-                  Manage Items
-                </Button>
-              )}
-              {isCompleted && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground flex-1 justify-center">
-                  <CheckCircle2 className="h-4 w-4 text-primary" />
-                  <span>Task Completed</span>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -529,17 +472,17 @@ export default function TaskManagement() {
     };
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Pending My Approval */}
         {tasksByStatus.pending_approval.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pb-2 border-b">
-              <h3 className="text-lg font-semibold text-foreground">Pending My Approval</h3>
-              <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pb-1 border-b">
+              <h3 className="text-base font-semibold">Pending My Approval</h3>
+              <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 text-xs">
                 {tasksByStatus.pending_approval.length}
               </Badge>
             </div>
-            <div className="grid gap-4">
+            <div className="space-y-2">
               {tasksByStatus.pending_approval.map(renderTaskCard)}
             </div>
           </div>
@@ -547,14 +490,14 @@ export default function TaskManagement() {
 
         {/* In Progress Tasks */}
         {tasksByStatus.in_progress.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pb-2 border-b">
-              <h3 className="text-lg font-semibold text-foreground">In Progress</h3>
-              <Badge variant="secondary" className="bg-warning/10 text-warning border-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pb-1 border-b">
+              <h3 className="text-base font-semibold">In Progress</h3>
+              <Badge variant="secondary" className="bg-warning/10 text-warning border-0 text-xs">
                 {tasksByStatus.in_progress.length}
               </Badge>
             </div>
-            <div className="grid gap-4">
+            <div className="space-y-2">
               {tasksByStatus.in_progress.map(renderTaskCard)}
             </div>
           </div>
@@ -562,14 +505,14 @@ export default function TaskManagement() {
 
         {/* Completed Tasks */}
         {tasksByStatus.completed.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pb-2 border-b">
-              <h3 className="text-lg font-semibold text-foreground">Completed</h3>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pb-1 border-b">
+              <h3 className="text-base font-semibold">Completed</h3>
+              <Badge variant="secondary" className="bg-success/10 text-success border-0 text-xs">
                 {tasksByStatus.completed.length}
               </Badge>
             </div>
-            <div className="grid gap-4">
+            <div className="space-y-2">
               {tasksByStatus.completed.map(renderTaskCard)}
             </div>
           </div>
@@ -577,14 +520,14 @@ export default function TaskManagement() {
 
         {/* Cancelled Tasks */}
         {tasksByStatus.cancelled.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pb-2 border-b">
-              <h3 className="text-lg font-semibold text-foreground">Cancelled</h3>
-              <Badge variant="secondary" className="bg-destructive/10 text-destructive border-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pb-1 border-b">
+              <h3 className="text-base font-semibold">Cancelled</h3>
+              <Badge variant="secondary" className="bg-destructive/10 text-destructive border-0 text-xs">
                 {tasksByStatus.cancelled.length}
               </Badge>
             </div>
-            <div className="grid gap-4">
+            <div className="space-y-2">
               {tasksByStatus.cancelled.map(renderTaskCard)}
             </div>
           </div>
