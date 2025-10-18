@@ -24,13 +24,33 @@ export const TaskDataCopyStep = ({
 
   const allExtractedData: Map<string, ExtractedFieldData[]> = new Map();
 
+  console.log('TaskDataCopyStep - Mappings:', mappings);
+  console.log('TaskDataCopyStep - Selected Tasks:', selectedTasks);
+
   selectedTasks.forEach(task => {
-    const taskMapping = mappings.find(m => 
-      task.name.includes(m.sof_number) || task.task_category === m.task_category
-    );
+    console.log('Checking task:', {
+      taskName: task.name,
+      taskCategory: task.task_category,
+      checklistItems: task.checklist_items
+    });
+
+    const taskMapping = mappings.find(m => {
+      const matchesSOF = task.name.includes(m.sof_number);
+      const matchesCategory = task.task_category === m.task_category;
+      console.log('Mapping check:', {
+        mappingSOF: m.sof_number,
+        mappingCategory: m.task_category,
+        matchesSOF,
+        matchesCategory
+      });
+      return matchesSOF || matchesCategory;
+    });
+    
+    console.log('Found mapping:', taskMapping);
     
     if (taskMapping) {
       const extracted = extractFieldsFromTask(task, taskMapping);
+      console.log('Extracted data:', extracted);
       if (extracted.length > 0) {
         allExtractedData.set(task.id, extracted);
       }
