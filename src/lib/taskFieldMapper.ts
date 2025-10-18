@@ -26,6 +26,7 @@ export interface TaskData {
   updated_at?: string;
   created_by?: string;
   assignee?: string;
+  task_number?: string;
 }
 
 export interface ExtractedFieldData {

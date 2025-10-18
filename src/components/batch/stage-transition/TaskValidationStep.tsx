@@ -123,6 +123,13 @@ export const TaskValidationStep = ({
                 {task.name}
               </Label>
               
+              {/* Task Number Badge */}
+              {task.task_number && (
+                <Badge variant="secondary" className="font-mono text-xs mt-1 inline-block">
+                  {task.task_number}
+                </Badge>
+              )}
+              
               {/* Status and Progress */}
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {isCompleted ? (
