@@ -213,12 +213,16 @@ export const StageTransitionWizard = ({
       // Filter tasks by current stage
       const stageSpecificTasks = tasks.filter(t => t.lifecycle_stage === currentStage);
       
-      // Check if there are any incomplete stage-specific tasks
+      // Block if no stage-specific tasks have been created
+      if (stageSpecificTasks.length === 0) {
+        return false;
+      }
+      
+      // Block if there are any incomplete stage-specific tasks
       const hasIncompleteStageTasks = stageSpecificTasks.some(task => 
         task.status !== 'completed'
       );
       
-      // Block proceeding if there are incomplete stage tasks
       if (hasIncompleteStageTasks) {
         return false;
       }
@@ -293,7 +297,16 @@ export const StageTransitionWizard = ({
             <Alert variant="destructive" className="w-full">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Complete all required stage-specific tasks before proceeding to the next step.
+                {tasks.filter(t => t.lifecycle_stage === currentStage).length === 0 ? (
+                  <span>
+                    <strong>Cannot proceed:</strong> No stage-specific tasks have been created for the <strong>{currentStage}</strong> stage. 
+                    Please create and complete the required tasks before proceeding.
+                  </span>
+                ) : (
+                  <span>
+                    <strong>Cannot proceed:</strong> Complete all required stage-specific tasks before moving to the next step.
+                  </span>
+                )}
               </AlertDescription>
             </Alert>
           )}
