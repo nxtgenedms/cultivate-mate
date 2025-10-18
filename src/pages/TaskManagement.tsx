@@ -343,8 +343,12 @@ export default function TaskManagement() {
                   <h3 className="text-base font-semibold truncate">{task.name}</h3>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 opacity-60 hover:opacity-100">
-                        <Info className="h-3 w-3" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 w-6 p-0 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                      >
+                        <Info className="h-4 w-4" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-96 p-4 bg-popover z-50" align="start">
