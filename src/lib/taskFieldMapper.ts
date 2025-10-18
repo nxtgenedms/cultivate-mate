@@ -52,14 +52,15 @@ export function extractFieldsFromTask(
 
   // Go through each checklist item and extract mapped values
   task.checklist_items.forEach((item: any) => {
-    const itemKey = item.item_key || item.label?.toLowerCase().replace(/\s+/g, '_');
+    const itemLabel = item.label || item.item_key;
     
-    // Try to find matching mapping (case-insensitive)
+    // Try to find matching mapping (case-insensitive, exact match on label)
     let mappedField: string | undefined;
     let mappingKey: string | undefined;
     
     for (const [key, field] of Object.entries(item_mappings)) {
-      if (key.toLowerCase() === itemKey?.toLowerCase()) {
+      // Direct case-insensitive match on the label
+      if (key.toLowerCase() === itemLabel?.toLowerCase()) {
         mappedField = field as string;
         mappingKey = key;
         break;
