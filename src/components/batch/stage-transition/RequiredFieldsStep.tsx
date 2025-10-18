@@ -156,16 +156,20 @@ export const RequiredFieldsStep = ({
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-3">
+      <div className="space-y-6">
+        <div className="space-y-4">
           <h4 className="text-sm font-medium">Required Information</h4>
-          {fieldRequirements.required.map(field => renderField(field, true))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {fieldRequirements.required.map(field => renderField(field, true))}
+          </div>
         </div>
 
         {fieldRequirements.optional.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h4 className="text-sm font-medium">Optional Information</h4>
-            {fieldRequirements.optional.map(field => renderField(field, false))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {fieldRequirements.optional.map(field => renderField(field, false))}
+            </div>
           </div>
         )}
       </div>
