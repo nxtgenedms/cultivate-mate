@@ -193,7 +193,12 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                       </label>
                       
                       {/* Render input based on item type - Generic logic */}
-                      {item.item_type === 'date' ? (
+                      {item.item_type === 'checkbox' ? (
+                        // Checkbox type: Just the checkbox itself (yes/no), no additional input
+                        <p className="text-xs text-muted-foreground">
+                          Check the box to confirm
+                        </p>
+                      ) : item.item_type === 'date' ? (
                         <Popover open={datePickerOpen === item.id} onOpenChange={(open) => {
                           if (open && !readOnly) {
                             openDatePicker(item.id, item.response_value);
@@ -316,6 +321,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           disabled={readOnly}
                         />
                       ) : (
+                        // Default fallback for unknown types
                         <Textarea
                           placeholder="Add notes..."
                           value={item.notes}
