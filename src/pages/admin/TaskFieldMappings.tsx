@@ -49,7 +49,17 @@ interface FieldMapping {
   batchField: string;
 }
 
-const BATCH_STAGES = ['preclone', 'cloning', 'hardening', 'vegetative', 'flowering', 'harvest', 'drying', 'processing'];
+const BATCH_STAGES = [
+  'preclone',
+  'clone_germination',
+  'hardening',
+  'vegetative',
+  'flowering_grow_room',
+  'preharvest',
+  'harvest',
+  'processing_drying',
+  'packing_storage'
+];
 
 const BATCH_RECORD_FIELDS = [
   'mother_no', 'dome_no', 'clonator_1', 'clonator_2', 'rack_no',
