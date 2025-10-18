@@ -159,10 +159,64 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
         </p>
       </div>
 
-      <div className="p-4 bg-muted/50 rounded-lg border border-border">
-        <p className="text-sm text-muted-foreground">
-          📝 <strong>Note:</strong> Additional details like Strain ID, Mother No, Dome No, etc. will be collected when you transition from <strong>Preclone</strong> to <strong>Clone/Germination</strong> stage.
-        </p>
+      {/* Strain ID */}
+      <div className="space-y-2">
+        <Label htmlFor="strain_id">Strain ID *</Label>
+        <Select
+          value={data?.strain_id || ''}
+          onValueChange={(value) => handleChange('strain_id', value)}
+        >
+          <SelectTrigger id="strain_id">
+            <SelectValue placeholder="Select Strain ID" />
+          </SelectTrigger>
+          <SelectContent>
+            {getValuesByCategory('strain_id').map((item: any) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.value_display}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Mother No */}
+      <div className="space-y-2">
+        <Label htmlFor="mother_no">Mother No *</Label>
+        <Select
+          value={data?.mother_no || ''}
+          onValueChange={(value) => handleChange('mother_no', value)}
+        >
+          <SelectTrigger id="mother_no">
+            <SelectValue placeholder="Select Mother No" />
+          </SelectTrigger>
+          <SelectContent>
+            {getValuesByCategory('mother_id').map((item: any) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.value_display}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Dome No */}
+      <div className="space-y-2">
+        <Label htmlFor="dome_no">Dome No *</Label>
+        <Select
+          value={data?.dome_no || ''}
+          onValueChange={(value) => handleChange('dome_no', value)}
+        >
+          <SelectTrigger id="dome_no">
+            <SelectValue placeholder="Select Dome No" />
+          </SelectTrigger>
+          <SelectContent>
+            {getValuesByCategory('dome_no').map((item: any) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.value_display}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

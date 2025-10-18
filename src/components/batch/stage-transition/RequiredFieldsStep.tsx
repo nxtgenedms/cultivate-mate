@@ -30,11 +30,8 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
   // Transition 1: Preclone to Clone/Germination
   preclone_to_clone_germination: {
     required: [
-      { field: 'strain_id', label: 'Strain ID', type: 'text' },
-      { field: 'mother_no', label: 'Mother No', type: 'text' },
       { field: 'clone_germination_date', label: 'Clone / Germination Date', type: 'date' },
       { field: 'total_clones_plants', label: 'Total Clones / Plants', type: 'number' },
-      { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
     ],
     optional: [
       { field: 'clonator_1', label: 'Clonator 1 Unit', type: 'text' },

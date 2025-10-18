@@ -28,6 +28,21 @@ export function BatchLifecycleWizard({ recordId, onSave, onCancel }: BatchLifecy
       errors.push("Batch Number is required");
     }
     
+    // Check Strain ID
+    if (!formData.strain_id) {
+      errors.push("Strain ID is required");
+    }
+    
+    // Check Mother No
+    if (!formData.mother_no) {
+      errors.push("Mother No is required");
+    }
+    
+    // Check Dome No
+    if (!formData.dome_no) {
+      errors.push("Dome No is required");
+    }
+    
     // If there are validation errors, show them and return
     if (errors.length > 0) {
       const toast = await import('sonner');
