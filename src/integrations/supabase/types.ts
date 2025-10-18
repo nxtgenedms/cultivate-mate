@@ -100,6 +100,7 @@ export type Database = {
           inspection_number_plants: number | null
           inspection_rack_no: string | null
           inspection_table_no: string | null
+          last_transition_tasks: Json | null
           mortality_checked_by: string | null
           mortality_completed_by: string | null
           mortality_general_reason: string | null
@@ -126,6 +127,7 @@ export type Database = {
           processor_sign: string | null
           processor_sign_date: string | null
           rack_no: string | null
+          stage_transition_history: Json | null
           status: string | null
           strain_id: string | null
           tags: string[] | null
@@ -229,6 +231,7 @@ export type Database = {
           inspection_number_plants?: number | null
           inspection_rack_no?: string | null
           inspection_table_no?: string | null
+          last_transition_tasks?: Json | null
           mortality_checked_by?: string | null
           mortality_completed_by?: string | null
           mortality_general_reason?: string | null
@@ -255,6 +258,7 @@ export type Database = {
           processor_sign?: string | null
           processor_sign_date?: string | null
           rack_no?: string | null
+          stage_transition_history?: Json | null
           status?: string | null
           strain_id?: string | null
           tags?: string[] | null
@@ -358,6 +362,7 @@ export type Database = {
           inspection_number_plants?: number | null
           inspection_rack_no?: string | null
           inspection_table_no?: string | null
+          last_transition_tasks?: Json | null
           mortality_checked_by?: string | null
           mortality_completed_by?: string | null
           mortality_general_reason?: string | null
@@ -384,6 +389,7 @@ export type Database = {
           processor_sign?: string | null
           processor_sign_date?: string | null
           rack_no?: string | null
+          stage_transition_history?: Json | null
           status?: string | null
           strain_id?: string | null
           tags?: string[] | null
@@ -1184,6 +1190,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      task_field_mappings: {
+        Row: {
+          applicable_stages: string[]
+          created_at: string | null
+          field_mappings: Json
+          id: string
+          is_active: boolean | null
+          sof_number: string
+          task_category: string
+          updated_at: string | null
+        }
+        Insert: {
+          applicable_stages: string[]
+          created_at?: string | null
+          field_mappings: Json
+          id?: string
+          is_active?: boolean | null
+          sof_number: string
+          task_category: string
+          updated_at?: string | null
+        }
+        Update: {
+          applicable_stages?: string[]
+          created_at?: string | null
+          field_mappings?: Json
+          id?: string
+          is_active?: boolean | null
+          sof_number?: string
+          task_category?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       task_notifications: {
         Row: {
