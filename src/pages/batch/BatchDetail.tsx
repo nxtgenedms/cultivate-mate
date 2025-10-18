@@ -440,13 +440,14 @@ export default function BatchDetail() {
                                     </Badge>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                  <span>{task.task_number}</span>
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  <Badge variant="secondary" className="font-mono text-xs">
+                                    {task.task_number}
+                                  </Badge>
                                   {task.description && (
-                                    <>
-                                      <span>•</span>
-                                      <span className="line-clamp-1">{task.description}</span>
-                                    </>
+                                    <span className="text-sm text-muted-foreground line-clamp-1">
+                                      {task.description}
+                                    </span>
                                   )}
                                 </div>
                               </div>
