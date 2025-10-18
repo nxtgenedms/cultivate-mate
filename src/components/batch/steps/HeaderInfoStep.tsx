@@ -24,31 +24,36 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
 
   // Fetch lookup values for dropdowns
   const { data: lookupCategories } = useQuery({
-    queryKey: ['lookup-categories'],
+    queryKey: ['lookup-categories-batch-create'],
     queryFn: async () => {
+      console.log('Fetching lookup categories...');
       const { data, error } = await supabase
         .from('lookup_categories')
-        .select('id, category_key')
-        .in('category_key', ['strain_id', 'mother_id', 'dome_no']);
+        .select('id, category_key, category_name')
+        .in('category_key', ['strain_id', 'mother_id', 'dome_no'])
+        .eq('is_active', true);
+      console.log('Categories result:', { data, error });
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
   const { data: lookupValues } = useQuery({
-    queryKey: ['lookup-values', lookupCategories],
-    enabled: !!lookupCategories,
+    queryKey: ['lookup-values-batch-create', lookupCategories],
+    enabled: !!lookupCategories && lookupCategories.length > 0,
     queryFn: async () => {
-      if (!lookupCategories) return [];
+      if (!lookupCategories || lookupCategories.length === 0) return [];
       const categoryIds = lookupCategories.map(c => c.id);
+      console.log('Fetching lookup values for categories:', categoryIds);
       const { data, error } = await supabase
         .from('lookup_values')
-        .select('id, category_id, value_key, value_display, lookup_categories(category_key)')
+        .select('id, category_id, value_key, value_display, lookup_categories!inner(category_key)')
         .in('category_id', categoryIds)
         .eq('is_active', true)
         .order('sort_order');
+      console.log('Values result:', { data, error });
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
