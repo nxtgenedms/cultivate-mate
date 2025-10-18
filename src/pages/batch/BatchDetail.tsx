@@ -527,6 +527,33 @@ export default function BatchDetail() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      {/* Stage Progress & Action */}
+                      {batch.current_stage === 'vegetative' && (
+                        <div className="mb-6 p-4 border rounded-lg bg-green-600/5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <Badge className={cn("border mb-2", getStageColor(batch.current_stage))}>
+                                {getStageLabel(batch.current_stage)}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">{daysInStage} days in current stage</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-3xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                              <p className="text-xs text-muted-foreground">Complete</p>
+                            </div>
+                          </div>
+                          <Progress value={stageProgress} className="h-2 mb-4" />
+                          <PhaseChangeButton
+                            batchId={batch.id}
+                            batchNumber={batch.batch_number}
+                            currentStage={batch.current_stage}
+                            currentQuantity={getCurrentQuantity()}
+                            currentDome={batch.dome_no}
+                            disabled={batch.status !== 'in_progress'}
+                          />
+                        </div>
+                      )}
+                      
                       <div className="grid gap-4 md:grid-cols-2 pt-4">
                         <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
                           <div className="flex justify-between text-sm">
@@ -592,6 +619,33 @@ export default function BatchDetail() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      {/* Stage Progress & Action */}
+                      {batch.current_stage === 'flowering' && (
+                        <div className="mb-6 p-4 border rounded-lg bg-pink-600/5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <Badge className={cn("border mb-2", getStageColor(batch.current_stage))}>
+                                {getStageLabel(batch.current_stage)}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">{daysInStage} days in current stage</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-3xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                              <p className="text-xs text-muted-foreground">Complete</p>
+                            </div>
+                          </div>
+                          <Progress value={stageProgress} className="h-2 mb-4" />
+                          <PhaseChangeButton
+                            batchId={batch.id}
+                            batchNumber={batch.batch_number}
+                            currentStage={batch.current_stage}
+                            currentQuantity={getCurrentQuantity()}
+                            currentDome={batch.dome_no}
+                            disabled={batch.status !== 'in_progress'}
+                          />
+                        </div>
+                      )}
+                      
                       <div className="grid gap-4 md:grid-cols-2 pt-4">
                         <div className="space-y-2 border-l-2 border-pink-600/20 pl-4">
                           <div className="flex justify-between text-sm">
@@ -681,6 +735,33 @@ export default function BatchDetail() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
+                      {/* Stage Progress & Action */}
+                      {batch.current_stage === 'harvest' && (
+                        <div className="mb-6 p-4 border rounded-lg bg-orange-600/5">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <Badge className={cn("border mb-2", getStageColor(batch.current_stage))}>
+                                {getStageLabel(batch.current_stage)}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">{daysInStage} days in current stage</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-3xl font-bold text-primary">{Math.round(stageProgress)}%</p>
+                              <p className="text-xs text-muted-foreground">Complete</p>
+                            </div>
+                          </div>
+                          <Progress value={stageProgress} className="h-2 mb-4" />
+                          <PhaseChangeButton
+                            batchId={batch.id}
+                            batchNumber={batch.batch_number}
+                            currentStage={batch.current_stage}
+                            currentQuantity={getCurrentQuantity()}
+                            currentDome={batch.dome_no}
+                            disabled={batch.status !== 'in_progress'}
+                          />
+                        </div>
+                      )}
+                      
                       <div className="grid gap-6 md:grid-cols-2 pt-4">
                         <div className="space-y-3 border-l-2 border-orange-600/20 pl-4">
                           <h4 className="font-semibold text-sm text-muted-foreground">Harvest Details</h4>
