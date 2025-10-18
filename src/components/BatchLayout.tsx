@@ -40,16 +40,16 @@ export function BatchLayout({ children }: BatchLayoutProps) {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'flex items-center gap-2 min-w-fit py-2.5 px-3 rounded-lg transition-all',
+                    'flex items-center gap-1.5 min-w-fit py-1.5 px-2.5 rounded-lg transition-all',
                     isActive
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   )}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <Icon className="h-3.5 w-3.5 flex-shrink-0" />
                   <div className="flex flex-col">
-                    <span className="font-medium text-sm">{item.label}</span>
-                    <span className="text-xs opacity-70">{item.description}</span>
+                    <span className="font-medium text-xs leading-tight">{item.label}</span>
+                    <span className="text-[10px] opacity-70 leading-tight">{item.description}</span>
                   </div>
                 </Link>
               );
