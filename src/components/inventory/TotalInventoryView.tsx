@@ -7,7 +7,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface InventorySummary {
-  product_name: string;
+  receipt_type: string;
   total_received: number;
   total_used: number;
   available: number;
@@ -44,16 +44,22 @@ export const TotalInventoryView = () => {
     },
   });
 
-  // Calculate inventory summary
+  // Calculate inventory summary by receipt type
   const inventorySummary: InventorySummary[] = (() => {
     const summaryMap = new Map<string, InventorySummary>();
-
-    // Add receipts
+    
+    // Create a mapping of product_name to receipt_type from receipts
+    const productToReceiptType = new Map<string, string>();
     receipts.forEach((receipt) => {
-      const key = `${receipt.product_name}-${receipt.unit}`;
+      productToReceiptType.set(receipt.product_name, receipt.receipt_type);
+    });
+
+    // Add receipts grouped by receipt_type
+    receipts.forEach((receipt) => {
+      const key = `${receipt.receipt_type}-${receipt.unit}`;
       if (!summaryMap.has(key)) {
         summaryMap.set(key, {
-          product_name: receipt.product_name,
+          receipt_type: receipt.receipt_type,
           total_received: 0,
           total_used: 0,
           available: 0,
@@ -64,20 +70,23 @@ export const TotalInventoryView = () => {
       summary.total_received += Number(receipt.quantity);
     });
 
-    // Subtract usage
+    // Subtract usage (map product_name to receipt_type)
     usageRecords.forEach((usage) => {
-      const key = `${usage.product_name}-${usage.unit}`;
-      if (!summaryMap.has(key)) {
-        summaryMap.set(key, {
-          product_name: usage.product_name,
-          total_received: 0,
-          total_used: 0,
-          available: 0,
-          unit: usage.unit,
-        });
+      const receiptType = productToReceiptType.get(usage.product_name);
+      if (receiptType) {
+        const key = `${receiptType}-${usage.unit}`;
+        if (!summaryMap.has(key)) {
+          summaryMap.set(key, {
+            receipt_type: receiptType,
+            total_received: 0,
+            total_used: 0,
+            available: 0,
+            unit: usage.unit,
+          });
+        }
+        const summary = summaryMap.get(key)!;
+        summary.total_used += Number(usage.quantity);
       }
-      const summary = summaryMap.get(key)!;
-      summary.total_used += Number(usage.quantity);
     });
 
     // Calculate available
@@ -94,13 +103,13 @@ export const TotalInventoryView = () => {
       <Card>
         <CardHeader>
           <CardTitle>Inventory Summary</CardTitle>
-          <CardDescription>Total available quantity by product</CardDescription>
+          <CardDescription>Total available quantity by receipt type</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product Name</TableHead>
+                <TableHead>Receipt Type</TableHead>
                 <TableHead className="text-right">Total Received</TableHead>
                 <TableHead className="text-right">Total Used</TableHead>
                 <TableHead className="text-right">Available</TableHead>
@@ -117,7 +126,7 @@ export const TotalInventoryView = () => {
               ) : (
                 inventorySummary.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{item.product_name}</TableCell>
+                    <TableCell className="font-medium capitalize">{item.receipt_type}</TableCell>
                     <TableCell className="text-right">
                       {item.total_received.toFixed(2)} {item.unit}
                     </TableCell>
