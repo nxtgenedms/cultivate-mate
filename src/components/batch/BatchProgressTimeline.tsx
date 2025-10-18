@@ -100,27 +100,27 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Lifecycle Progress</CardTitle>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Page {currentPage} of 2</span>
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => setCurrentPage(2)}
-                disabled={currentPage === 2}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+            </Button>
+            <Badge variant="secondary" className="h-8 px-4 text-sm font-semibold">
+              Page {currentPage} of 2
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3"
+              onClick={() => setCurrentPage(2)}
+              disabled={currentPage === 2}
+            >
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         </div>
       </CardHeader>
