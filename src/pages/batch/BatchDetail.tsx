@@ -225,6 +225,11 @@ export default function BatchDetail() {
     return lookupValues?.find(v => v.id === id)?.value_display || id;
   };
 
+  const getUserName = (userId: string | null) => {
+    if (!userId) return 'N/A';
+    return profiles?.find(p => p.id === userId)?.full_name || 'N/A';
+  };
+
   if (isLoading) {
     return (
       <BatchLayout>
@@ -505,11 +510,11 @@ export default function BatchDetail() {
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Completed By:</span>
-                                <span className="font-medium">{batch.hardening_completed_by || 'N/A'}</span>
+                                <span className="font-medium">{getUserName(batch.hardening_completed_by)}</span>
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Checked By:</span>
-                                <span className="font-medium">{batch.hardening_checked_by || 'N/A'}</span>
+                                <span className="font-medium">{getUserName(batch.hardening_checked_by)}</span>
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Mortalities:</span>
@@ -593,7 +598,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Completed By:</span>
-                            <span className="font-medium">{batch.veg_completed_by || 'N/A'}</span>
+                            <span className="font-medium">{getUserName(batch.veg_completed_by)}</span>
                           </div>
                         </div>
                         <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
@@ -619,7 +624,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Mortality Checked By:</span>
-                            <span className="font-medium">{batch.veg_checked_by || 'N/A'}</span>
+                            <span className="font-medium">{getUserName(batch.veg_checked_by)}</span>
                           </div>
                         </div>
                       </div>
@@ -717,7 +722,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Completed By:</span>
-                            <span className="font-medium">{batch.flowering_completed_by || 'N/A'}</span>
+                            <span className="font-medium">{getUserName(batch.flowering_completed_by)}</span>
                           </div>
                         </div>
                         <div className="space-y-2 border-l-2 border-pink-600/20 pl-4">
@@ -767,7 +772,7 @@ export default function BatchDetail() {
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Mortality Checked By:</span>
-                            <span className="font-medium">{batch.flowering_checked_by || 'N/A'}</span>
+                            <span className="font-medium">{getUserName(batch.flowering_checked_by)}</span>
                           </div>
                         </div>
                       </div>
@@ -835,7 +840,7 @@ export default function BatchDetail() {
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Completed By:</span>
-                              <span className="font-medium">{batch.harvest_completed_by || 'N/A'}</span>
+                              <span className="font-medium">{getUserName(batch.harvest_completed_by)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Inspection Date:</span>
