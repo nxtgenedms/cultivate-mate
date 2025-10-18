@@ -112,17 +112,35 @@ export const RequiredFieldsStep = ({
   const transitionKey = `${currentStage}_to_${nextStage}`;
   const fieldRequirements = STAGE_FIELD_REQUIREMENTS[transitionKey];
 
-  // Fetch active profiles for user selection
+  // Fetch active profiles with their roles for user selection
   const { data: profiles } = useQuery({
-    queryKey: ['profiles-active'],
+    queryKey: ['profiles-with-roles'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select(`
+          id, 
+          full_name, 
+          email,
+          user_roles:user_roles(role)
+        `)
         .eq('is_active', true)
         .order('full_name');
       if (error) throw error;
-      return data;
+      
+      // Transform to include role display
+      return data?.map(profile => ({
+        ...profile,
+        roleDisplay: Array.isArray(profile.user_roles) && profile.user_roles.length > 0
+          ? profile.user_roles.map((r: any) => {
+              // Format role for display
+              const role = r.role as string;
+              return role.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(' ');
+            }).join(', ')
+          : 'No Role'
+      })) || [];
     },
   });
 
@@ -172,7 +190,10 @@ export const RequiredFieldsStep = ({
               ))}
               {fieldDef.options === 'profiles' && profiles?.map((profile) => (
                 <SelectItem key={profile.id} value={profile.id}>
-                  {profile.full_name}
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-medium">{profile.full_name}</span>
+                    <span className="text-xs text-muted-foreground ml-2">({profile.roleDisplay})</span>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
