@@ -290,52 +290,6 @@ export default function BatchDetail() {
           </Button>
         </div>
 
-        {/* Key Batch Metrics */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="border rounded-lg p-3 bg-muted/30">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-muted-foreground">Strain ID</p>
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-xl font-bold">{getDisplayValue(batch.strain_id || '')}</p>
-              </div>
-
-              <div className="border rounded-lg p-3 bg-muted/30">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-muted-foreground">Mother ID</p>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-xl font-bold">{batch.mother_no || 'N/A'}</p>
-              </div>
-
-              <div className="border rounded-lg p-3 bg-muted/30">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-muted-foreground">Total Plants</p>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-xl font-bold">{batch.total_clones_plants || 0}</p>
-                {batch.clonator_mortalities > 0 && (
-                  <p className="text-xs text-red-500 leading-none mt-1">-{batch.clonator_mortalities} lost</p>
-                )}
-              </div>
-
-              <div className="border rounded-lg p-3 bg-muted/30">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-muted-foreground">Start Date</p>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-base font-bold">
-                  {batch.clone_germination_date 
-                    ? format(new Date(batch.clone_germination_date), 'MMM d, yyyy')
-                    : 'N/A'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Tabbed Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
