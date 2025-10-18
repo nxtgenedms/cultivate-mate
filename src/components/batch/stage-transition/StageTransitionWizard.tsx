@@ -175,10 +175,17 @@ export const StageTransitionWizard = ({
   const handleFieldDataSelect = (data: ExtractedFieldData[]) => {
     setCopiedFieldData(data);
     
-    // Auto-fill form data
+    // Auto-fill form data with proper formatting
     const newFormData = { ...formData };
     data.forEach(item => {
-      newFormData[item.fieldName] = item.value;
+      let value = item.value;
+      
+      // If value looks like a datetime string, extract just the date part
+      if (typeof value === 'string' && value.includes('T')) {
+        value = value.split('T')[0];
+      }
+      
+      newFormData[item.fieldName] = value;
     });
     setFormData(newFormData);
   };
