@@ -169,7 +169,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
           <SelectTrigger id="strain_id">
             <SelectValue placeholder="Select Strain ID" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background z-50">
             {getValuesByCategory('strain_id').map((item: any) => (
               <SelectItem key={item.id} value={item.id}>
                 {item.value_display}
@@ -189,7 +189,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
           <SelectTrigger id="mother_no">
             <SelectValue placeholder="Select Mother No" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background z-50">
             {getValuesByCategory('mother_id').map((item: any) => (
               <SelectItem key={item.id} value={item.id}>
                 {item.value_display}
@@ -209,7 +209,7 @@ export function HeaderInfoStep({ data, onChange }: HeaderInfoStepProps) {
           <SelectTrigger id="dome_no">
             <SelectValue placeholder="Select Dome No" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background z-50">
             {getValuesByCategory('dome_no').map((item: any) => (
               <SelectItem key={item.id} value={item.id}>
                 {item.value_display}
