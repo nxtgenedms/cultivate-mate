@@ -195,6 +195,13 @@ export const StageTransitionWizard = ({
       ...formData,
     };
 
+    console.log('Stage Transition Update Data:', {
+      currentStage,
+      nextStage,
+      updateData,
+      formData
+    });
+
     updateBatchMutation.mutate(updateData);
   };
 
