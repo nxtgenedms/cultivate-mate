@@ -59,6 +59,7 @@ export type Database = {
           final_processor_sign_date: string | null
           final_qa_sign: string | null
           final_qa_sign_date: string | null
+          flowering_checked_by: string | null
           flowering_completed_by: string | null
           flowering_diseases: boolean | null
           flowering_grower_sign: string | null
@@ -72,6 +73,7 @@ export type Database = {
           flowering_qa_sign_date: string | null
           flowering_table_no: string | null
           hardening_area_placed: string | null
+          hardening_checked_by: string | null
           hardening_completed_by: string | null
           hardening_grower_sign: string | null
           hardening_grower_sign_date: string | null
@@ -138,6 +140,7 @@ export type Database = {
           updated_at: string | null
           using_extra_lights: boolean | null
           veg_actual_days: number | null
+          veg_checked_by: string | null
           veg_completed_by: string | null
           veg_diseases: boolean | null
           veg_expected_days: number | null
@@ -190,6 +193,7 @@ export type Database = {
           final_processor_sign_date?: string | null
           final_qa_sign?: string | null
           final_qa_sign_date?: string | null
+          flowering_checked_by?: string | null
           flowering_completed_by?: string | null
           flowering_diseases?: boolean | null
           flowering_grower_sign?: string | null
@@ -203,6 +207,7 @@ export type Database = {
           flowering_qa_sign_date?: string | null
           flowering_table_no?: string | null
           hardening_area_placed?: string | null
+          hardening_checked_by?: string | null
           hardening_completed_by?: string | null
           hardening_grower_sign?: string | null
           hardening_grower_sign_date?: string | null
@@ -269,6 +274,7 @@ export type Database = {
           updated_at?: string | null
           using_extra_lights?: boolean | null
           veg_actual_days?: number | null
+          veg_checked_by?: string | null
           veg_completed_by?: string | null
           veg_diseases?: boolean | null
           veg_expected_days?: number | null
@@ -321,6 +327,7 @@ export type Database = {
           final_processor_sign_date?: string | null
           final_qa_sign?: string | null
           final_qa_sign_date?: string | null
+          flowering_checked_by?: string | null
           flowering_completed_by?: string | null
           flowering_diseases?: boolean | null
           flowering_grower_sign?: string | null
@@ -334,6 +341,7 @@ export type Database = {
           flowering_qa_sign_date?: string | null
           flowering_table_no?: string | null
           hardening_area_placed?: string | null
+          hardening_checked_by?: string | null
           hardening_completed_by?: string | null
           hardening_grower_sign?: string | null
           hardening_grower_sign_date?: string | null
@@ -400,6 +408,7 @@ export type Database = {
           updated_at?: string | null
           using_extra_lights?: boolean | null
           veg_actual_days?: number | null
+          veg_checked_by?: string | null
           veg_completed_by?: string | null
           veg_diseases?: boolean | null
           veg_expected_days?: number | null

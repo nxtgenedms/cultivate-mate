@@ -4,6 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { ExtractedFieldData } from "@/lib/taskFieldMapper";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RequiredFieldsStepProps {
   currentStage: string;
@@ -14,16 +16,25 @@ interface RequiredFieldsStepProps {
   onFieldChange: (field: string, value: any) => void;
 }
 
+interface FieldDefinition {
+  field: string;
+  label: string;
+  type: string;
+  options?: 'profiles' | 'domes';
+}
+
 const STAGE_FIELD_REQUIREMENTS: Record<string, {
-  required: { field: string; label: string; type: string }[];
-  optional: { field: string; label: string; type: string }[];
+  required: FieldDefinition[];
+  optional: FieldDefinition[];
 }> = {
   cloning_to_vegetative: {
     required: [
       { field: 'actual_rooting_date', label: 'Actual Rooting Date', type: 'date' },
       { field: 'move_to_hardening_date', label: 'Move to Hardening Date', type: 'date' },
       { field: 'hardening_number_clones', label: 'Number of Clones (Hardening)', type: 'number' },
-      { field: 'dome_no', label: 'Dome Number', type: 'select' },
+      { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
+      { field: 'move_to_veg_date', label: 'Move to Veg Date', type: 'date' },
+      { field: 'veg_number_plants', label: 'Number of Plants (Veg)', type: 'number' },
     ],
     optional: [
       // Clonator 2 fields
@@ -33,13 +44,18 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'clonator_2_area_placed', label: 'Clonator 2 - Area Placed', type: 'text' },
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
       { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },
-      { field: 'clonator_2_completed_by', label: 'Clonator 2 - Completed By', type: 'text' },
       
       // Hardening stage fields
       { field: 'hardening_area_placed', label: 'Hardening - Area Placed', type: 'text' },
       { field: 'hardening_rack_no', label: 'Hardening - Rack No', type: 'text' },
       { field: 'hardening_no_of_days', label: 'Hardening - No of Days', type: 'number' },
-      { field: 'hardening_completed_by', label: 'Hardening - Completed By', type: 'text' },
+      { field: 'hardening_completed_by', label: 'Hardening - Completed By', type: 'select', options: 'profiles' },
+      { field: 'hardening_checked_by', label: 'Hardening - Checked By', type: 'select', options: 'profiles' },
+      
+      // Veg preparation fields
+      { field: 'veg_table_no', label: 'Veg - Table No', type: 'text' },
+      { field: 'veg_expected_days', label: 'Veg - Expected Days', type: 'number' },
+      { field: 'veg_completed_by', label: 'Veg - Completed By', type: 'select', options: 'profiles' },
     ],
   },
   vegetative_to_flowering: {
@@ -47,20 +63,40 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'move_to_flowering_date', label: 'Move to Flowering Date', type: 'date' },
       { field: 'flowering_number_plants', label: 'Number of Plants', type: 'number' },
       { field: 'veg_actual_days', label: 'Actual Days in Veg', type: 'number' },
+      { field: 'flowering_table_no', label: 'Flowering Table No', type: 'text' },
     ],
     optional: [
-      { field: 'veg_diseases', label: 'Diseases Detected', type: 'checkbox' },
-      { field: 'veg_pests', label: 'Pests Detected', type: 'checkbox' },
+      { field: 'veg_diseases', label: 'Veg - Diseases Detected', type: 'checkbox' },
+      { field: 'veg_pests', label: 'Veg - Pests Detected', type: 'checkbox' },
+      { field: 'veg_checked_by', label: 'Veg - Mortality Checked By', type: 'select', options: 'profiles' },
+      
+      // Flowering preparation fields
+      { field: 'nutrients_used', label: 'Flowering - Nutrients Used', type: 'text' },
+      { field: 'using_extra_lights', label: 'Flowering - Using Extra Lights', type: 'checkbox' },
+      { field: 'extra_lights_from_day', label: 'Extra Lights - From Day', type: 'number' },
+      { field: 'extra_lights_no_of_days', label: 'Extra Lights - No of Days', type: 'number' },
+      { field: 'eight_nodes', label: 'Flowering - Eight Nodes', type: 'checkbox' },
+      { field: 'increase_in_yield', label: 'Flowering - Increase in Yield', type: 'text' },
+      { field: 'expected_flowering_date', label: 'Expected Flowering Date', type: 'date' },
+      { field: 'estimated_days', label: 'Estimated Days (Flowering)', type: 'number' },
+      { field: 'flowering_completed_by', label: 'Flowering - Completed By', type: 'select', options: 'profiles' },
     ],
   },
   flowering_to_harvest: {
     required: [
       { field: 'harvest_date', label: 'Harvest Date', type: 'date' },
-      { field: 'harvest_number_plants', label: 'Number of Plants', type: 'number' },
+      { field: 'harvest_number_plants', label: 'Number of Plants Harvested', type: 'number' },
+      { field: 'actual_flowering_date', label: 'Actual Flowering Date', type: 'date' },
+      { field: 'actual_days', label: 'Actual Days (Flowering)', type: 'number' },
     ],
     optional: [
-      { field: 'flowering_diseases', label: 'Diseases Detected', type: 'checkbox' },
-      { field: 'flowering_pests', label: 'Pests Detected', type: 'checkbox' },
+      { field: 'flowering_diseases', label: 'Flowering - Diseases Detected', type: 'checkbox' },
+      { field: 'flowering_pests', label: 'Flowering - Pests Detected', type: 'checkbox' },
+      { field: 'flowering_checked_by', label: 'Flowering - Mortality Checked By', type: 'select', options: 'profiles' },
+      
+      // Harvest preparation fields
+      { field: 'harvest_table_no', label: 'Harvest - Table No', type: 'text' },
+      { field: 'harvest_completed_by', label: 'Harvest - Completed By', type: 'select', options: 'profiles' },
     ],
   },
 };
@@ -76,6 +112,20 @@ export const RequiredFieldsStep = ({
   const transitionKey = `${currentStage}_to_${nextStage}`;
   const fieldRequirements = STAGE_FIELD_REQUIREMENTS[transitionKey];
 
+  // Fetch active profiles for user selection
+  const { data: profiles } = useQuery({
+    queryKey: ['profiles-active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('is_active', true)
+        .order('full_name');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   if (!fieldRequirements) {
     return (
       <Alert variant="destructive">
@@ -87,7 +137,7 @@ export const RequiredFieldsStep = ({
     );
   }
 
-  const renderField = (fieldDef: { field: string; label: string; type: string }, isRequired: boolean) => {
+  const renderField = (fieldDef: FieldDefinition, isRequired: boolean) => {
     const isCopied = copiedFieldData.some(d => d.fieldName === fieldDef.field);
     
     return (
@@ -102,18 +152,27 @@ export const RequiredFieldsStep = ({
           )}
         </Label>
         
-        {fieldDef.type === 'select' && fieldDef.field === 'dome_no' ? (
+        {fieldDef.type === 'select' ? (
           <Select
             value={formData[fieldDef.field] || ''}
             onValueChange={(value) => onFieldChange(fieldDef.field, value)}
           >
             <SelectTrigger id={fieldDef.field}>
-              <SelectValue placeholder="Select dome..." />
+              <SelectValue placeholder={
+                fieldDef.options === 'profiles' ? 'Select user...' : 
+                fieldDef.options === 'domes' ? 'Select dome...' : 
+                'Select...'
+              } />
             </SelectTrigger>
             <SelectContent>
-              {domeValues.map((dome) => (
+              {fieldDef.options === 'domes' && domeValues.map((dome) => (
                 <SelectItem key={dome.value_key} value={dome.value_key}>
                   {dome.value_display}
+                </SelectItem>
+              ))}
+              {fieldDef.options === 'profiles' && profiles?.map((profile) => (
+                <SelectItem key={profile.id} value={profile.id}>
+                  {profile.full_name}
                 </SelectItem>
               ))}
             </SelectContent>

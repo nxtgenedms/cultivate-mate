@@ -55,7 +55,17 @@ export default function BatchDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('batch_lifecycle_records')
-        .select('*, created_by_profile:profiles!batch_lifecycle_records_created_by_fkey(full_name)')
+        .select(`
+          *, 
+          created_by_profile:profiles!batch_lifecycle_records_created_by_fkey(full_name),
+          hardening_completed_profile:profiles!batch_lifecycle_records_hardening_completed_by_fkey(full_name),
+          hardening_checked_profile:profiles!batch_lifecycle_records_hardening_checked_by_fkey(full_name),
+          veg_completed_profile:profiles!batch_lifecycle_records_veg_completed_by_fkey(full_name),
+          veg_checked_profile:profiles!batch_lifecycle_records_veg_checked_by_fkey(full_name),
+          flowering_completed_profile:profiles!batch_lifecycle_records_flowering_completed_by_fkey(full_name),
+          flowering_checked_profile:profiles!batch_lifecycle_records_flowering_checked_by_fkey(full_name),
+          harvest_completed_profile:profiles!batch_lifecycle_records_harvest_completed_by_fkey(full_name)
+        `)
         .eq('id', id)
         .single();
 
@@ -501,6 +511,22 @@ export default function BatchDetail() {
                                 <span className="font-medium">{batch.hardening_no_of_days || 'N/A'}</span>
                               </div>
                               <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Completed By:</span>
+                                <span className="font-medium">
+                                  {Array.isArray(batch.hardening_completed_profile) && batch.hardening_completed_profile.length > 0
+                                    ? batch.hardening_completed_profile[0].full_name
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Checked By:</span>
+                                <span className="font-medium">
+                                  {Array.isArray(batch.hardening_checked_profile) && batch.hardening_checked_profile.length > 0
+                                    ? batch.hardening_checked_profile[0].full_name
+                                    : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Mortalities:</span>
                                 <span className="font-medium">
                                   {Array.isArray(batch.hardening_mortalities) && batch.hardening_mortalities.length > 0
@@ -580,6 +606,14 @@ export default function BatchDetail() {
                             <span className="text-muted-foreground">Actual Days:</span>
                             <span className="font-medium">{batch.veg_actual_days || 'N/A'}</span>
                           </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Completed By:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.veg_completed_profile) && batch.veg_completed_profile.length > 0
+                                ? batch.veg_completed_profile[0].full_name
+                                : 'N/A'}
+                            </span>
+                          </div>
                         </div>
                         <div className="space-y-2 border-l-2 border-green-600/20 pl-4">
                           <div className="flex justify-between text-sm">
@@ -600,6 +634,14 @@ export default function BatchDetail() {
                               {Array.isArray(batch.veg_mortalities) && batch.veg_mortalities.length > 0
                                 ? batch.veg_mortalities.length
                                 : 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Mortality Checked By:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.veg_checked_profile) && batch.veg_checked_profile.length > 0
+                                ? batch.veg_checked_profile[0].full_name
+                                : 'N/A'}
                             </span>
                           </div>
                         </div>
@@ -665,6 +707,14 @@ export default function BatchDetail() {
                             <span className="font-medium">{batch.flowering_table_no || 'N/A'}</span>
                           </div>
                           <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Nutrients Used:</span>
+                            <span className="font-medium">{batch.nutrients_used || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Increase in Yield:</span>
+                            <span className="font-medium">{batch.increase_in_yield || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Expected Date:</span>
                             <span className="font-medium">
                               {batch.expected_flowering_date 
@@ -673,10 +723,26 @@ export default function BatchDetail() {
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Estimated Days:</span>
+                            <span className="font-medium">{batch.estimated_days || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Actual Date:</span>
                             <span className="font-medium">
                               {batch.actual_flowering_date 
                                 ? format(new Date(batch.actual_flowering_date), 'MMM d, yyyy')
+                                : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Actual Days:</span>
+                            <span className="font-medium">{batch.actual_days || 'N/A'}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Completed By:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.flowering_completed_profile) && batch.flowering_completed_profile.length > 0
+                                ? batch.flowering_completed_profile[0].full_name
                                 : 'N/A'}
                             </span>
                           </div>
@@ -717,6 +783,22 @@ export default function BatchDetail() {
                             <Badge variant={batch.flowering_pests ? "destructive" : "secondary"} className="text-xs">
                               {batch.flowering_pests ? "Yes" : "No"}
                             </Badge>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Mortalities:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.flowering_mortalities) && batch.flowering_mortalities.length > 0
+                                ? batch.flowering_mortalities.length
+                                : 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Mortality Checked By:</span>
+                            <span className="font-medium">
+                              {Array.isArray(batch.flowering_checked_profile) && batch.flowering_checked_profile.length > 0
+                                ? batch.flowering_checked_profile[0].full_name
+                                : 'N/A'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -781,6 +863,14 @@ export default function BatchDetail() {
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Table No:</span>
                               <span className="font-medium">{batch.harvest_table_no || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Completed By:</span>
+                              <span className="font-medium">
+                                {Array.isArray(batch.harvest_completed_profile) && batch.harvest_completed_profile.length > 0
+                                  ? batch.harvest_completed_profile[0].full_name
+                                  : 'N/A'}
+                              </span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Inspection Date:</span>
