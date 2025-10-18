@@ -287,7 +287,19 @@ export default function BatchDetail() {
           <TabsContent value="overview" className="space-y-4 mt-4">
             {/* Lifecycle Timeline */}
             <BatchProgressTimeline 
+              batchId={batch.id}
+              batchNumber={batch.batch_number}
               currentStage={batch.current_stage}
+              currentQuantity={
+                batch.current_stage === 'preclone' ? 0 :
+                batch.current_stage === 'clone_germination' ? batch.total_clones_plants :
+                batch.current_stage === 'hardening' ? batch.hardening_number_clones :
+                batch.current_stage === 'vegetative' ? batch.veg_number_plants :
+                batch.current_stage === 'flowering_grow_room' ? batch.flowering_number_plants :
+                batch.current_stage === 'harvest' ? batch.harvest_number_plants :
+                batch.current_stage === 'processing_drying' ? batch.drying_total_plants : 0
+              }
+              currentDome={batch.dome_no || ''}
               stageCompletionDates={{
                 preclone: null,
                 clone_germination: batch.clone_germination_date,

@@ -6,8 +6,11 @@ import { Check, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STAGE_ORDER, getStageLabel, getStageIcon, getStageColor } from '@/lib/batchUtils';
 import { format } from 'date-fns';
+import { PhaseChangeButton } from './PhaseChangeButton';
 
 interface BatchProgressTimelineProps {
+  batchId: string;
+  batchNumber: string;
   currentStage: string;
   completedStages?: string[];
   stageCompletionDates?: {
@@ -32,9 +35,20 @@ interface BatchProgressTimelineProps {
     processing_drying?: { dome?: string; plants?: number };
     packing_storage?: { dome?: string; plants?: number };
   };
+  currentQuantity?: number;
+  currentDome?: string;
 }
 
-export function BatchProgressTimeline({ currentStage, completedStages = [], stageCompletionDates = {}, stageData = {} }: BatchProgressTimelineProps) {
+export function BatchProgressTimeline({ 
+  batchId,
+  batchNumber,
+  currentStage, 
+  completedStages = [], 
+  stageCompletionDates = {}, 
+  stageData = {},
+  currentQuantity = 0,
+  currentDome = ''
+}: BatchProgressTimelineProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const currentIndex = STAGE_ORDER.indexOf(currentStage as any);
 
@@ -97,30 +111,44 @@ export function BatchProgressTimeline({ currentStage, completedStages = [], stag
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-base">Lifecycle Progress</CardTitle>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 px-3"
-              onClick={() => setCurrentPage(1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-            </Button>
-            <Badge variant="secondary" className="h-8 px-4 text-sm font-semibold">
-              Page {currentPage} of 2
-            </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 px-3"
-              onClick={() => setCurrentPage(2)}
-              disabled={currentPage === 2}
-            >
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+          <div className="flex items-center gap-3">
+            {/* Stage Transition Button */}
+            {currentStage !== 'packing_storage' && (
+              <PhaseChangeButton
+                batchId={batchId}
+                batchNumber={batchNumber}
+                currentStage={currentStage}
+                currentQuantity={currentQuantity}
+                currentDome={currentDome}
+              />
+            )}
+            
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+              </Button>
+              <Badge variant="secondary" className="h-8 px-4 text-sm font-semibold">
+                Page {currentPage} of 2
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3"
+                onClick={() => setCurrentPage(2)}
+                disabled={currentPage === 2}
+              >
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
