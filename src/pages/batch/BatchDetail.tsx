@@ -260,11 +260,11 @@ export default function BatchDetail() {
   // Get current quantity based on stage
   const getCurrentQuantity = () => {
     switch (batch.current_stage) {
-      case 'cloning':
+      case 'clone_germination':
         return batch.total_clones_plants;
       case 'vegetative':
         return batch.veg_number_plants;
-      case 'flowering':
+      case 'flowering_grow_room':
         return batch.flowering_number_plants;
       case 'harvest':
         return batch.harvest_number_plants;
@@ -350,14 +350,14 @@ export default function BatchDetail() {
                       <div className="flex items-center gap-3">
                         <Sprout className="h-5 w-5 text-primary" />
                         <span className="font-semibold">Cloning Phase</span>
-                        {batch.current_stage === 'cloning' && (
+                        {batch.current_stage === 'clone_germination' && (
                           <Badge variant="default" className="ml-2">Current</Badge>
                         )}
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       {/* Stage Progress & Action */}
-                      {batch.current_stage === 'cloning' && (
+                      {batch.current_stage === 'clone_germination' && (
                         <div className="mb-6 p-4 border rounded-lg bg-primary/5">
                           <div className="flex items-center justify-between mb-3">
                             <div>
@@ -637,14 +637,14 @@ export default function BatchDetail() {
                       <div className="flex items-center gap-3">
                         <Flower className="h-5 w-5 text-pink-600" />
                         <span className="font-semibold">Flowering Phase</span>
-                        {batch.current_stage === 'flowering' && (
+                        {batch.current_stage === 'flowering_grow_room' && (
                           <Badge variant="default" className="ml-2">Current</Badge>
                         )}
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       {/* Stage Progress & Action */}
-                      {batch.current_stage === 'flowering' && (
+                      {batch.current_stage === 'flowering_grow_room' && (
                         <div className="mb-6 p-4 border rounded-lg bg-pink-600/5">
                           <div className="flex items-center justify-between mb-3">
                             <div>

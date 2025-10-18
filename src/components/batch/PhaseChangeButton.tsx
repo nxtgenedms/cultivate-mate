@@ -25,7 +25,17 @@ export function PhaseChangeButton({
 
   // Get next stage for button label
   const getNextStage = () => {
-    const stages = ['cloning', 'vegetative', 'flowering', 'harvest'];
+    const stages = [
+      'preclone',
+      'clone_germination',
+      'hardening',
+      'vegetative',
+      'flowering_grow_room',
+      'preharvest',
+      'harvest',
+      'processing_drying',
+      'packing_storage'
+    ];
     const currentIndex = stages.indexOf(currentStage);
     if (currentIndex < stages.length - 1) {
       return stages[currentIndex + 1];

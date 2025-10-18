@@ -116,7 +116,7 @@ export default function BatchDashboard() {
             />
             <BatchStatsCard
               title="In Flowering"
-              value={stats.byStage[BATCH_STAGES.FLOWERING] || 0}
+              value={stats.byStage[BATCH_STAGES.FLOWERING_GROW_ROOM] || 0}
               description="Critical stage"
               icon={TrendingUp}
             />

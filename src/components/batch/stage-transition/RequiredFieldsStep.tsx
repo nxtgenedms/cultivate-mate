@@ -27,25 +27,49 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
   required: FieldDefinition[];
   optional: FieldDefinition[];
 }> = {
-  cloning_to_vegetative: {
+  // Transition 1: Preclone to Clone/Germination
+  preclone_to_clone_germination: {
     required: [
+      { field: 'strain_id', label: 'Strain', type: 'text' },
+      { field: 'mother_no', label: 'Mother Plant Number', type: 'text' },
+      { field: 'clone_germination_date', label: 'Clone Germination Date', type: 'date' },
+      { field: 'total_clones_plants', label: 'Total Clones/Plants', type: 'number' },
+      { field: 'clonator_1', label: 'Clonator 1 Unit', type: 'text' },
+    ],
+    optional: [
+      { field: 'rack_no', label: 'Rack Number', type: 'text' },
+      { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
+    ],
+  },
+
+  // Transition 2: Clone/Germination to Hardening
+  clone_germination_to_hardening: {
+    required: [
+      { field: 'expected_rooting_date', label: 'Expected Rooting Date', type: 'date' },
       { field: 'actual_rooting_date', label: 'Actual Rooting Date', type: 'date' },
       { field: 'move_to_hardening_date', label: 'Move to Hardening Date', type: 'date' },
       { field: 'hardening_number_clones', label: 'Number of Clones (Hardening)', type: 'number' },
-      { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
-      { field: 'move_to_veg_date', label: 'Move to Veg Date', type: 'date' },
-      { field: 'veg_number_plants', label: 'Number of Plants (Veg)', type: 'number' },
     ],
     optional: [
-      // Clonator 2 fields (completion data)
       { field: 'clonator_2_date', label: 'Clonator 2 - Date Moved', type: 'date' },
       { field: 'clonator_2', label: 'Clonator 2 - Unit Name', type: 'text' },
       { field: 'clonator_2_number_clones', label: 'Clonator 2 - Number of Clones', type: 'number' },
       { field: 'clonator_2_area_placed', label: 'Clonator 2 - Area Placed', type: 'text' },
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
       { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },
-      
-      // Hardening stage completion fields
+      { field: 'clonator_2_completed_by', label: 'Clonator 2 - Completed By', type: 'select', options: 'profiles' },
+      { field: 'clonator_mortalities', label: 'Clonator Mortalities', type: 'number' },
+    ],
+  },
+
+  // Transition 3: Hardening to Vegetative
+  hardening_to_vegetative: {
+    required: [
+      { field: 'move_to_veg_date', label: 'Move to Vegetative Date', type: 'date' },
+      { field: 'veg_number_plants', label: 'Number of Plants (Veg)', type: 'number' },
+      { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
+    ],
+    optional: [
       { field: 'hardening_area_placed', label: 'Hardening - Area Placed', type: 'text' },
       { field: 'hardening_rack_no', label: 'Hardening - Rack No', type: 'text' },
       { field: 'hardening_no_of_days', label: 'Hardening - No of Days', type: 'number' },
@@ -53,14 +77,15 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'hardening_checked_by', label: 'Hardening - Checked By', type: 'select', options: 'profiles' },
     ],
   },
-  vegetative_to_flowering: {
+
+  // Transition 4: Vegetative to Flowering/Grow Room
+  vegetative_to_flowering_grow_room: {
     required: [
       { field: 'move_to_flowering_date', label: 'Move to Flowering Date', type: 'date' },
       { field: 'flowering_number_plants', label: 'Number of Plants (Entering Flowering)', type: 'number' },
       { field: 'veg_actual_days', label: 'Actual Days in Veg', type: 'number' },
     ],
     optional: [
-      // Veg stage completion data
       { field: 'veg_table_no', label: 'Veg - Table No', type: 'text' },
       { field: 'veg_expected_days', label: 'Veg - Expected Days', type: 'number' },
       { field: 'veg_completed_by', label: 'Veg - Completed By', type: 'select', options: 'profiles' },
@@ -69,15 +94,16 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'veg_checked_by', label: 'Veg - Mortality Checked By', type: 'select', options: 'profiles' },
     ],
   },
-  flowering_to_harvest: {
+
+  // Transition 5: Flowering/Grow Room to Preharvest
+  flowering_grow_room_to_preharvest: {
     required: [
-      { field: 'harvest_date', label: 'Harvest Date', type: 'date' },
-      { field: 'harvest_number_plants', label: 'Number of Plants Harvested', type: 'number' },
+      { field: 'expected_flowering_date', label: 'Expected Flowering Date', type: 'date' },
       { field: 'actual_flowering_date', label: 'Actual Flowering Date', type: 'date' },
+      { field: 'estimated_days', label: 'Estimated Days (Flowering)', type: 'number' },
       { field: 'actual_days', label: 'Actual Days (Flowering)', type: 'number' },
     ],
     optional: [
-      // Flowering stage completion data
       { field: 'flowering_table_no', label: 'Flowering - Table No', type: 'text' },
       { field: 'nutrients_used', label: 'Flowering - Nutrients Used', type: 'text' },
       { field: 'using_extra_lights', label: 'Flowering - Using Extra Lights', type: 'checkbox' },
@@ -85,12 +111,65 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'extra_lights_no_of_days', label: 'Extra Lights - No of Days', type: 'number' },
       { field: 'eight_nodes', label: 'Flowering - Eight Nodes', type: 'checkbox' },
       { field: 'increase_in_yield', label: 'Flowering - Increase in Yield', type: 'text' },
-      { field: 'expected_flowering_date', label: 'Expected Flowering Date', type: 'date' },
-      { field: 'estimated_days', label: 'Estimated Days (Flowering)', type: 'number' },
       { field: 'flowering_completed_by', label: 'Flowering - Completed By', type: 'select', options: 'profiles' },
       { field: 'flowering_diseases', label: 'Flowering - Diseases Detected', type: 'checkbox' },
       { field: 'flowering_pests', label: 'Flowering - Pests Detected', type: 'checkbox' },
       { field: 'flowering_checked_by', label: 'Flowering - Mortality Checked By', type: 'select', options: 'profiles' },
+    ],
+  },
+
+  // Transition 6: Preharvest to Harvest
+  preharvest_to_harvest: {
+    required: [
+      { field: 'harvest_date', label: 'Harvest Date', type: 'date' },
+      { field: 'harvest_number_plants', label: 'Number of Plants Harvested', type: 'number' },
+    ],
+    optional: [
+      { field: 'harvest_table_no', label: 'Harvest - Table No', type: 'text' },
+      { field: 'harvest_completed_by', label: 'Harvest - Completed By', type: 'select', options: 'profiles' },
+    ],
+  },
+
+  // Transition 7: Harvest to Processing/Drying
+  harvest_to_processing_drying: {
+    required: [
+      { field: 'inspection_date', label: 'Inspection Date', type: 'date' },
+      { field: 'inspection_number_plants', label: 'Number of Plants Inspected', type: 'number' },
+      { field: 'total_plants_processed', label: 'Total Plants Processed', type: 'number' },
+      { field: 'total_wet_weight', label: 'Total Wet Weight (kg)', type: 'number' },
+    ],
+    optional: [
+      { field: 'inspection_table_no', label: 'Inspection - Table No', type: 'text' },
+      { field: 'inspection_rack_no', label: 'Inspection - Rack No', type: 'text' },
+      { field: 'inspection_completed_by', label: 'Inspection - Completed By', type: 'select', options: 'profiles' },
+      { field: 'drying_date', label: 'Drying - Start Date', type: 'date' },
+      { field: 'drying_total_plants', label: 'Drying - Total Plants', type: 'number' },
+      { field: 'drying_completed_by', label: 'Drying - Completed By', type: 'select', options: 'profiles' },
+      { field: 'drying_checked_by', label: 'Drying - Checked By', type: 'select', options: 'profiles' },
+      { field: 'no_of_days_drying', label: 'No of Days Drying', type: 'number' },
+      { field: 'drying_rack_no', label: 'Drying - Rack No', type: 'text' },
+    ],
+  },
+
+  // Transition 8: Processing/Drying to Packing/Storage
+  processing_drying_to_packing_storage: {
+    required: [
+      { field: 'total_dry_weight', label: 'Total Dry Weight (kg)', type: 'number' },
+      { field: 'dry_weight_date', label: 'Dry Weight Date', type: 'date' },
+      { field: 'packing_date', label: 'Packing Date', type: 'date' },
+    ],
+    optional: [
+      { field: 'dry_weight_no_plants', label: 'Dry Weight - No of Plants', type: 'number' },
+      { field: 'dry_weight_completed_by', label: 'Dry Weight - Completed By', type: 'select', options: 'profiles' },
+      { field: 'dry_weight_checked_by', label: 'Dry Weight - Checked By', type: 'select', options: 'profiles' },
+      { field: 'dry_weight_checked_date', label: 'Dry Weight - Checked Date', type: 'date' },
+      { field: 'packing_a_grade', label: 'Packing - A Grade (kg)', type: 'number' },
+      { field: 'packing_b_grade', label: 'Packing - B Grade (kg)', type: 'number' },
+      { field: 'packing_c_grade', label: 'Packing - C Grade (kg)', type: 'number' },
+      { field: 'packing_completed_by', label: 'Packing - Completed By', type: 'select', options: 'profiles' },
+      { field: 'packing_checked_by', label: 'Packing - Checked By', type: 'select', options: 'profiles' },
+      { field: 'packing_bag_ids', label: 'Packing - Bag IDs', type: 'text' },
+      { field: 'packing_storage_area', label: 'Packing - Storage Area', type: 'text' },
     ],
   },
 };
