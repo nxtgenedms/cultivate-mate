@@ -2,17 +2,22 @@ import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, Leaf } from 'lucide-react';
+import { Package, Leaf, BarChart3 } from 'lucide-react';
 import InventoryReceiptList from '@/components/inventory/InventoryReceiptList';
+import { TotalInventoryView } from '@/components/inventory/TotalInventoryView';
 
 const InventoryManagement = () => {
-  const [activeTab, setActiveTab] = useState('receipts');
+  const [activeTab, setActiveTab] = useState('total');
 
   return (
     <Layout>
       <div className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-3xl grid-cols-3">
+            <TabsTrigger value="total" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Total Inventory
+            </TabsTrigger>
             <TabsTrigger value="receipts" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Receipts
@@ -22,6 +27,10 @@ const InventoryManagement = () => {
               Harvest
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="total" className="mt-6">
+            <TotalInventoryView />
+          </TabsContent>
 
           <TabsContent value="receipts" className="mt-6">
             <Card>

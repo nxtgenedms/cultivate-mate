@@ -923,6 +923,51 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_usage: {
+        Row: {
+          batch_number: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          product_name: string
+          quantity: number
+          unit: Database["public"]["Enums"]["inventory_unit"]
+          updated_at: string
+          usage_area: string | null
+          usage_date: string
+          used_by: string | null
+        }
+        Insert: {
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_name: string
+          quantity: number
+          unit: Database["public"]["Enums"]["inventory_unit"]
+          updated_at?: string
+          usage_area?: string | null
+          usage_date: string
+          used_by?: string | null
+        }
+        Update: {
+          batch_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_name?: string
+          quantity?: number
+          unit?: Database["public"]["Enums"]["inventory_unit"]
+          updated_at?: string
+          usage_area?: string | null
+          usage_date?: string
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       lookup_categories: {
         Row: {
           category_key: string
