@@ -92,7 +92,11 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error('You must be logged in to create a checklist');
+      }
       
       const template = templates?.find(t => t.id === selectedTemplate);
       if (!template) throw new Error('Template not found');
