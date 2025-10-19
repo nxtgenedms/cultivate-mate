@@ -180,8 +180,8 @@ export default function BatchDetail() {
       
       let updatedChecklistItems = (task.checklist_items as any[]) || [];
       
-      // For SOF-22, SOF-15, and SOF-30, add signature fields if provided
-      if ((task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030')) && signatures) {
+      // For SOF-22, SOF-15, SOF-30, and SOF-19, add signature fields if provided
+      if ((task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030') || task.name?.includes('HVCSOF019')) && signatures) {
         const { data: qaProfile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -253,7 +253,7 @@ export default function BatchDetail() {
         ]
       };
 
-      // Set category for SOF-22, SOF-15, and SOF-30 if not already set
+      // Set category for SOF-22, SOF-15, SOF-30, and SOF-19 if not already set
       if (task.name?.includes('HVCSOF022') && !task.task_category) {
         updatePayload.task_category = 'scouting_corrective';
       }
@@ -262,6 +262,9 @@ export default function BatchDetail() {
       }
       if (task.name?.includes('HVCSOF030') && !task.task_category) {
         updatePayload.task_category = 'fertigation_application';
+      }
+      if (task.name?.includes('HVCSOF019') && !task.task_category) {
+        updatePayload.task_category = 'ipm_chemical_mixing';
       }
 
       const { error } = await supabase
@@ -576,8 +579,8 @@ export default function BatchDetail() {
                                       
                                       setTaskToSubmit(task.id);
                                       
-                                      // For SOF-22, SOF-15, and SOF-30, show signature dialog first
-                                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030')) {
+                                      // For SOF-22, SOF-15, SOF-30, and SOF-19, show signature dialog first
+                                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030') || task.name?.includes('HVCSOF019')) {
                                         setShowSignatureDialog(true);
                                       } else {
                                         setShowSubmitDialog(true);
@@ -1024,7 +1027,7 @@ export default function BatchDetail() {
           </DialogContent>
         </Dialog>
 
-        {/* Signature Dialog for SOF-22, SOF-15, and SOF-30 */}
+        {/* Signature Dialog for SOF-22, SOF-15, SOF-30, and SOF-19 */}
         <SignatureDialog
           open={showSignatureDialog}
           onOpenChange={(open) => {

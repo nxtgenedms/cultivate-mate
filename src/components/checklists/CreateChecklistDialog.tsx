@@ -190,8 +190,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
 
       console.log('Initial checklist items:', checklistItems.map(i => i.label));
 
-      // For SOF-22, SOF-15, and SOF-30, filter out signature fields and auto-populate batch info
-      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF015' || template.sof_number === 'HVCSOF030') {
+      // For SOF-22, SOF-15, SOF-30, and SOF-19, filter out signature fields and auto-populate batch info
+      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF015' || template.sof_number === 'HVCSOF030' || template.sof_number === 'HVCSOF019') {
         console.log(`Processing ${template.sof_number} template`);
         
         // Remove signature fields from the checklist (they'll be added on submit)
