@@ -147,6 +147,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       if (checklistType === 'batch' && selectedBatch) {
         const batch = batches?.find(b => b.id === selectedBatch);
         batchInfo = batch;
+        console.log('Batch Info:', batchInfo);
       }
 
       // Convert template items to checklist items format
@@ -162,8 +163,12 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         notes: '',
       })) || [];
 
+      console.log('Initial checklist items:', checklistItems.map(i => i.label));
+
       // For SOF-22, filter out signature fields and auto-populate batch info
       if (template.sof_number === 'HVCSOF0022') {
+        console.log('Processing SOF-22 template');
+        
         // Remove signature fields from the checklist (they'll be added on submit)
         checklistItems = checklistItems.filter(item => {
           const label = item.label.toLowerCase();
@@ -172,18 +177,33 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
                  !label.includes('qa sign');
         });
         
+        console.log('After filtering signatures:', checklistItems.map(i => i.label));
+        
         // Auto-populate batch info if batch is selected
         if (batchInfo) {
+          console.log('Auto-populating batch data...');
           checklistItems = checklistItems.map(item => {
             const label = item.label.toLowerCase();
-            if (label.includes('batch') && (label.includes('id') || label.includes('number'))) {
+            console.log('Checking label:', label);
+            
+            // More flexible matching for batch ID/number
+            if ((label.includes('batch') && (label.includes('id') || label.includes('number'))) ||
+                label.includes('batch no') || 
+                label.includes('batch#')) {
+              console.log('Matched batch field, setting:', batchInfo.batch_number);
               return { ...item, response_value: batchInfo.batch_number, completed: true };
             }
-            if (label.includes('strain')) {
+            
+            // More flexible matching for strain
+            if (label.includes('strain') || label.includes('cultivar')) {
+              console.log('Matched strain field, setting:', batchInfo.strain_id);
               return { ...item, response_value: batchInfo.strain_id || '', completed: !!batchInfo.strain_id };
             }
+            
             return item;
           });
+          
+          console.log('After population:', checklistItems.filter(i => i.response_value).map(i => ({ label: i.label, value: i.response_value })));
         }
       }
 
