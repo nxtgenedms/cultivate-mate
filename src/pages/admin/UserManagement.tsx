@@ -135,9 +135,14 @@ export default function UserManagement() {
 
       if (deleteError) throw deleteError;
 
+      const { data: { user } } = await supabase.auth.getUser();
       const { error: roleError } = await supabase
         .from('user_roles')
-        .insert({ user_id: data.userId, role: data.role });
+        .insert({ 
+          user_id: data.userId, 
+          role: data.role,
+          assigned_by: user?.id 
+        });
 
       if (roleError) throw roleError;
     },
