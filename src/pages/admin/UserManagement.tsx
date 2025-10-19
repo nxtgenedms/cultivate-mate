@@ -127,24 +127,48 @@ export default function UserManagement() {
 
       if (profileError) throw profileError;
 
-      // Update role - delete old and insert new
-      const { error: deleteError } = await supabase
+      // Check if role needs to be updated
+      const { data: existingRoles } = await supabase
         .from('user_roles')
-        .delete()
+        .select('role')
         .eq('user_id', data.userId);
 
-      if (deleteError) throw deleteError;
+      const hasRole = existingRoles?.some(r => r.role === data.role);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({ 
-          user_id: data.userId, 
-          role: data.role,
-          assigned_by: user?.id 
-        });
+      // Only update role if it's different
+      if (!hasRole && existingRoles && existingRoles.length > 0) {
+        // Delete only this specific role type if changing
+        const { error: deleteError } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', data.userId)
+          .eq('role', existingRoles[0].role);
 
-      if (roleError) throw roleError;
+        if (deleteError) throw deleteError;
+
+        const { data: { user } } = await supabase.auth.getUser();
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ 
+            user_id: data.userId, 
+            role: data.role,
+            assigned_by: user?.id 
+          });
+
+        if (roleError) throw roleError;
+      } else if (!hasRole && (!existingRoles || existingRoles.length === 0)) {
+        // Add role if user has no roles
+        const { data: { user } } = await supabase.auth.getUser();
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ 
+            user_id: data.userId, 
+            role: data.role,
+            assigned_by: user?.id 
+          });
+
+        if (roleError) throw roleError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
