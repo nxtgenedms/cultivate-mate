@@ -38,7 +38,7 @@ interface TaskItemsManagerProps {
 export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsManagerProps) {
   // Filter out signature fields for SOF-22 tasks (they're added on submit, not displayed in form)
   const filterSignatureFields = (items: TaskItem[]) => {
-    if (task.name?.includes('HVCSOF0022') || task.name?.includes('SOF-22')) {
+    if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF0022') || task.name?.includes('SOF-22')) {
       return items.filter(item => {
         const label = item.label.toLowerCase();
         return !label.includes('grower sign') && 
