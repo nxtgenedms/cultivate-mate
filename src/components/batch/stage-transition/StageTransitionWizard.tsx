@@ -85,10 +85,40 @@ export const StageTransitionWizard = ({
     enabled: open,
   });
 
-  // Fetch checklist templates for current stage
+  // Define required checklists for specific stage transitions
+  const REQUIRED_CHECKLISTS_BY_TRANSITION: Record<string, string[]> = {
+    'hardening_to_vegetative': ['HVCSOF012', 'HVCSOF022', 'HVCSOF015'],
+    // Add more transitions as needed
+  };
+
+  const getRequiredChecklistsForTransition = () => {
+    const transitionKey = `${currentStage}_to_${nextStage}`;
+    return REQUIRED_CHECKLISTS_BY_TRANSITION[transitionKey] || [];
+  };
+
+  // Fetch checklist templates for current stage AND required checklists for transition
   const { data: checklistTemplates = [] } = useQuery({
-    queryKey: ['checklist-templates-stage', currentStage],
+    queryKey: ['checklist-templates-transition', currentStage, nextStage],
     queryFn: async () => {
+      const requiredSOFs = getRequiredChecklistsForTransition();
+      
+      // If there are specific required checklists for this transition, fetch those
+      if (requiredSOFs.length > 0) {
+        const { data, error } = await supabase
+          .from('checklist_templates')
+          .select('*')
+          .in('sof_number', requiredSOFs)
+          .eq('is_active', true);
+        
+        if (error) {
+          console.warn('Failed to fetch required checklist templates:', error);
+          return [];
+        }
+        
+        return data || [];
+      }
+      
+      // Otherwise, fetch by lifecycle phase (existing behavior)
       const { data, error } = await supabase
         .from('checklist_templates')
         .select('*')
