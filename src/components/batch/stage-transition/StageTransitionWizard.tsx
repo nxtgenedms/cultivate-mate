@@ -11,6 +11,7 @@ import { TaskDataCopyStep } from "./TaskDataCopyStep";
 import { RequiredFieldsStep } from "./RequiredFieldsStep";
 import { ExtractedFieldData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { STAGE_LABELS } from "@/lib/batchUtils";
 
 interface StageTransitionWizardProps {
   open: boolean;
@@ -279,7 +280,7 @@ export const StageTransitionWizard = ({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Stage Transition: {currentStage} → {nextStage}
+            Stage Transition: {STAGE_LABELS[currentStage as keyof typeof STAGE_LABELS] || currentStage} → {STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || nextStage}
           </DialogTitle>
           <DialogDescription>
             Batch: {batchNumber} | Step {currentStep} of 3

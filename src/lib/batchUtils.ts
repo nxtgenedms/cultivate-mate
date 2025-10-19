@@ -47,8 +47,8 @@ export const STAGE_ICONS = {
 };
 
 export const STAGE_LABELS = {
-  [BATCH_STAGES.PRECLONE]: 'Preclone',
-  [BATCH_STAGES.CLONE_GERMINATION]: 'Clone / Germination',
+  [BATCH_STAGES.PRECLONE]: 'Pre-Clone',
+  [BATCH_STAGES.CLONE_GERMINATION]: 'Clonator1 / Germination',
   [BATCH_STAGES.HARDENING]: 'Hardening',
   [BATCH_STAGES.VEGETATIVE]: 'Vegetative',
   [BATCH_STAGES.FLOWERING_GROW_ROOM]: 'Flowering / Grow Room',
