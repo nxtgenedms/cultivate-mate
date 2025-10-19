@@ -56,6 +56,22 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         .order('batch_number', { ascending: false });
       
       if (error) throw error;
+
+      // Fetch strain names from lookup_values
+      if (data && data.length > 0) {
+        const strainIds = [...new Set(data.map(b => b.strain_id).filter(Boolean))];
+        const { data: strainData } = await supabase
+          .from('lookup_values')
+          .select('id, value_display')
+          .in('id', strainIds);
+
+        // Map strain names to batches
+        return data.map(batch => ({
+          ...batch,
+          strain_name: strainData?.find(s => s.id === batch.strain_id)?.value_display || batch.strain_id
+        }));
+      }
+      
       return data;
     },
     enabled: open && checklistType === 'batch',
@@ -196,8 +212,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
             
             // More flexible matching for strain
             if (label.includes('strain') || label.includes('cultivar')) {
-              console.log('Matched strain field, setting:', batchInfo.strain_id);
-              return { ...item, response_value: batchInfo.strain_id || '', completed: !!batchInfo.strain_id };
+              console.log('Matched strain field, setting:', batchInfo.strain_name || batchInfo.strain_id);
+              return { ...item, response_value: batchInfo.strain_name || batchInfo.strain_id || '', completed: !!(batchInfo.strain_name || batchInfo.strain_id) };
             }
             
             return item;
