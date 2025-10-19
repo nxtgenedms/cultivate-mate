@@ -49,9 +49,7 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'hardening_number_clones', label: 'Number of Clones (Hardening)', type: 'number' },
     ],
     optional: [
-      { field: 'clonator_2_date', label: 'Clonator 2 - Date Moved', type: 'date' },
       { field: 'clonator_2', label: 'Clonator 2 - Unit Name', type: 'text' },
-      { field: 'clonator_2_number_clones', label: 'Clonator 2 - Number of Clones', type: 'number' },
       { field: 'clonator_2_area_placed', label: 'Clonator 2 - Area Placed', type: 'text' },
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
       { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },

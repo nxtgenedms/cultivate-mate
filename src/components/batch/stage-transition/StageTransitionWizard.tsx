@@ -129,6 +129,22 @@ export const StageTransitionWizard = ({
     enabled: open,
   });
 
+  // Fetch batch details for auto-calculations
+  const { data: batchDetails } = useQuery({
+    queryKey: ['batch-detail', batchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('batch_lifecycle_records')
+        .select('*')
+        .eq('id', batchId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: open,
+  });
+
   const updateBatchMutation = useMutation({
     mutationFn: async (updateData: any) => {
       const { error } = await supabase
@@ -197,7 +213,24 @@ export const StageTransitionWizard = ({
 
   const handleNext = () => {
     if (currentStep < 3) {
-      setCurrentStep(prev => prev + 1);
+      const nextStep = currentStep + 1;
+      
+      // Auto-calculate hardening_number_clones when moving to step 3 for clone_germination -> hardening
+      if (nextStep === 3 && currentStage === 'clone_germination' && nextStage === 'hardening' && batchDetails) {
+        const totalClones = batchDetails.total_clones_plants || 0;
+        const mortalities = formData.clonator_mortalities || 0;
+        const calculatedHardeningClones = totalClones - mortalities;
+        
+        // Only set if not already set by user
+        if (!formData.hardening_number_clones) {
+          setFormData(prev => ({
+            ...prev,
+            hardening_number_clones: calculatedHardeningClones
+          }));
+        }
+      }
+      
+      setCurrentStep(nextStep);
     }
   };
 
@@ -280,7 +313,9 @@ export const StageTransitionWizard = ({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Stage Transition: {STAGE_LABELS[currentStage as keyof typeof STAGE_LABELS] || currentStage} → {STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || nextStage}
+            Stage Transition: {currentStage === 'clone_germination' && nextStage === 'hardening' 
+              ? 'Germination(Clonator1) → Hardening(2)' 
+              : `${STAGE_LABELS[currentStage as keyof typeof STAGE_LABELS] || currentStage} → ${STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || nextStage}`}
           </DialogTitle>
           <DialogDescription>
             Batch: {batchNumber} | Step {currentStep} of 3
