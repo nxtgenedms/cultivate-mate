@@ -530,7 +530,8 @@ export default function BatchDetail() {
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
+                                {((task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft')) || 
+                                  (Array.isArray(task.checklist_items) && task.checklist_items.length > 0 && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft'))) && (
                                    <Button
                                     variant="default"
                                     size="sm"

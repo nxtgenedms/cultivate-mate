@@ -467,7 +467,8 @@ export default function TaskManagement() {
 
               {/* Right: Actions */}
               <div className="flex items-center gap-1.5">
-                {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
+                {((task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft')) || 
+                  (hasItems && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft'))) && (
                   <Button
                     size="sm"
                     className="h-7 text-xs"
