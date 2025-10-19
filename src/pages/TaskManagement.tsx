@@ -217,18 +217,26 @@ export default function TaskManagement() {
 
       const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
 
+      // Prepare update payload
+      const updatePayload: any = {
+        approval_status: 'pending_approval',
+        current_approval_stage: 0, // Start at stage 0
+        checklist_items: updatedChecklistItems as any,
+        completion_progress: {
+          completed: completedCount,
+          total: updatedChecklistItems.length
+        } as any,
+        approval_history: approvalHistory,
+      };
+
+      // Set category for SOF-22 if not already set
+      if (task?.name?.includes('HVCSOF022') && !task?.task_category) {
+        updatePayload.task_category = 'scouting_corrective';
+      }
+
       const { error } = await supabase
         .from("tasks")
-        .update({
-          approval_status: 'pending_approval',
-          current_approval_stage: 1,
-          checklist_items: updatedChecklistItems as any,
-          completion_progress: {
-            completed: completedCount,
-            total: updatedChecklistItems.length
-          } as any,
-          approval_history: approvalHistory,
-        })
+        .update(updatePayload)
         .eq("id", taskId);
       if (error) throw error;
     },
@@ -474,7 +482,7 @@ export default function TaskManagement() {
                     Submit
                   </Button>
                 )}
-                {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && task.approval_status === 'pending_approval' && (
+                {task.task_category && task.approval_status === 'pending_approval' && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && (
                   <TaskApprovalActions
                     taskId={task.id}
                     taskName={task.name}

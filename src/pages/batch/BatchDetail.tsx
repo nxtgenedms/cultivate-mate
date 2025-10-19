@@ -219,25 +219,33 @@ export default function BatchDetail() {
 
       const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
 
+      // Prepare update payload
+      const updatePayload: any = {
+        approval_status: 'pending_approval',
+        current_approval_stage: 0,
+        checklist_items: updatedChecklistItems as any,
+        completion_progress: {
+          completed: completedCount,
+          total: updatedChecklistItems.length
+        } as any,
+        approval_history: [
+          {
+            stage: 0,
+            action: 'submitted',
+            timestamp: new Date().toISOString(),
+            notes: 'Task submitted for approval'
+          }
+        ]
+      };
+
+      // Set category for SOF-22 if not already set
+      if (task.name?.includes('HVCSOF022') && !task.task_category) {
+        updatePayload.task_category = 'scouting_corrective';
+      }
+
       const { error } = await supabase
         .from('tasks')
-        .update({
-          approval_status: 'pending_approval',
-          current_approval_stage: 0,
-          checklist_items: updatedChecklistItems as any,
-          completion_progress: {
-            completed: completedCount,
-            total: updatedChecklistItems.length
-          } as any,
-          approval_history: [
-            {
-              stage: 0,
-              action: 'submitted',
-              timestamp: new Date().toISOString(),
-              notes: 'Task submitted for approval'
-            }
-          ]
-        })
+        .update(updatePayload)
         .eq('id', taskId);
 
       if (error) throw error;
