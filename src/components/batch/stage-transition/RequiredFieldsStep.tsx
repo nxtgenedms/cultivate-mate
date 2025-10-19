@@ -44,6 +44,7 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
   clone_germination_to_hardening: {
     required: [
       { field: 'clonator_mortalities', label: 'Clonator / Germination Mortalities', type: 'number' },
+      { field: 'clonator_2_no_of_days', label: 'Clonator 1 - No of Days', type: 'number' },
       { field: 'actual_rooting_date', label: 'Actual Rooting Date', type: 'date' },
       { field: 'move_to_hardening_date', label: 'Move to Hardening Date', type: 'date' },
       { field: 'hardening_number_clones', label: 'Number of Clones (Hardening)', type: 'number' },
@@ -52,7 +53,6 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'clonator_2', label: 'Clonator 2 - Unit Name', type: 'text' },
       { field: 'clonator_2_area_placed', label: 'Clonator 2 - Area Placed', type: 'text' },
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
-      { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },
       { field: 'clonator_2_completed_by', label: 'Clonator 2 - Completed By', type: 'select', options: 'profiles' },
     ],
   },

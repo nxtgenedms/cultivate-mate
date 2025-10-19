@@ -208,7 +208,24 @@ export const StageTransitionWizard = ({
   };
 
   const handleFieldChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    const newFormData = { ...formData, [field]: value };
+    
+    // Auto-calculate Clonator 1 No of Days when relevant dates change
+    if (currentStage === 'clone_germination' && nextStage === 'hardening' && batchDetails) {
+      if (field === 'move_to_hardening_date' || field === 'clonator_2_no_of_days') {
+        const hardeningDate = field === 'move_to_hardening_date' ? value : newFormData.move_to_hardening_date;
+        const germinationDate = batchDetails.clone_germination_date;
+        
+        if (hardeningDate && germinationDate) {
+          const days = Math.floor(
+            (new Date(hardeningDate).getTime() - new Date(germinationDate).getTime()) / (1000 * 60 * 60 * 24)
+          );
+          newFormData.clonator_2_no_of_days = days;
+        }
+      }
+    }
+    
+    setFormData(newFormData);
   };
 
   const handleNext = () => {
