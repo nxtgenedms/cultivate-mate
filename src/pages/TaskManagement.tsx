@@ -171,7 +171,7 @@ export default function TaskManagement() {
       let updatedChecklistItems = (task?.checklist_items as any[]) || [];
       
       // For SOF-22, add signature fields if provided
-      if (task?.name?.includes('HVCSOF022') || task?.name?.includes('HVCSOF0022') || task?.name?.includes('SOF-22')) {
+      if (task?.name?.includes('HVCSOF022')) {
         const { data: qaProfile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -479,7 +479,7 @@ export default function TaskManagement() {
                       setTaskToSubmit(task.id);
                       
                       // For SOF-22, show signature dialog first
-                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF0022') || task.name?.includes('SOF-22')) {
+                      if (task.name?.includes('HVCSOF022')) {
                         setShowSignatureDialog(true);
                       } else {
                         setShowSubmitDialog(true);

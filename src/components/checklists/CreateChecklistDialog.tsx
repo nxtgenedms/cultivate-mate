@@ -166,7 +166,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       console.log('Initial checklist items:', checklistItems.map(i => i.label));
 
       // For SOF-22, filter out signature fields and auto-populate batch info
-      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF0022') {
+      if (template.sof_number === 'HVCSOF022') {
         console.log('Processing SOF-22 template');
         
         // Remove signature fields from the checklist (they'll be added on submit)
