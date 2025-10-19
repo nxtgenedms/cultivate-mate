@@ -120,6 +120,27 @@ export default function TaskManagement() {
     },
   });
 
+  const { data: highestTaskNumber } = useQuery({
+    queryKey: ['tasks-highest-number'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('task_number')
+        .order('task_number', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      // Extract the sequence number from the task_number (e.g., "TA-0015" -> 15)
+      if (data?.task_number) {
+        const match = data.task_number.match(/(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      }
+      return 0;
+    },
+  });
+
   const generateTaskNumber = (formatPattern: string, count: number) => {
     const counterMatch = formatPattern.match(/\{counter:(\d+)\}/);
     if (counterMatch) {
@@ -141,6 +162,7 @@ export default function TaskManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-highest-number"] });
       toast.success("Task updated successfully");
     },
     onError: (error) => {
@@ -155,6 +177,7 @@ export default function TaskManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-highest-number"] });
       toast.success("Task deleted successfully");
     },
     onError: (error) => {
@@ -699,7 +722,7 @@ export default function TaskManagement() {
           onOpenChange={setIsDialogOpen}
           task={selectedTask}
           nomenclature={nomenclature}
-          tasksCount={tasks?.length || 0}
+          tasksCount={highestTaskNumber || 0}
           generateTaskNumber={generateTaskNumber}
         />
 

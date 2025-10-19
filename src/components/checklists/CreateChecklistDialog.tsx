@@ -93,15 +93,24 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     enabled: open,
   });
 
-  const { data: tasksCount } = useQuery({
-    queryKey: ['tasks-count'],
+  const { data: highestTaskNumber } = useQuery({
+    queryKey: ['tasks-highest-number'],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('tasks')
-        .select('*', { count: 'exact', head: true });
+        .select('task_number')
+        .order('task_number', { ascending: false })
+        .limit(1)
+        .single();
       
-      if (error) throw error;
-      return count || 0;
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      // Extract the sequence number from the task_number (e.g., "TA-0015" -> 15)
+      if (data?.task_number) {
+        const match = data.task_number.match(/(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      }
+      return 0;
     },
     enabled: open,
   });
@@ -155,8 +164,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       };
 
       const taskNumber = nomenclature 
-        ? generateTaskNumber(nomenclature.format_pattern, tasksCount || 0)
-        : `TASK-${String((tasksCount || 0) + 1).padStart(4, '0')}`;
+        ? generateTaskNumber(nomenclature.format_pattern, highestTaskNumber || 0)
+        : `TASK-${String((highestTaskNumber || 0) + 1).padStart(4, '0')}`;
 
       // Get batch details if batch-specific
       let batchInfo = null;
@@ -277,7 +286,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist-instances'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks-count'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks-highest-number'] });
       toast.success("Checklist created successfully");
       onOpenChange(false);
       setSelectedTemplate('');

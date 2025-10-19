@@ -109,6 +109,7 @@ export function TaskDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks-highest-number"] });
       toast.success("Task created successfully");
       onOpenChange(false);
     },
