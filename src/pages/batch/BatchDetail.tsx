@@ -97,15 +97,21 @@ export default function BatchDetail() {
 
       if (error) throw error;
       
-      // Deduplicate tasks by keeping only the latest for each unique task name
-      const uniqueTasks = new Map();
+      // Deduplicate tasks by keeping only the most recent for each SOF number
+      const taskMap = new Map<string, any>();
+      
       data?.forEach((task: any) => {
-        if (!uniqueTasks.has(task.name)) {
-          uniqueTasks.set(task.name, task);
+        // Extract SOF number from task name (e.g., "HVCSOF022: Scouting Report" -> "HVCSOF022")
+        const sofMatch = task.name?.match(/HVCSOF\d+/);
+        const sofNumber = sofMatch ? sofMatch[0] : task.name;
+        
+        // Only keep the first occurrence (which is the latest due to descending order)
+        if (!taskMap.has(sofNumber)) {
+          taskMap.set(sofNumber, task);
         }
       });
       
-      return Array.from(uniqueTasks.values());
+      return Array.from(taskMap.values());
     },
   });
 
