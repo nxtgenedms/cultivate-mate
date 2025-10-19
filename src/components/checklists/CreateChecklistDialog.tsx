@@ -190,8 +190,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
 
       console.log('Initial checklist items:', checklistItems.map(i => i.label));
 
-      // For SOF-22 and SOF-15, filter out signature fields and auto-populate batch info
-      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF015') {
+      // For SOF-22, SOF-15, and SOF-30, filter out signature fields and auto-populate batch info
+      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF015' || template.sof_number === 'HVCSOF030') {
         console.log(`Processing ${template.sof_number} template`);
         
         // Remove signature fields from the checklist (they'll be added on submit)
@@ -211,10 +211,11 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
             const label = item.label.toLowerCase();
             console.log('Checking label:', label);
             
-            // More flexible matching for batch ID/number
-            if ((label.includes('batch') && (label.includes('id') || label.includes('number'))) ||
+            // More flexible matching for batch ID/number including "Batches/Table No"
+            if ((label.includes('batch') && (label.includes('id') || label.includes('number') || label.includes('table'))) ||
                 label.includes('batch no') || 
-                label.includes('batch#')) {
+                label.includes('batch#') ||
+                label.includes('batches/table')) {
               console.log('Matched batch field, setting:', batchInfo.batch_number);
               return { ...item, response_value: batchInfo.batch_number, completed: true };
             }

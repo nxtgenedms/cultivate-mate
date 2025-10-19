@@ -193,8 +193,8 @@ export default function TaskManagement() {
       const task = tasks?.find(t => t.id === taskId);
       let updatedChecklistItems = (task?.checklist_items as any[]) || [];
       
-      // For SOF-22 and SOF-15, add signature fields if provided
-      if ((task?.name?.includes('HVCSOF022') || task?.name?.includes('HVCSOF015')) && signatures) {
+      // For SOF-22, SOF-15, and SOF-30, add signature fields if provided
+      if ((task?.name?.includes('HVCSOF022') || task?.name?.includes('HVCSOF015') || task?.name?.includes('HVCSOF030')) && signatures) {
         const { data: qaProfile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -252,12 +252,15 @@ export default function TaskManagement() {
         approval_history: approvalHistory,
       };
 
-      // Set category for SOF-22 and SOF-15 if not already set
+      // Set category for SOF-22, SOF-15, and SOF-30 if not already set
       if (task?.name?.includes('HVCSOF022') && !task?.task_category) {
         updatePayload.task_category = 'scouting_corrective';
       }
       if (task?.name?.includes('HVCSOF015') && !task?.task_category) {
         updatePayload.task_category = 'mortality_discard';
+      }
+      if (task?.name?.includes('HVCSOF030') && !task?.task_category) {
+        updatePayload.task_category = 'fertigation_application';
       }
 
       const { error } = await supabase
@@ -496,8 +499,8 @@ export default function TaskManagement() {
                       }
                       setTaskToSubmit(task.id);
                       
-                      // For SOF-22 and SOF-15, show signature dialog first
-                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015')) {
+                      // For SOF-22, SOF-15, and SOF-30, show signature dialog first
+                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030')) {
                         setShowSignatureDialog(true);
                       } else {
                         setShowSubmitDialog(true);
