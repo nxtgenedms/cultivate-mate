@@ -314,7 +314,7 @@ export const StageTransitionWizard = ({
         <DialogHeader>
           <DialogTitle>
             Stage Transition: {currentStage === 'clone_germination' && nextStage === 'hardening' 
-              ? 'Germination(Clonator1) → Hardening(2)' 
+              ? 'Germination(Clonator1) → Hardening(Clonator2)' 
               : `${STAGE_LABELS[currentStage as keyof typeof STAGE_LABELS] || currentStage} → ${STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || nextStage}`}
           </DialogTitle>
           <DialogDescription>
