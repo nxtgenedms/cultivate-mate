@@ -22,6 +22,7 @@ import { TaskDetailsPopoverContent } from '@/components/tasks/TaskDetailsPopover
 import { TaskApprovalActions } from '@/components/tasks/TaskApprovalActions';
 import { ApprovalProgressBadge } from '@/components/tasks/ApprovalProgressBadge';
 import { TaskItemsManager } from '@/components/tasks/TaskItemsManager';
+import { SignatureDialog } from '@/components/checklists/SignatureDialog';
 import { toast } from 'sonner';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { getApprovalWorkflow, TASK_CATEGORIES, TaskCategory, getCategoryColor, canUserApprove } from '@/lib/taskCategoryUtils';
@@ -43,6 +44,7 @@ export default function BatchDetail() {
   const [showItemsDialog, setShowItemsDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
@@ -153,18 +155,80 @@ export default function BatchDetail() {
   });
 
   const submitForApprovalMutation = useMutation({
-    mutationFn: async (taskId: string) => {
+    mutationFn: async ({ taskId, signatures }: { taskId: string; signatures?: any }) => {
       const task = batchTasks?.find(t => t.id === taskId);
       if (!task || !task.task_category) {
         throw new Error('Task category not found');
       }
 
       const workflow = getApprovalWorkflow(task.task_category);
+      
+      let updatedChecklistItems = (task.checklist_items as any[]) || [];
+      
+      // For SOF-22, add signature fields if provided
+      if (task.name?.includes('HVCSOF0022') && signatures) {
+        const { data: qaProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', signatures.qa_id)
+          .single();
+          
+        const { data: managerProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', signatures.manager_id)
+          .single();
+        
+        updatedChecklistItems = [
+          ...updatedChecklistItems,
+          {
+            id: crypto.randomUUID(),
+            label: 'Grower Signature',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 9998,
+            completed: true,
+            response_value: signatures.grower_name,
+            notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
+          },
+          {
+            id: crypto.randomUUID(),
+            label: 'QA Approval',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 9999,
+            completed: true,
+            response_value: qaProfile?.full_name || signatures.qa_id,
+            notes: `QA Approver: ${qaProfile?.full_name} (ID: ${signatures.qa_id})`,
+          },
+          {
+            id: crypto.randomUUID(),
+            label: 'Manager Approval',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 10000,
+            completed: true,
+            response_value: managerProfile?.full_name || signatures.manager_id,
+            notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
+          }
+        ];
+      }
+
+      const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
+
       const { error } = await supabase
         .from('tasks')
         .update({
           approval_status: 'pending_approval',
           current_approval_stage: 0,
+          checklist_items: updatedChecklistItems as any,
+          completion_progress: {
+            completed: completedCount,
+            total: updatedChecklistItems.length
+          } as any,
           approval_history: [
             {
               stage: 0,
@@ -181,6 +245,7 @@ export default function BatchDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
       setShowSubmitDialog(false);
+      setShowSignatureDialog(false);
       setTaskToSubmit(null);
       toast.success('Task submitted for approval');
     },
@@ -466,7 +531,7 @@ export default function BatchDetail() {
                               </div>
                               <div className="flex gap-2">
                                 {task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft') && (
-                                  <Button
+                                   <Button
                                     variant="default"
                                     size="sm"
                                     onClick={() => {
@@ -480,7 +545,13 @@ export default function BatchDetail() {
                                       }
                                       
                                       setTaskToSubmit(task.id);
-                                      setShowSubmitDialog(true);
+                                      
+                                      // For SOF-22, show signature dialog first
+                                      if (task.name?.includes('HVCSOF0022')) {
+                                        setShowSignatureDialog(true);
+                                      } else {
+                                        setShowSubmitDialog(true);
+                                      }
                                     }}
                                   >
                                     Submit for Approval
@@ -911,7 +982,7 @@ export default function BatchDetail() {
                 <Button
                   onClick={() => {
                     if (taskToSubmit) {
-                      submitForApprovalMutation.mutate(taskToSubmit);
+                      submitForApprovalMutation.mutate({ taskId: taskToSubmit });
                     }
                   }}
                   disabled={submitForApprovalMutation.isPending}
@@ -922,6 +993,21 @@ export default function BatchDetail() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Signature Dialog for SOF-22 */}
+        <SignatureDialog
+          open={showSignatureDialog}
+          onOpenChange={(open) => {
+            setShowSignatureDialog(open);
+            if (!open) setTaskToSubmit(null);
+          }}
+          onConfirm={(signatures) => {
+            if (taskToSubmit) {
+              submitForApprovalMutation.mutate({ taskId: taskToSubmit, signatures });
+            }
+          }}
+          isPending={submitForApprovalMutation.isPending}
+        />
       </div>
     </BatchLayout>
   );

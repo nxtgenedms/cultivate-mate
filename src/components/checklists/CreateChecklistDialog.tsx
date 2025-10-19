@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { SignatureDialog } from "./SignatureDialog";
 import {
   Dialog,
   DialogContent,
@@ -32,8 +31,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
   const [checklistType, setChecklistType] = useState<'general' | 'batch'>('general');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
-  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
-  const [pendingChecklistData, setPendingChecklistData] = useState<any>(null);
 
   const { data: templates } = useQuery({
     queryKey: ['checklist-templates-active'],
@@ -165,7 +162,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         notes: '',
       })) || [];
 
-      // For SOF-22, auto-populate batch info and add signature fields
+      // For SOF-22, auto-populate batch info only (signatures added on submit)
       if (template.sof_number === 'HVCSOF0022' && batchInfo) {
         checklistItems = checklistItems.map(item => {
           if (item.label.toLowerCase().includes('batch') && item.label.toLowerCase().includes('id')) {
@@ -176,45 +173,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
           }
           return item;
         });
-
-        // Add signature information if provided
-        if (signatures) {
-          checklistItems.push(
-            {
-              id: crypto.randomUUID(),
-              label: 'Grower Signature',
-              section: 'Signatures',
-              item_type: 'text',
-              is_required: true,
-              sort_order: 9998,
-              completed: true,
-              response_value: signatures.grower_name,
-              notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
-            },
-            {
-              id: crypto.randomUUID(),
-              label: 'QA Approval',
-              section: 'Signatures',
-              item_type: 'text',
-              is_required: true,
-              sort_order: 9999,
-              completed: true,
-              response_value: signatures.qa_id,
-              notes: `QA Approver ID: ${signatures.qa_id}`,
-            },
-            {
-              id: crypto.randomUUID(),
-              label: 'Manager Approval',
-              section: 'Signatures',
-              item_type: 'text',
-              is_required: true,
-              sort_order: 10000,
-              completed: true,
-              response_value: signatures.manager_id,
-              notes: `Manager Approver ID: ${signatures.manager_id}`,
-            }
-          );
-        }
       }
 
       // Validate task_category - only use if it's a valid enum value
@@ -294,21 +252,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       return;
     }
 
-    const template = templates?.find(t => t.id === selectedTemplate);
-    
-    // For SOF-22, show signature dialog first
-    if (template?.sof_number === 'HVCSOF0022') {
-      setPendingChecklistData({ template, batch: selectedBatch });
-      setShowSignatureDialog(true);
-    } else {
-      createMutation.mutate(undefined);
-    }
-  };
-
-  const handleSignatureConfirm = (signatures: any) => {
-    createMutation.mutate(signatures);
-    setShowSignatureDialog(false);
-    setPendingChecklistData(null);
+    // Create checklist without signatures (added on submit for SOF-22)
+    createMutation.mutate(undefined);
   };
 
   const filteredTemplates = templates?.filter(t => 
@@ -407,12 +352,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         </DialogFooter>
       </DialogContent>
 
-      <SignatureDialog
-        open={showSignatureDialog}
-        onOpenChange={setShowSignatureDialog}
-        onConfirm={handleSignatureConfirm}
-        isPending={createMutation.isPending}
-      />
     </Dialog>
   );
 };

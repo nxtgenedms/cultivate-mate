@@ -21,6 +21,7 @@ import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
 import { ApprovalProgressBadge } from "@/components/tasks/ApprovalProgressBadge";
 import { TaskDetailsPopoverContent } from "@/components/tasks/TaskDetailsPopover";
 import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
+import { SignatureDialog } from "@/components/checklists/SignatureDialog";
 import { format } from "date-fns";
 import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
@@ -36,6 +37,7 @@ export default function TaskManagement() {
   const [dateFilter, setDateFilter] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | "all">("all");
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
   const [selectedApprover, setSelectedApprover] = useState("");
   const queryClient = useQueryClient();
@@ -161,9 +163,64 @@ export default function TaskManagement() {
   });
 
   const submitForApprovalMutation = useMutation({
-    mutationFn: async ({ taskId, approverId }: { taskId: string; approverId: string }) => {
+    mutationFn: async ({ taskId, approverId, signatures }: { taskId: string; approverId: string; signatures?: any }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      const task = tasks?.find(t => t.id === taskId);
+      let updatedChecklistItems = (task?.checklist_items as any[]) || [];
+      
+      // For SOF-22, add signature fields if provided
+      if (task?.name?.includes('HVCSOF0022') && signatures) {
+        const { data: qaProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', signatures.qa_id)
+          .single();
+          
+        const { data: managerProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', signatures.manager_id)
+          .single();
+        
+        updatedChecklistItems = [
+          ...updatedChecklistItems,
+          {
+            id: crypto.randomUUID(),
+            label: 'Grower Signature',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 9998,
+            completed: true,
+            response_value: signatures.grower_name,
+            notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
+          },
+          {
+            id: crypto.randomUUID(),
+            label: 'QA Approval',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 9999,
+            completed: true,
+            response_value: qaProfile?.full_name || signatures.qa_id,
+            notes: `QA Approver: ${qaProfile?.full_name} (ID: ${signatures.qa_id})`,
+          },
+          {
+            id: crypto.randomUUID(),
+            label: 'Manager Approval',
+            section: 'Signatures',
+            item_type: 'text',
+            is_required: true,
+            sort_order: 10000,
+            completed: true,
+            response_value: managerProfile?.full_name || signatures.manager_id,
+            notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
+          }
+        ];
+      }
 
       // Create initial approval history
       const approvalHistory = [{
@@ -174,12 +231,18 @@ export default function TaskManagement() {
         approver_id: approverId,
       }];
 
+      const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
+
       const { error } = await supabase
         .from("tasks")
         .update({
           approval_status: 'pending_approval',
           current_approval_stage: 1,
-          // Keep status as in_progress - approval_status handles the approval workflow
+          checklist_items: updatedChecklistItems as any,
+          completion_progress: {
+            completed: completedCount,
+            total: updatedChecklistItems.length
+          } as any,
           approval_history: approvalHistory,
         })
         .eq("id", taskId);
@@ -189,6 +252,7 @@ export default function TaskManagement() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task submitted for approval");
       setShowSubmitDialog(false);
+      setShowSignatureDialog(false);
       setTaskToSubmit(null);
       setSelectedApprover("");
     },
@@ -413,7 +477,13 @@ export default function TaskManagement() {
                         return;
                       }
                       setTaskToSubmit(task.id);
-                      setShowSubmitDialog(true);
+                      
+                      // For SOF-22, show signature dialog first
+                      if (task.name?.includes('HVCSOF0022')) {
+                        setShowSignatureDialog(true);
+                      } else {
+                        setShowSubmitDialog(true);
+                      }
                     }}
                   >
                     <Send className="mr-1 h-3 w-3" />
@@ -720,6 +790,26 @@ export default function TaskManagement() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Signature Dialog for SOF-22 */}
+        <SignatureDialog
+          open={showSignatureDialog}
+          onOpenChange={(open) => {
+            setShowSignatureDialog(open);
+            if (!open) setTaskToSubmit(null);
+          }}
+          onConfirm={(signatures) => {
+            if (taskToSubmit) {
+              // For SOF-22, we don't need a separate approver since signatures include QA and Manager
+              submitForApprovalMutation.mutate({ 
+                taskId: taskToSubmit, 
+                approverId: signatures.qa_id, // Use QA as primary approver
+                signatures 
+              });
+            }
+          }}
+          isPending={submitForApprovalMutation.isPending}
+        />
       </div>
     </Layout>
   );
