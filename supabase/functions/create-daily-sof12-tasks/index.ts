@@ -81,12 +81,33 @@ Deno.serve(async (req) => {
         continue
       }
 
+      // Get nomenclature template for task numbering
+      const { data: nomenclature } = await supabaseAdmin
+        .from('nomenclature_templates')
+        .select('*')
+        .eq('entity_type', 'task')
+        .eq('is_active', true)
+        .single()
+
       // Get the next task number
       const { count: taskCount } = await supabaseAdmin
         .from('tasks')
         .select('*', { count: 'exact', head: true })
 
-      const taskNumber = `T-${String((taskCount || 0) + 1).padStart(4, '0')}`
+      // Generate task number using nomenclature
+      const generateTaskNumber = (formatPattern: string, count: number) => {
+        const counterMatch = formatPattern?.match(/\{seq\}/) || formatPattern?.match(/\{counter:(\d+)\}/)
+        if (counterMatch) {
+          const padding = counterMatch[1] ? parseInt(counterMatch[1]) : 4
+          const counterValue = String(count + 1).padStart(padding, '0')
+          return formatPattern.replace(/\{seq\}|\{counter:\d+\}/, counterValue)
+        }
+        return `TA-${String(count + 1).padStart(4, '0')}`
+      }
+
+      const taskNumber = nomenclature 
+        ? generateTaskNumber(nomenclature.format_pattern, taskCount || 0)
+        : `TA-${String((taskCount || 0) + 1).padStart(4, '0')}`
 
       // Create the daily task
       const { error: createError } = await supabaseAdmin
@@ -99,7 +120,13 @@ Deno.serve(async (req) => {
           due_date: dueDateString,
           assignee: batch.created_by,
           created_by: batch.created_by,
-          batch_id: batch.id
+          batch_id: batch.id,
+          task_category: null,
+          lifecycle_stage: batch.current_stage,
+          checklist_items: [],
+          completion_progress: { total: 0, completed: 0 },
+          approval_status: 'draft',
+          current_approval_stage: 0
         })
 
       if (createError) {
