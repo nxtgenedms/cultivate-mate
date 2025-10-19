@@ -26,6 +26,7 @@ interface FieldDefinition {
 const STAGE_FIELD_REQUIREMENTS: Record<string, {
   required: FieldDefinition[];
   optional: FieldDefinition[];
+  clonator2?: FieldDefinition[];
 }> = {
   // Transition 1: Preclone to Clone/Germination
   preclone_to_clone_germination: {
@@ -65,11 +66,14 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'dome_no', label: 'Dome Number', type: 'select', options: 'domes' },
     ],
     optional: [
+      { field: 'hardening_completed_by', label: 'Hardening - Completed By', type: 'select', options: 'profiles' },
+      { field: 'hardening_checked_by', label: 'Hardening - Checked By', type: 'select', options: 'profiles' },
+    ],
+    clonator2: [
       { field: 'hardening_area_placed', label: 'Hardening - Area Placed', type: 'text' },
       { field: 'hardening_rack_no', label: 'Hardening - Rack No', type: 'text' },
       { field: 'hardening_no_of_days', label: 'Hardening - No of Days', type: 'number' },
-      { field: 'hardening_completed_by', label: 'Hardening - Completed By', type: 'select', options: 'profiles' },
-      { field: 'hardening_checked_by', label: 'Hardening - Checked By', type: 'select', options: 'profiles' },
+      { field: 'hardening_mortalities', label: 'Hardening Mortalities', type: 'number' },
     ],
   },
 
@@ -322,6 +326,15 @@ export const RequiredFieldsStep = ({
             {fieldRequirements.required.map(field => renderField(field, true))}
           </div>
         </div>
+
+        {fieldRequirements.clonator2 && fieldRequirements.clonator2.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Clonator 2 Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {fieldRequirements.clonator2.map(field => renderField(field, false))}
+            </div>
+          </div>
+        )}
 
         {fieldRequirements.optional.length > 0 && (
           <div className="space-y-4">

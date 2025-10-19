@@ -234,6 +234,17 @@ export const StageTransitionWizard = ({
       
       newFormData[item.fieldName] = value;
     });
+    
+    // For Hardening to Vegetative, auto-populate from batch details
+    if (currentStage === 'hardening' && nextStage === 'vegetative' && batchDetails) {
+      if (!newFormData.hardening_area_placed && batchDetails.clonator_2_area_placed) {
+        newFormData.hardening_area_placed = batchDetails.clonator_2_area_placed;
+      }
+      if (!newFormData.hardening_rack_no && batchDetails.clonator_2_rack_no) {
+        newFormData.hardening_rack_no = batchDetails.clonator_2_rack_no;
+      }
+    }
+    
     setFormData(newFormData);
   };
 
@@ -251,6 +262,30 @@ export const StageTransitionWizard = ({
             (new Date(hardeningDate).getTime() - new Date(germinationDate).getTime()) / (1000 * 60 * 60 * 24)
           );
           newFormData.clonator_2_no_of_days = days;
+        }
+      }
+    }
+    
+    // Auto-populate and calculate fields for Hardening to Vegetative transition
+    if (currentStage === 'hardening' && nextStage === 'vegetative' && batchDetails) {
+      // Auto-populate area and rack from Clonator 2 data
+      if (!newFormData.hardening_area_placed && batchDetails.clonator_2_area_placed) {
+        newFormData.hardening_area_placed = batchDetails.clonator_2_area_placed;
+      }
+      if (!newFormData.hardening_rack_no && batchDetails.clonator_2_rack_no) {
+        newFormData.hardening_rack_no = batchDetails.clonator_2_rack_no;
+      }
+      
+      // Auto-calculate Hardening No of Days when dates change
+      if (field === 'move_to_veg_date' || field === 'hardening_no_of_days') {
+        const vegDate = field === 'move_to_veg_date' ? value : newFormData.move_to_veg_date;
+        const hardeningDate = batchDetails.move_to_hardening_date;
+        
+        if (vegDate && hardeningDate) {
+          const days = Math.floor(
+            (new Date(vegDate).getTime() - new Date(hardeningDate).getTime()) / (1000 * 60 * 60 * 24)
+          );
+          newFormData.hardening_no_of_days = days;
         }
       }
     }
