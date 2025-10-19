@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface SignatureDialogProps {
@@ -39,26 +38,16 @@ export function SignatureDialog({
   onConfirm,
   isPending = false,
 }: SignatureDialogProps) {
-  const [growerName, setGrowerName] = useState("");
   const [growerId, setGrowerId] = useState("");
   const [qaId, setQaId] = useState("");
   const [managerId, setManagerId] = useState("");
 
-  // Get current user info
+  // Get current user info and pre-select as grower
   useEffect(() => {
     const loadCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
-        
-        if (profile) {
-          setGrowerName(profile.full_name);
-          setGrowerId(user.id);
-        }
+        setGrowerId(user.id);
       }
     };
 
@@ -67,57 +56,27 @@ export function SignatureDialog({
     }
   }, [open]);
 
-  // Fetch QA users
-  const { data: qaUsers } = useQuery({
-    queryKey: ["qa-users"],
+  // Fetch all active users (not role-restricted)
+  const { data: allUsers } = useQuery({
+    queryKey: ["all-active-users"],
     queryFn: async () => {
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "qa");
-      
-      if (rolesError) throw rolesError;
-      if (!roles || roles.length === 0) return [];
-      
-      const userIds = roles.map(r => r.user_id);
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles, error } = await supabase
         .from("profiles")
         .select("id, full_name")
-        .in("id", userIds)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .order("full_name");
       
-      if (profilesError) throw profilesError;
-      return profiles || [];
-    },
-    enabled: open,
-  });
-
-  // Fetch Manager users
-  const { data: managerUsers } = useQuery({
-    queryKey: ["manager-users"],
-    queryFn: async () => {
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .in("role", ["manager", "supervisor"]);
-      
-      if (rolesError) throw rolesError;
-      if (!roles || roles.length === 0) return [];
-      
-      const userIds = roles.map(r => r.user_id);
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", userIds)
-        .eq("is_active", true);
-      
-      if (profilesError) throw profilesError;
+      if (error) throw error;
       return profiles || [];
     },
     enabled: open,
   });
 
   const handleConfirm = () => {
+    if (!growerId) {
+      toast.error("Please select a Grower");
+      return;
+    }
     if (!qaId) {
       toast.error("Please select a QA approver");
       return;
@@ -126,6 +85,8 @@ export function SignatureDialog({
       toast.error("Please select a Manager approver");
       return;
     }
+
+    const growerName = allUsers?.find(u => u.id === growerId)?.full_name || "";
 
     onConfirm({
       grower_id: growerId,
@@ -147,13 +108,19 @@ export function SignatureDialog({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="grower">Grower</Label>
-            <Input
-              id="grower"
-              value={growerName}
-              disabled
-              className="bg-muted"
-            />
+            <Label htmlFor="grower">Grower *</Label>
+            <Select value={growerId} onValueChange={setGrowerId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Grower" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-background">
+                {allUsers?.map((user: any) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -163,7 +130,7 @@ export function SignatureDialog({
                 <SelectValue placeholder="Select QA user" />
               </SelectTrigger>
               <SelectContent className="z-50 bg-background">
-                {qaUsers?.map((user: any) => (
+                {allUsers?.map((user: any) => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.full_name}
                   </SelectItem>
@@ -179,7 +146,7 @@ export function SignatureDialog({
                 <SelectValue placeholder="Select Manager user" />
               </SelectTrigger>
               <SelectContent className="z-50 bg-background">
-                {managerUsers?.map((user: any) => (
+                {allUsers?.map((user: any) => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.full_name}
                   </SelectItem>
