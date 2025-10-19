@@ -36,16 +36,14 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
     optional: [
       { field: 'clonator_1', label: 'Clonator 1 Unit', type: 'text' },
       { field: 'rack_no', label: 'Clonator 1 - Rack Number', type: 'text' },
-      { field: 'clonator_mortalities', label: 'Clonator / Germination Mortalities', type: 'number' },
       { field: 'expected_rooting_date', label: 'Expected Rooting Date', type: 'date' },
-      { field: 'actual_rooting_date', label: 'Actual Rooting Date', type: 'date' },
     ],
   },
 
   // Transition 2: Clone/Germination to Hardening
   clone_germination_to_hardening: {
     required: [
-      { field: 'expected_rooting_date', label: 'Expected Rooting Date', type: 'date' },
+      { field: 'clonator_mortalities', label: 'Clonator / Germination Mortalities', type: 'number' },
       { field: 'actual_rooting_date', label: 'Actual Rooting Date', type: 'date' },
       { field: 'move_to_hardening_date', label: 'Move to Hardening Date', type: 'date' },
       { field: 'hardening_number_clones', label: 'Number of Clones (Hardening)', type: 'number' },
@@ -58,7 +56,6 @@ const STAGE_FIELD_REQUIREMENTS: Record<string, {
       { field: 'clonator_2_rack_no', label: 'Clonator 2 - Rack No', type: 'text' },
       { field: 'clonator_2_no_of_days', label: 'Clonator 2 - No of Days', type: 'number' },
       { field: 'clonator_2_completed_by', label: 'Clonator 2 - Completed By', type: 'select', options: 'profiles' },
-      { field: 'clonator_mortalities', label: 'Clonator Mortalities', type: 'number' },
     ],
   },
 
