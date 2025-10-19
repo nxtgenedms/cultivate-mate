@@ -165,8 +165,8 @@ export default function BatchDetail() {
       
       let updatedChecklistItems = (task.checklist_items as any[]) || [];
       
-      // For SOF-22, add signature fields if provided
-      if (task.name?.includes('HVCSOF022') && signatures) {
+      // For SOF-22 and SOF-15, add signature fields if provided
+      if ((task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015')) && signatures) {
         const { data: qaProfile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -238,9 +238,12 @@ export default function BatchDetail() {
         ]
       };
 
-      // Set category for SOF-22 if not already set
+      // Set category for SOF-22 and SOF-15 if not already set
       if (task.name?.includes('HVCSOF022') && !task.task_category) {
         updatePayload.task_category = 'scouting_corrective';
+      }
+      if (task.name?.includes('HVCSOF015') && !task.task_category) {
+        updatePayload.task_category = 'mortality_discard';
       }
 
       const { error } = await supabase
