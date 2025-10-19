@@ -96,7 +96,16 @@ export default function BatchDetail() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Deduplicate tasks by keeping only the latest for each unique task name
+      const uniqueTasks = new Map();
+      data?.forEach((task: any) => {
+        if (!uniqueTasks.has(task.name)) {
+          uniqueTasks.set(task.name, task);
+        }
+      });
+      
+      return Array.from(uniqueTasks.values());
     },
   });
 
