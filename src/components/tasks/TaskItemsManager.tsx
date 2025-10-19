@@ -91,7 +91,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
         .from("tasks")
         .update({
           checklist_items: updatedItems as any,
-          completion_progress: { completed, total: updatedItems.length } as any,
+          completion_progress: { completed, total } as any,
           // Don't auto-change status - user must manually submit for approval
         })
         .eq("id", task.id);
