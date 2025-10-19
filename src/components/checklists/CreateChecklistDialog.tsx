@@ -301,7 +301,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       setPendingChecklistData({ template, batch: selectedBatch });
       setShowSignatureDialog(true);
     } else {
-      createMutation.mutate();
+      createMutation.mutate(undefined);
     }
   };
 

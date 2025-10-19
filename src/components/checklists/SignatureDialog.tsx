@@ -71,16 +71,23 @@ export function SignatureDialog({
   const { data: qaUsers } = useQuery({
     queryKey: ["qa-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: roles, error: rolesError } = await supabase
         .from("user_roles")
-        .select("user_id, profiles!inner(id, full_name)")
+        .select("user_id")
         .eq("role", "qa");
       
-      if (error) throw error;
-      return data.map((item: any) => ({
-        id: item.user_id,
-        full_name: item.profiles.full_name,
-      }));
+      if (rolesError) throw rolesError;
+      if (!roles || roles.length === 0) return [];
+      
+      const userIds = roles.map(r => r.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", userIds)
+        .eq("is_active", true);
+      
+      if (profilesError) throw profilesError;
+      return profiles || [];
     },
     enabled: open,
   });
@@ -89,16 +96,23 @@ export function SignatureDialog({
   const { data: managerUsers } = useQuery({
     queryKey: ["manager-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: roles, error: rolesError } = await supabase
         .from("user_roles")
-        .select("user_id, profiles!inner(id, full_name)")
+        .select("user_id")
         .in("role", ["manager", "supervisor"]);
       
-      if (error) throw error;
-      return data.map((item: any) => ({
-        id: item.user_id,
-        full_name: item.profiles.full_name,
-      }));
+      if (rolesError) throw rolesError;
+      if (!roles || roles.length === 0) return [];
+      
+      const userIds = roles.map(r => r.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", userIds)
+        .eq("is_active", true);
+      
+      if (profilesError) throw profilesError;
+      return profiles || [];
     },
     enabled: open,
   });
