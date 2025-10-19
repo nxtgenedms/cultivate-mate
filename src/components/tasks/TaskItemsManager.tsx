@@ -36,7 +36,23 @@ interface TaskItemsManagerProps {
 }
 
 export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsManagerProps) {
-  const [items, setItems] = useState<TaskItem[]>(task.checklist_items || []);
+  // Filter out signature fields for SOF-22 tasks (they're added on submit, not displayed in form)
+  const filterSignatureFields = (items: TaskItem[]) => {
+    if (task.name?.includes('HVCSOF0022') || task.name?.includes('SOF-22')) {
+      return items.filter(item => {
+        const label = item.label.toLowerCase();
+        return !label.includes('grower sign') && 
+               !label.includes('manager sign') && 
+               !label.includes('qa sign') &&
+               !label.includes('grower approval') &&
+               !label.includes('manager approval') &&
+               !label.includes('qa approval');
+      });
+    }
+    return items;
+  };
+
+  const [items, setItems] = useState<TaskItem[]>(filterSignatureFields(task.checklist_items || []));
   const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
   const [tempDate, setTempDate] = useState<Date | undefined>();
   const [tempHour, setTempHour] = useState<string>("12");
@@ -46,7 +62,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
 
   // Initialize items from task
   useEffect(() => {
-    setItems(task.checklist_items || []);
+    setItems(filterSignatureFields(task.checklist_items || []));
   }, [task.checklist_items]);
 
   const updateMutation = useMutation({
@@ -54,11 +70,28 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
       const completed = items.filter(item => item.completed).length;
       const total = items.length;
 
+      // Get original checklist items (with signatures if present)
+      const originalItems = task.checklist_items || [];
+      
+      // For SOF-22, preserve signature fields if they exist
+      const signatureItems = originalItems.filter((item: any) => {
+        const label = item.label.toLowerCase();
+        return label.includes('grower sign') || 
+               label.includes('manager sign') || 
+               label.includes('qa sign') ||
+               label.includes('grower approval') ||
+               label.includes('manager approval') ||
+               label.includes('qa approval');
+      });
+      
+      // Merge updated items with signature items (for SOF-22)
+      const updatedItems = [...items, ...signatureItems];
+
       const { error } = await supabase
         .from("tasks")
         .update({
-          checklist_items: items as any,
-          completion_progress: { completed, total } as any,
+          checklist_items: updatedItems as any,
+          completion_progress: { completed, total: updatedItems.length } as any,
           // Don't auto-change status - user must manually submit for approval
         })
         .eq("id", task.id);

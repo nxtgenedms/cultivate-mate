@@ -162,17 +162,29 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         notes: '',
       })) || [];
 
-      // For SOF-22, auto-populate batch info only (signatures added on submit)
-      if (template.sof_number === 'HVCSOF0022' && batchInfo) {
-        checklistItems = checklistItems.map(item => {
-          if (item.label.toLowerCase().includes('batch') && item.label.toLowerCase().includes('id')) {
-            return { ...item, response_value: batchInfo.batch_number, completed: true };
-          }
-          if (item.label.toLowerCase().includes('strain')) {
-            return { ...item, response_value: batchInfo.strain_id || '', completed: !!batchInfo.strain_id };
-          }
-          return item;
+      // For SOF-22, filter out signature fields and auto-populate batch info
+      if (template.sof_number === 'HVCSOF0022') {
+        // Remove signature fields from the checklist (they'll be added on submit)
+        checklistItems = checklistItems.filter(item => {
+          const label = item.label.toLowerCase();
+          return !label.includes('grower sign') && 
+                 !label.includes('manager sign') && 
+                 !label.includes('qa sign');
         });
+        
+        // Auto-populate batch info if batch is selected
+        if (batchInfo) {
+          checklistItems = checklistItems.map(item => {
+            const label = item.label.toLowerCase();
+            if (label.includes('batch') && (label.includes('id') || label.includes('number'))) {
+              return { ...item, response_value: batchInfo.batch_number, completed: true };
+            }
+            if (label.includes('strain')) {
+              return { ...item, response_value: batchInfo.strain_id || '', completed: !!batchInfo.strain_id };
+            }
+            return item;
+          });
+        }
       }
 
       // Validate task_category - only use if it's a valid enum value
