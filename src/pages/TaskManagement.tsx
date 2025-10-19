@@ -177,67 +177,33 @@ export default function TaskManagement() {
           .select('full_name')
           .eq('id', signatures.qa_id)
           .single();
-          
+
         const { data: managerProfile } = await supabase
           .from('profiles')
           .select('full_name')
           .eq('id', signatures.manager_id)
           .single();
-        
+
+        // Add QA and Manager signature items to checklist
         updatedChecklistItems = [
           ...updatedChecklistItems,
           {
             id: crypto.randomUUID(),
-            label: 'Grower Signature',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 9998,
+            label: 'QA Signature',
             completed: true,
-            response_value: signatures.grower_name,
-            notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
-          },
-          {
-            id: crypto.randomUUID(),
-            label: 'QA Approval',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 9999,
-            completed: true,
-            response_value: qaProfile?.full_name || signatures.qa_id,
+            section: 'approvals',
+            type: 'signature',
             notes: `QA Approver: ${qaProfile?.full_name} (ID: ${signatures.qa_id})`,
           },
           {
             id: crypto.randomUUID(),
-            label: 'Manager Approval',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 10000,
+            label: 'Manager Signature',
             completed: true,
-            response_value: managerProfile?.full_name || signatures.manager_id,
+            section: 'approvals',
+            type: 'signature',
             notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
           }
         ];
-
-        // For SOF-22, mark as completed since all signatures are collected
-        const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
-        
-        const { error } = await supabase
-          .from("tasks")
-          .update({
-            status: 'completed',
-            approval_status: 'approved',
-            checklist_items: updatedChecklistItems as any,
-            completion_progress: {
-              completed: completedCount,
-              total: updatedChecklistItems.length
-            } as any,
-          })
-          .eq("id", taskId);
-        if (error) throw error;
-        return;
       }
 
       // Create initial approval history
