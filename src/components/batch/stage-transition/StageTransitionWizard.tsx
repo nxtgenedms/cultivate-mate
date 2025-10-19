@@ -13,6 +13,16 @@ import { ExtractedFieldData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 import { STAGE_LABELS } from "@/lib/batchUtils";
 
+interface ChecklistTemplate {
+  id: string;
+  template_name: string;
+  sof_number: string;
+  lifecycle_phase: string;
+  description?: string;
+  isRequired?: boolean;
+  isOptional?: boolean;
+}
+
 interface StageTransitionWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -88,6 +98,13 @@ export const StageTransitionWizard = ({
   // Define required checklists for specific stage transitions
   const REQUIRED_CHECKLISTS_BY_TRANSITION: Record<string, string[]> = {
     'hardening_to_vegetative': ['HVCSOF012', 'HVCSOF022', 'HVCSOF015'],
+    'vegetative_to_flowering_grow_room': ['HVCSOF030', 'HVCSOF015', 'HVCSOF022'],
+    // Add more transitions as needed
+  };
+
+  // Define optional checklists for specific stage transitions
+  const OPTIONAL_CHECKLISTS_BY_TRANSITION: Record<string, string[]> = {
+    'vegetative_to_flowering_grow_room': ['HVCSOF019'],
     // Add more transitions as needed
   };
 
@@ -96,26 +113,38 @@ export const StageTransitionWizard = ({
     return REQUIRED_CHECKLISTS_BY_TRANSITION[transitionKey] || [];
   };
 
-  // Fetch checklist templates for current stage AND required checklists for transition
-  const { data: checklistTemplates = [] } = useQuery({
+  const getOptionalChecklistsForTransition = () => {
+    const transitionKey = `${currentStage}_to_${nextStage}`;
+    return OPTIONAL_CHECKLISTS_BY_TRANSITION[transitionKey] || [];
+  };
+
+  // Fetch checklist templates for current stage AND required/optional checklists for transition
+  const { data: checklistTemplates = [] } = useQuery<ChecklistTemplate[]>({
     queryKey: ['checklist-templates-transition', currentStage, nextStage],
     queryFn: async () => {
       const requiredSOFs = getRequiredChecklistsForTransition();
+      const optionalSOFs = getOptionalChecklistsForTransition();
+      const allSOFs = [...requiredSOFs, ...optionalSOFs];
       
-      // If there are specific required checklists for this transition, fetch those
-      if (requiredSOFs.length > 0) {
+      // If there are specific checklists for this transition, fetch those
+      if (allSOFs.length > 0) {
         const { data, error } = await supabase
           .from('checklist_templates')
           .select('*')
-          .in('sof_number', requiredSOFs)
+          .in('sof_number', allSOFs)
           .eq('is_active', true);
         
         if (error) {
-          console.warn('Failed to fetch required checklist templates:', error);
+          console.warn('Failed to fetch checklist templates:', error);
           return [];
         }
         
-        return data || [];
+        // Mark which templates are required vs optional
+        return (data || []).map(template => ({
+          ...template,
+          isRequired: requiredSOFs.includes(template.sof_number),
+          isOptional: optionalSOFs.includes(template.sof_number)
+        }));
       }
       
       // Otherwise, fetch by lifecycle phase (existing behavior)
@@ -130,7 +159,7 @@ export const StageTransitionWizard = ({
         return [];
       }
       
-      return data || [];
+      return (data || []).map(template => ({ ...template, isRequired: true, isOptional: false }));
     },
     enabled: open,
   });
@@ -353,8 +382,11 @@ export const StageTransitionWizard = ({
 
   const canProceed = () => {
     if (currentStep === 1) {
-      // Check if any checklist templates exist for this stage but tasks haven't been created
+      // Check if any REQUIRED checklist templates exist for this stage but tasks haven't been created
       const missingChecklists = checklistTemplates.filter(template => {
+        // Only check required templates
+        if (template.isOptional) return false;
+        
         // Check if any tasks exist for this template's SOF number and batch
         const tasksForTemplate = tasks.filter(t => 
           t.name.includes(template.sof_number) && t.batch_id === batchId
@@ -454,8 +486,11 @@ export const StageTransitionWizard = ({
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 {(() => {
-                  // Check for missing checklist tasks first
+                  // Check for missing REQUIRED checklist tasks first
                   const missingChecklists = checklistTemplates.filter(template => {
+                    // Only check required templates
+                    if (template.isOptional) return false;
+                    
                     const tasksForTemplate = tasks.filter(t => 
                       t.name.includes(template.sof_number) && t.batch_id === batchId
                     );

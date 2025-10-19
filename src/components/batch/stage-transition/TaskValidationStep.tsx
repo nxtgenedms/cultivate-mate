@@ -17,6 +17,8 @@ interface ChecklistTemplate {
   sof_number: string;
   lifecycle_phase: string;
   description?: string;
+  isRequired?: boolean;
+  isOptional?: boolean;
 }
 
 interface TaskValidationStepProps {
@@ -95,6 +97,10 @@ export const TaskValidationStep = ({
       tasks: tasksForChecklist
     };
   });
+
+  // Separate required and optional checklists
+  const requiredChecklists = checklistStatus.filter(cs => cs.template.isRequired !== false && !cs.template.isOptional);
+  const optionalChecklists = checklistStatus.filter(cs => cs.template.isOptional === true);
 
   const allBatchTasks = [...stageSpecificTasks, ...otherBatchTasks];
 
@@ -223,20 +229,18 @@ export const TaskValidationStep = ({
   return (
     <div className="space-y-4">
       {/* ========== REQUIRED CHECKLISTS ========== */}
-      <Card className="border-orange-500/50">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <CardTitle className="text-base">Required Checklists ({checklistTemplates.length})</CardTitle>
+      {requiredChecklists.length > 0 && (
+        <Card className="border-orange-500/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                <CardTitle className="text-base">Required Checklists ({requiredChecklists.length})</CardTitle>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {checklistTemplates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No checklists required for {currentStage} stage.</p>
-          ) : (
-            checklistStatus.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {requiredChecklists.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
               <div key={template.id} className={`flex items-center justify-between p-3 rounded-md border ${
                 !tasksCreated 
                   ? 'border-red-300 bg-red-50 dark:bg-red-950/20' 
@@ -265,10 +269,56 @@ export const TaskValidationStep = ({
                   </Badge>
                 )}
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ========== OPTIONAL CHECKLISTS ========== */}
+      {optionalChecklists.length > 0 && (
+        <Card className="border-blue-500/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-base">Optional Checklists ({optionalChecklists.length})</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {optionalChecklists.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
+              <div key={template.id} className={`flex items-center justify-between p-3 rounded-md border ${
+                !tasksCreated 
+                  ? 'border-blue-200 bg-blue-50 dark:bg-blue-950/20' 
+                  : completedTasks === totalTasks
+                  ? 'border-green-300 bg-green-50 dark:bg-green-950/20'
+                  : 'border-orange-200 bg-orange-50 dark:bg-orange-950/10'
+              }`}>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{template.template_name}</p>
+                  <p className="text-xs text-muted-foreground">{template.sof_number} (Optional)</p>
+                </div>
+                {!tasksCreated ? (
+                  <Badge variant="secondary" className="text-xs">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Not Created
+                  </Badge>
+                ) : completedTasks === totalTasks ? (
+                  <Badge className="bg-green-600 hover:bg-green-700 text-xs">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {completedTasks}/{totalTasks}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {completedTasks}/{totalTasks}
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* ========== BATCH TASKS ========== */}
       <Card>
