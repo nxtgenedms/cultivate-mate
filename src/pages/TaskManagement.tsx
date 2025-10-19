@@ -171,7 +171,7 @@ export default function TaskManagement() {
       let updatedChecklistItems = (task?.checklist_items as any[]) || [];
       
       // For SOF-22, add signature fields if provided
-      if (task?.name?.includes('HVCSOF022')) {
+      if (task?.name?.includes('HVCSOF022') && signatures) {
         const { data: qaProfile } = await supabase
           .from('profiles')
           .select('full_name')
@@ -220,6 +220,24 @@ export default function TaskManagement() {
             notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
           }
         ];
+
+        // For SOF-22, mark as completed since all signatures are collected
+        const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
+        
+        const { error } = await supabase
+          .from("tasks")
+          .update({
+            status: 'completed',
+            approval_status: 'approved',
+            checklist_items: updatedChecklistItems as any,
+            completion_progress: {
+              completed: completedCount,
+              total: updatedChecklistItems.length
+            } as any,
+          })
+          .eq("id", taskId);
+        if (error) throw error;
+        return;
       }
 
       // Create initial approval history
@@ -379,9 +397,8 @@ export default function TaskManagement() {
     // Group tasks by status and approval
     const tasksByStatus = {
       pending_approval: taskList.filter(task => 
-        task.task_category && 
         task.approval_status === 'pending_approval' &&
-        canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles)
+        (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true)
       ),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),

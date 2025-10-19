@@ -215,6 +215,24 @@ export default function BatchDetail() {
             notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
           }
         ];
+
+        // For SOF-22, mark as completed since all signatures are collected
+        const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
+        
+        const { error } = await supabase
+          .from('tasks')
+          .update({
+            status: 'completed',
+            approval_status: 'approved',
+            checklist_items: updatedChecklistItems as any,
+            completion_progress: {
+              completed: completedCount,
+              total: updatedChecklistItems.length
+            } as any,
+          })
+          .eq('id', taskId);
+        if (error) throw error;
+        return;
       }
 
       const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
