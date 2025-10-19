@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { SignatureDialog } from "./SignatureDialog";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
   const [checklistType, setChecklistType] = useState<'general' | 'batch'>('general');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+  const [pendingChecklistData, setPendingChecklistData] = useState<any>(null);
 
   const { data: templates } = useQuery({
     queryKey: ['checklist-templates-active'],
@@ -52,7 +55,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     queryFn: async () => {
       const { data, error } = await supabase
         .from('batch_lifecycle_records')
-        .select('id, batch_number, mother_no, current_stage')
+        .select('id, batch_number, mother_no, current_stage, strain_id')
         .order('batch_number', { ascending: false });
       
       if (error) throw error;
@@ -91,7 +94,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
   });
 
   const createMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (signatures?: any) => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
@@ -142,8 +145,15 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         ? generateTaskNumber(nomenclature.format_pattern, tasksCount || 0)
         : `TASK-${String((tasksCount || 0) + 1).padStart(4, '0')}`;
 
+      // Get batch details if batch-specific
+      let batchInfo = null;
+      if (checklistType === 'batch' && selectedBatch) {
+        const batch = batches?.find(b => b.id === selectedBatch);
+        batchInfo = batch;
+      }
+
       // Convert template items to checklist items format
-      const checklistItems = templateItems?.map(item => ({
+      let checklistItems = templateItems?.map(item => ({
         id: crypto.randomUUID(),
         label: item.item_label,
         section: item.section_name || 'General',
@@ -154,6 +164,58 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         response_value: '',
         notes: '',
       })) || [];
+
+      // For SOF-22, auto-populate batch info and add signature fields
+      if (template.sof_number === 'HVCSOF0022' && batchInfo) {
+        checklistItems = checklistItems.map(item => {
+          if (item.label.toLowerCase().includes('batch') && item.label.toLowerCase().includes('id')) {
+            return { ...item, response_value: batchInfo.batch_number, completed: true };
+          }
+          if (item.label.toLowerCase().includes('strain')) {
+            return { ...item, response_value: batchInfo.strain_id || '', completed: !!batchInfo.strain_id };
+          }
+          return item;
+        });
+
+        // Add signature information if provided
+        if (signatures) {
+          checklistItems.push(
+            {
+              id: crypto.randomUUID(),
+              label: 'Grower Signature',
+              section: 'Signatures',
+              item_type: 'text',
+              is_required: true,
+              sort_order: 9998,
+              completed: true,
+              response_value: signatures.grower_name,
+              notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
+            },
+            {
+              id: crypto.randomUUID(),
+              label: 'QA Approval',
+              section: 'Signatures',
+              item_type: 'text',
+              is_required: true,
+              sort_order: 9999,
+              completed: true,
+              response_value: signatures.qa_id,
+              notes: `QA Approver ID: ${signatures.qa_id}`,
+            },
+            {
+              id: crypto.randomUUID(),
+              label: 'Manager Approval',
+              section: 'Signatures',
+              item_type: 'text',
+              is_required: true,
+              sort_order: 10000,
+              completed: true,
+              response_value: signatures.manager_id,
+              notes: `Manager Approver ID: ${signatures.manager_id}`,
+            }
+          );
+        }
+      }
 
       // Validate task_category - only use if it's a valid enum value
       const validTaskCategories = [
@@ -232,7 +294,21 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       return;
     }
 
-    createMutation.mutate();
+    const template = templates?.find(t => t.id === selectedTemplate);
+    
+    // For SOF-22, show signature dialog first
+    if (template?.sof_number === 'HVCSOF0022') {
+      setPendingChecklistData({ template, batch: selectedBatch });
+      setShowSignatureDialog(true);
+    } else {
+      createMutation.mutate();
+    }
+  };
+
+  const handleSignatureConfirm = (signatures: any) => {
+    createMutation.mutate(signatures);
+    setShowSignatureDialog(false);
+    setPendingChecklistData(null);
   };
 
   const filteredTemplates = templates?.filter(t => 
@@ -330,6 +406,13 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <SignatureDialog
+        open={showSignatureDialog}
+        onOpenChange={setShowSignatureDialog}
+        onConfirm={handleSignatureConfirm}
+        isPending={createMutation.isPending}
+      />
     </Dialog>
   );
 };
