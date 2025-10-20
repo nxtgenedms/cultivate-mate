@@ -190,19 +190,19 @@ export default function BatchDashboard() {
             </CardHeader>
             <CardContent className="pt-0">
               {isLoading ? (
-                <div className="flex items-center justify-center h-[300px]">
+                <div className="flex items-center justify-center h-[350px]">
                   <Skeleton className="h-[250px] w-[250px] rounded-full" />
                 </div>
               ) : chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={350}>
                   <PieChart>
                     <Pie
                       data={chartData}
-                      cx="50%"
+                      cx="35%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
+                      label={false}
+                      outerRadius={90}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -214,14 +214,21 @@ export default function BatchDashboard() {
                       formatter={(value: number) => [`${value} ${value === 1 ? 'batch' : 'batches'}`, 'Count']}
                     />
                     <Legend 
-                      verticalAlign="bottom" 
-                      height={36}
-                      formatter={(value, entry: any) => `${value} (${entry.payload.value})`}
+                      layout="vertical"
+                      verticalAlign="middle" 
+                      align="right"
+                      iconType="circle"
+                      iconSize={8}
+                      formatter={(value, entry: any) => (
+                        <span className="text-xs">
+                          {value} <span className="font-semibold">({entry.payload.value})</span>
+                        </span>
+                      )}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm">
+                <div className="flex items-center justify-center h-[350px] text-muted-foreground text-sm">
                   No stage data available
                 </div>
               )}
