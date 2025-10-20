@@ -1,26 +1,112 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Check, X, Edit, Save, XCircle } from 'lucide-react';
 import { AppRole } from '@/hooks/useUserRoles';
 import { PermissionDefinition } from '@/hooks/useUserPermissions';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PermissionsMatrixProps {
   permissions: PermissionDefinition[];
 }
 
+interface RolePermission {
+  role: AppRole;
+  permission_key: string;
+  is_granted: boolean;
+}
+
 export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
-  // Define default permissions for each role (matches the database function logic)
-  const rolePermissions: Record<AppRole, string[]> = {
-    it_admin: permissions.map((p) => p.permission_key), // All permissions
-    business_admin: permissions.map((p) => p.permission_key), // All permissions
-    supervisor: permissions.filter((p) => p.permission_key !== 'manage_permissions').map((p) => p.permission_key),
-    manager: permissions.filter((p) => p.permission_key !== 'manage_permissions').map((p) => p.permission_key),
-    qa: ['view_all_tasks', 'approve_tasks', 'view_all_batches', 'view_inventory_reports', 'view_reports'],
-    grower: ['create_tasks', 'create_batches', 'edit_batches', 'manage_inventory', 'view_reports'],
-    assistant_grower: ['create_tasks', 'manage_inventory'],
-  };
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedPermissions, setEditedPermissions] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
 
   const roles: AppRole[] = ['it_admin', 'business_admin', 'supervisor', 'manager', 'qa', 'grower', 'assistant_grower'];
+
+  // Fetch role permissions from database
+  const { data: rolePermissionsData, isLoading } = useQuery({
+    queryKey: ['role-permissions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('role_permissions')
+        .select('*');
+      
+      if (error) throw error;
+      return data as RolePermission[];
+    },
+  });
+
+  // Build a map of role + permission_key -> is_granted
+  const rolePermissions: Record<string, boolean> = {};
+  rolePermissionsData?.forEach((rp) => {
+    rolePermissions[`${rp.role}:${rp.permission_key}`] = rp.is_granted;
+  });
+
+  // Mutation to save permission changes
+  const saveMutation = useMutation({
+    mutationFn: async (changes: { role: AppRole; permission_key: string; is_granted: boolean }[]) => {
+      const promises = changes.map((change) =>
+        supabase
+          .from('role_permissions')
+          .upsert({
+            role: change.role,
+            permission_key: change.permission_key,
+            is_granted: change.is_granted,
+          }, { onConflict: 'role,permission_key' })
+      );
+      
+      const results = await Promise.all(promises);
+      const errors = results.filter((r) => r.error);
+      if (errors.length > 0) throw errors[0].error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['role-permissions'] });
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+      setIsEditMode(false);
+      setEditedPermissions({});
+      toast.success('Permissions updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to update permissions', {
+        description: error.message,
+      });
+    },
+  });
+
+  const handleSave = () => {
+    const changes = Object.entries(editedPermissions).map(([key, is_granted]) => {
+      const [role, permission_key] = key.split(':');
+      return { role: role as AppRole, permission_key, is_granted };
+    });
+    
+    saveMutation.mutate(changes);
+  };
+
+  const handleCancel = () => {
+    setIsEditMode(false);
+    setEditedPermissions({});
+  };
+
+  const togglePermission = (role: AppRole, permission_key: string) => {
+    const key = `${role}:${permission_key}`;
+    const currentValue = editedPermissions[key] ?? rolePermissions[key] ?? false;
+    setEditedPermissions({
+      ...editedPermissions,
+      [key]: !currentValue,
+    });
+  };
+
+  const getPermissionValue = (role: AppRole, permission_key: string) => {
+    const key = `${role}:${permission_key}`;
+    if (key in editedPermissions) {
+      return editedPermissions[key];
+    }
+    return rolePermissions[key] ?? false;
+  };
 
   // Group permissions by category
   const groupedPermissions = permissions.reduce((acc, perm) => {
@@ -54,13 +140,49 @@ export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
     );
   }
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          Loading permissions...
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Default Role Permissions Matrix</CardTitle>
-        <CardDescription>
-          This shows the baseline permissions for each role. Individual users can have custom overrides.
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Role Permissions Matrix</CardTitle>
+            <CardDescription>
+              {isEditMode 
+                ? 'Edit permissions for each role. Changes affect all users with that role.'
+                : 'View and manage baseline permissions for each role. Individual users can have custom overrides.'
+              }
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            {!isEditMode ? (
+              <Button onClick={() => setIsEditMode(true)} variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            ) : (
+              <>
+                <Button onClick={handleCancel} variant="outline" disabled={saveMutation.isPending}>
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={saveMutation.isPending}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -102,10 +224,16 @@ export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
                           </div>
                         </td>
                         {roles.map((role) => {
-                          const hasPermission = rolePermissions[role]?.includes(perm.permission_key);
+                          const hasPermission = getPermissionValue(role, perm.permission_key);
                           return (
                             <td key={role} className="text-center p-3">
-                              {hasPermission ? (
+                              {isEditMode ? (
+                                <Checkbox
+                                  checked={hasPermission}
+                                  onCheckedChange={() => togglePermission(role, perm.permission_key)}
+                                  className="mx-auto"
+                                />
+                              ) : hasPermission ? (
                                 <Check className="h-5 w-5 text-success mx-auto" />
                               ) : (
                                 <X className="h-5 w-5 text-muted-foreground/30 mx-auto" />
