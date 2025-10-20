@@ -19,12 +19,14 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TaskDetailsPopoverContent } from '@/components/tasks/TaskDetailsPopover';
-import { TaskApprovalActions } from '@/components/tasks/TaskApprovalActions';
+import { TaskSubmitForApprovalDialog } from "@/components/tasks/TaskSubmitForApprovalDialog";
+import { TaskApprovalActionsDialog } from "@/components/tasks/TaskApprovalActionsDialog";
 import { ApprovalProgressBadge } from '@/components/tasks/ApprovalProgressBadge';
 import { TaskItemsManager } from '@/components/tasks/TaskItemsManager';
 import { SignatureDialog } from '@/components/checklists/SignatureDialog';
 import { toast } from 'sonner';
-import { useUserRoles } from '@/hooks/useUserRoles';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserRoles, useIsAdmin } from '@/hooks/useUserRoles';
 import { getApprovalWorkflow, TASK_CATEGORIES, TaskCategory, getCategoryColor, canUserApprove } from '@/lib/taskCategoryUtils';
 import { 
   getStageColor, 
@@ -49,6 +51,8 @@ export default function BatchDetail() {
   
   const queryClient = useQueryClient();
   const userRoles = useUserRoles();
+  const { user } = useAuth();
+  const isAdmin = useIsAdmin();
 
   const { data: batch, isLoading } = useQuery({
     queryKey: ['batch-detail', id],
@@ -585,16 +589,18 @@ export default function BatchDetail() {
                                   >
                                     Submit for Approval
                                   </Button>
-                                )}
-                                {task.task_category && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles.data || []) && task.approval_status === 'pending_approval' && (
-                                  <TaskApprovalActions
-                                    taskId={task.id}
-                                    taskName={task.name}
-                                    currentStage={task.current_approval_stage || 0}
-                                    totalStages={getApprovalWorkflow(task.task_category).totalStages}
-                                    onSuccess={() => queryClient.invalidateQueries({ queryKey: ['batch-tasks'] })}
-                                  />
-                                )}
+                                 )}
+                                 
+                                 {/* Approval Actions - for pending approval tasks */}
+                                 {task.approval_status === 'pending_approval' && 
+                                   (task.assignee === user?.id || isAdmin) && (
+                                   <TaskApprovalActionsDialog
+                                     taskId={task.id}
+                                     taskName={task.name}
+                                     currentAssignee={task.assignee || undefined}
+                                     onSuccess={() => queryClient.invalidateQueries({ queryKey: ['batch-tasks'] })}
+                                   />
+                                 )}
                                 {hasItems && task.status !== 'completed' && task.approval_status !== 'approved' && (
                                   <Button
                                     variant="default"

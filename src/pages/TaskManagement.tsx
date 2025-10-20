@@ -17,7 +17,8 @@ import { toast } from "sonner";
 import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
 import { TwoLevelCategoryFilter } from "@/components/tasks/TwoLevelCategoryFilter";
-import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
+import { TaskSubmitForApprovalDialog } from "@/components/tasks/TaskSubmitForApprovalDialog";
+import { TaskApprovalActionsDialog } from "@/components/tasks/TaskApprovalActionsDialog";
 import { TaskDetailsPopoverContent } from "@/components/tasks/TaskDetailsPopover";
 import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
 import { SignatureDialog } from "@/components/checklists/SignatureDialog";
@@ -40,6 +41,8 @@ export default function TaskManagement() {
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const [taskToSubmit, setTaskToSubmit] = useState<string | null>(null);
   const [selectedApprover, setSelectedApprover] = useState("");
+  const [showApprovalSubmitDialog, setShowApprovalSubmitDialog] = useState(false);
+  const [taskForApprovalSubmit, setTaskForApprovalSubmit] = useState<{id: string, name: string} | null>(null);
   const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
@@ -536,13 +539,31 @@ export default function TaskManagement() {
                     Submit
                   </Button>
                 )}
-                {task.task_category && task.approval_status === 'pending_approval' && 
+                
+                {/* Submit for Approval - for draft/pending tasks */}
+                {task.status !== 'completed' && task.approval_status !== 'pending_approval' && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      setTaskForApprovalSubmit({ id: task.id, name: task.name });
+                      setShowApprovalSubmitDialog(true);
+                    }}
+                  >
+                    <Send className="mr-1 h-3 w-3" />
+                    Submit for Approval
+                  </Button>
+                )}
+                
+                {/* Approval Actions - for pending approval tasks */}
+                {task.approval_status === 'pending_approval' && 
                   (task.assignee === user?.id || isAdmin) && (
-                  <TaskApprovalActions
+                  <TaskApprovalActionsDialog
                     taskId={task.id}
                     taskName={task.name}
-                    currentStage={task.current_approval_stage || 0}
-                    totalStages={getApprovalWorkflow(task.task_category).totalStages}
+                    currentAssignee={task.assignee || undefined}
+                    onSuccess={() => refetch()}
                   />
                 )}
                 {hasItems && !isCompleted && (
@@ -857,6 +878,20 @@ export default function TaskManagement() {
           }}
           isPending={submitForApprovalMutation.isPending}
         />
+        
+        {/* Task Approval Submit Dialog */}
+        {taskForApprovalSubmit && (
+          <TaskSubmitForApprovalDialog
+            open={showApprovalSubmitDialog}
+            onOpenChange={setShowApprovalSubmitDialog}
+            taskId={taskForApprovalSubmit.id}
+            taskName={taskForApprovalSubmit.name}
+            onSuccess={() => {
+              setTaskForApprovalSubmit(null);
+              refetch();
+            }}
+          />
+        )}
       </div>
     </Layout>
   );
