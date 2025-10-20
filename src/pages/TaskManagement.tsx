@@ -388,22 +388,10 @@ export default function TaskManagement() {
     });
   }, [tasks, searchTerm, dateFilter, selectedCategory]);
 
-  const myTasks = useMemo(() => {
-    // Filter out tasks that current user submitted for approval
-    const tasksForUser = hasViewAllPermission ? filteredTasks : filteredTasks.filter(task => task.assignee === user?.id);
-    
-    // Exclude tasks submitted by current user from My Tasks view
-    return tasksForUser.filter(task => {
-      if (task.approval_status !== 'pending_approval') return true;
-      
-      const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
-      const submittedByCurrentUser = approvalHistory.some((entry: any) => 
-        entry.action === 'submitted' && entry.submitted_by === user?.id
-      );
-      
-      return !submittedByCurrentUser;
-    });
-  }, [filteredTasks, user?.id, hasViewAllPermission]);
+  const myTasks = useMemo(() => 
+    filteredTasks.filter(task => task.assignee === user?.id),
+    [filteredTasks, user?.id]
+  );
 
   // Determine which view to show based on permissions
   const showAllTasksView = isAdmin || hasViewAllPermission;
@@ -421,17 +409,7 @@ export default function TaskManagement() {
 
     // Group tasks by status and approval
     const tasksByStatus = {
-      pending_approval: taskList.filter(task => {
-        // Don't show tasks that the current user submitted for approval
-        const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
-        const submittedByCurrentUser = approvalHistory.some((entry: any) => 
-          entry.action === 'submitted' && entry.submitted_by === user?.id
-        );
-        
-        return task.approval_status === 'pending_approval' &&
-          !submittedByCurrentUser &&
-          (hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : false));
-      }),
+      pending_approval: taskList.filter(task => task.approval_status === 'pending_approval'),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
       cancelled: taskList.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
@@ -540,15 +518,8 @@ export default function TaskManagement() {
                     Submit
                   </Button>
                 )}
-                {task.task_category && task.approval_status === 'pending_approval' && (() => {
-                  // Check if current user submitted the task
-                  const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
-                  const submittedByCurrentUser = approvalHistory.some((entry: any) => 
-                    entry.action === 'submitted' && entry.submitted_by === user?.id
-                  );
-                  
-                  return !submittedByCurrentUser && (hasApprovePermission || canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles));
-                })() && (
+                {task.task_category && task.approval_status === 'pending_approval' && 
+                  (task.assignee === user?.id || isAdmin) && (
                   <TaskApprovalActions
                     taskId={task.id}
                     taskName={task.name}
