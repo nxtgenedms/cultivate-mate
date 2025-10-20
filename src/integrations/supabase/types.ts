@@ -1415,6 +1415,27 @@ export type Database = {
           },
         ]
       }
+      task_number_counters: {
+        Row: {
+          counter: number
+          created_at: string | null
+          date_key: string
+          updated_at: string | null
+        }
+        Insert: {
+          counter?: number
+          created_at?: string | null
+          date_key: string
+          updated_at?: string | null
+        }
+        Update: {
+          counter?: number
+          created_at?: string | null
+          date_key?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           approval_history: Json | null
