@@ -533,11 +533,6 @@ export default function BatchDetail() {
                                     </Popover>
                                   </CardTitle>
                                   {task.task_category && (
-                                    <Badge className={getCategoryColor(task.task_category)}>
-                                      {TASK_CATEGORIES[task.task_category as TaskCategory]}
-                                    </Badge>
-                                  )}
-                                  {task.task_category && (
                                     <ApprovalProgressBadge
                                       category={task.task_category}
                                       currentStage={task.current_approval_stage || 0}

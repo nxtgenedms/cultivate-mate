@@ -186,11 +186,6 @@ export default function Dashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-sm truncate">{task.name}</span>
-                        {task.task_category && (
-                          <Badge variant="outline" className="text-xs">
-                            {TASK_CATEGORIES[task.task_category as keyof typeof TASK_CATEGORIES] || task.task_category}
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{task.task_number}</span>

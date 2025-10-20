@@ -475,11 +475,6 @@ export default function TaskManagement() {
                 
                 {/* Badges + Info in one line */}
                 <div className="flex items-center gap-2 flex-wrap text-xs">
-                  {task.task_category && (
-                    <Badge variant="outline" className={`${getCategoryColor(task.task_category)} border-0 text-xs py-0`}>
-                      {TASK_CATEGORIES[task.task_category as TaskCategory]}
-                    </Badge>
-                  )}
                   {task.checklist_instance?.checklist_templates?.approval_workflow && (
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs py-0">
                       <Info className="mr-1 h-3 w-3" />
