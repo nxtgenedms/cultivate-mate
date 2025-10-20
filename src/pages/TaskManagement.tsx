@@ -409,10 +409,17 @@ export default function TaskManagement() {
 
     // Group tasks by status and approval
     const tasksByStatus = {
-      pending_approval: taskList.filter(task => 
-        task.approval_status === 'pending_approval' &&
-        (task.assignee === user?.id || hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true))
-      ),
+      pending_approval: taskList.filter(task => {
+        // Don't show tasks that the current user submitted for approval
+        const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
+        const submittedByCurrentUser = approvalHistory.some((entry: any) => 
+          entry.action === 'submitted' && entry.submitted_by === user?.id
+        );
+        
+        return task.approval_status === 'pending_approval' &&
+          !submittedByCurrentUser &&
+          (task.assignee === user?.id || hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true));
+      }),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
       cancelled: taskList.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
@@ -521,7 +528,15 @@ export default function TaskManagement() {
                     Submit
                   </Button>
                 )}
-                {task.task_category && task.approval_status === 'pending_approval' && (hasApprovePermission || canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles)) && (
+                {task.task_category && task.approval_status === 'pending_approval' && (() => {
+                  // Check if current user submitted the task
+                  const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
+                  const submittedByCurrentUser = approvalHistory.some((entry: any) => 
+                    entry.action === 'submitted' && entry.submitted_by === user?.id
+                  );
+                  
+                  return !submittedByCurrentUser && (hasApprovePermission || canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles));
+                })() && (
                   <TaskApprovalActions
                     taskId={task.id}
                     taskName={task.name}
