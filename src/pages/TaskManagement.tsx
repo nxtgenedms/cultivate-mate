@@ -63,8 +63,9 @@ export default function TaskManagement() {
           creator:profiles!tasks_created_by_fkey(full_name),
           assigned_to:profiles!tasks_assignee_fkey(full_name),
           batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number),
-          checklist:checklist_instances!tasks_checklist_id_fkey(
-            template:checklist_templates(approval_workflow)
+          checklist_instances!tasks_checklist_id_fkey(
+            id,
+            checklist_templates(approval_workflow)
           )
         `)
         .order("created_at", { ascending: false });
@@ -458,10 +459,10 @@ export default function TaskManagement() {
                       {TASK_CATEGORIES[task.task_category as TaskCategory]}
                     </Badge>
                   )}
-                  {task.checklist?.template?.approval_workflow && (
+                  {task.checklist_instances?.[0]?.checklist_templates?.approval_workflow && (
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs py-0">
                       <Info className="mr-1 h-3 w-3" />
-                      {task.checklist.template.approval_workflow}
+                      {task.checklist_instances[0].checklist_templates.approval_workflow}
                     </Badge>
                   )}
                   {hasItems && (
