@@ -27,6 +27,7 @@ import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
 import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, canUserApprove } from "@/lib/taskCategoryUtils";
+import { useHasPermission } from "@/hooks/useUserPermissions";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,7 +45,8 @@ export default function TaskManagement() {
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
-  // const canViewAllTasks = useHasPermission('view_all_tasks');
+  const hasApprovePermission = useHasPermission('approve_tasks');
+  const hasViewAllPermission = useHasPermission('view_all_tasks');
 
   const handleCategoryChange = (category: TaskCategory | "all") => {
     setSelectedCategory(category);
@@ -387,12 +389,12 @@ export default function TaskManagement() {
   }, [tasks, searchTerm, dateFilter, selectedCategory]);
 
   const myTasks = useMemo(() => 
-    filteredTasks.filter(task => task.assignee === user?.id),
-    [filteredTasks, user?.id]
+    hasViewAllPermission ? filteredTasks : filteredTasks.filter(task => task.assignee === user?.id),
+    [filteredTasks, user?.id, hasViewAllPermission]
   );
 
   // Determine which view to show based on permissions
-  const showAllTasksView = isAdmin; // || canViewAllTasks;
+  const showAllTasksView = isAdmin || hasViewAllPermission;
 
   const renderTaskList = (taskList: any[]) => {
     if (!taskList || taskList.length === 0) {
@@ -409,7 +411,7 @@ export default function TaskManagement() {
     const tasksByStatus = {
       pending_approval: taskList.filter(task => 
         task.approval_status === 'pending_approval' &&
-        (task.assignee === user?.id || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true))
+        (task.assignee === user?.id || hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true))
       ),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
@@ -519,7 +521,7 @@ export default function TaskManagement() {
                     Submit
                   </Button>
                 )}
-                {task.task_category && task.approval_status === 'pending_approval' && canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && (
+                {task.task_category && task.approval_status === 'pending_approval' && (hasApprovePermission || canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles)) && (
                   <TaskApprovalActions
                     taskId={task.id}
                     taskName={task.name}
