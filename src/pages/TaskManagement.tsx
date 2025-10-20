@@ -540,8 +540,10 @@ export default function TaskManagement() {
                   </Button>
                 )}
                 
-                {/* Submit for Approval - for draft/pending tasks */}
-                {task.status !== 'completed' && task.approval_status !== 'pending_approval' && (
+                {/* Submit for Approval - for draft tasks only (not in_progress) */}
+                {task.status !== 'completed' && 
+                 task.status !== 'in_progress' &&
+                 task.approval_status !== 'pending_approval' && (
                   <Button
                     variant="secondary"
                     size="sm"
@@ -556,8 +558,8 @@ export default function TaskManagement() {
                   </Button>
                 )}
                 
-                {/* Approval Actions - for pending approval tasks */}
-                {task.approval_status === 'pending_approval' && 
+                {/* Approval Actions - for both pending approval and in progress tasks */}
+                {(task.approval_status === 'pending_approval' || task.status === 'in_progress') && 
                   (task.assignee === user?.id || isAdmin) && (
                   <TaskApprovalActionsDialog
                     taskId={task.id}
