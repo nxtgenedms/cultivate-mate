@@ -405,7 +405,7 @@ export default function TaskManagement() {
     const tasksByStatus = {
       pending_approval: taskList.filter(task => 
         task.approval_status === 'pending_approval' &&
-        (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true)
+        (task.assignee === user?.id || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true))
       ),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
