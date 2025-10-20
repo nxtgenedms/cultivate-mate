@@ -131,39 +131,6 @@ export default function BatchDashboard() {
 
         {/* Two Column Layout for Stage Distribution and Activity */}
         <div className="grid gap-4 lg:grid-cols-2">
-          {/* Stage Distribution */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Batches by Stage</CardTitle>
-              <CardDescription className="text-xs">Distribution across stages</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {isLoading ? (
-                <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-10 w-full" />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {Object.entries(stats.byStage).map(([stage, count]) => (
-                    <div key={stage} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {getStageLabel(stage)}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {count} {count === 1 ? 'batch' : 'batches'}
-                        </span>
-                      </div>
-                      <div className="text-lg font-bold text-primary">{count}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Activity Feed */}
           <Card>
             <CardHeader className="pb-3">
@@ -202,6 +169,39 @@ export default function BatchDashboard() {
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground text-sm py-6">No recent activity</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Stage Distribution */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Batches by Stage</CardTitle>
+              <CardDescription className="text-xs">Distribution across stages</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {isLoading ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {Object.entries(stats.byStage).map(([stage, count]) => (
+                    <div key={stage} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {getStageLabel(stage)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {count} {count === 1 ? 'batch' : 'batches'}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-primary">{count}</div>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
