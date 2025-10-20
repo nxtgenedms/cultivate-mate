@@ -25,6 +25,9 @@ export function Layout({ children }: LayoutProps) {
     !!(permissions as any)?.manage_permissions ||
     !!(permissions as any)?.manage_lookups ||
     !!(permissions as any)?.manage_nomenclature ||
+    !!(permissions as any)?.manage_checklists ||
+    !!(permissions as any)?.manage_approval_workflows ||
+    !!(permissions as any)?.manage_task_field_mappings ||
     !!(permissions as any)?.view_system_settings;
 
   // Determine first accessible admin page
@@ -33,6 +36,9 @@ export function Layout({ children }: LayoutProps) {
     if ((permissions as any)?.manage_permissions) return '/admin/roles';
     if ((permissions as any)?.manage_lookups) return '/admin/lookups';
     if ((permissions as any)?.manage_nomenclature) return '/admin/nomenclature';
+    if ((permissions as any)?.manage_checklists) return '/admin/checklists';
+    if ((permissions as any)?.manage_approval_workflows) return '/admin/approval-workflows';
+    if ((permissions as any)?.manage_task_field_mappings) return '/admin/task-mappings';
     if ((permissions as any)?.view_system_settings) return '/admin/checklists';
     return '/admin/users'; // fallback
   };

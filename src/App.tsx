@@ -72,17 +72,17 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/admin/checklists" element={
-              <ProtectedRoute requiredPermission="view_system_settings">
+              <ProtectedRoute requiredPermission="manage_checklists">
                 <ChecklistManagement />
               </ProtectedRoute>
             } />
             <Route path="/admin/approval-workflows" element={
-              <ProtectedRoute requiredPermission="view_system_settings">
+              <ProtectedRoute requiredPermission="manage_approval_workflows">
                 <ApprovalWorkflows />
               </ProtectedRoute>
             } />
             <Route path="/admin/task-mappings" element={
-              <ProtectedRoute requiredPermission="view_system_settings">
+              <ProtectedRoute requiredPermission="manage_task_field_mappings">
                 <TaskFieldMappings />
               </ProtectedRoute>
             } />

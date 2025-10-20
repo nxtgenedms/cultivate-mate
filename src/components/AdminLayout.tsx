@@ -43,19 +43,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       path: '/admin/checklists', 
       label: 'Checklist Management', 
       icon: FileCheck,
-      requiredPermission: 'view_system_settings' as PermissionKey
+      requiredPermission: 'manage_checklists' as PermissionKey
     },
     { 
       path: '/admin/approval-workflows', 
       label: 'Approval Workflows', 
       icon: GitBranch,
-      requiredPermission: 'view_system_settings' as PermissionKey
+      requiredPermission: 'manage_approval_workflows' as PermissionKey
     },
     { 
       path: '/admin/task-mappings', 
       label: 'Task Field Mappings', 
       icon: Link2,
-      requiredPermission: 'view_system_settings' as PermissionKey
+      requiredPermission: 'manage_task_field_mappings' as PermissionKey
     },
   ];
 

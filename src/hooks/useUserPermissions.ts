@@ -20,7 +20,10 @@ export type PermissionKey =
   | 'manage_permissions'
   | 'manage_lookups'
   | 'manage_nomenclature'
-  | 'view_system_settings';
+  | 'view_system_settings'
+  | 'manage_approval_workflows'
+  | 'manage_checklists'
+  | 'manage_task_field_mappings';
 
 export interface PermissionDefinition {
   id: string;
