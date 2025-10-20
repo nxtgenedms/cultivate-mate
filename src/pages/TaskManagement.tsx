@@ -543,6 +543,7 @@ export default function TaskManagement() {
                     taskName={task.name}
                     currentAssignee={task.assignee || undefined}
                     taskStatus={task.status}
+                    approvalStatus={task.approval_status || undefined}
                     checklistItems={task.checklist_items as any[] || []}
                     completionProgress={task.completion_progress as any || { completed: 0, total: 0 }}
                     onSuccess={() => refetch()}

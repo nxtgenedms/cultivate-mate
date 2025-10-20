@@ -19,6 +19,7 @@ interface TaskApprovalActionsDialogProps {
   taskName: string;
   currentAssignee?: string;
   taskStatus?: string;
+  approvalStatus?: string;
   checklistItems?: any[];
   completionProgress?: { completed: number; total: number };
   onSuccess?: () => void;
@@ -29,6 +30,7 @@ export function TaskApprovalActionsDialog({
   taskName,
   currentAssignee,
   taskStatus,
+  approvalStatus,
   checklistItems = [],
   completionProgress = { completed: 0, total: 0 },
   onSuccess
@@ -49,7 +51,8 @@ export function TaskApprovalActionsDialog({
   const currentUserRole = roles[0] || 'user';
 
   const canTakeAction = user?.id === currentAssignee || isAdmin;
-  const isInProgress = taskStatus === 'in_progress';
+  // Hide reject option only for in_progress tasks (not for pending_approval)
+  const isInProgressTask = taskStatus === 'in_progress';
   const hasChecklistItems = checklistItems.length > 0;
   const allItemsCompleted = completionProgress.completed >= completionProgress.total;
 
@@ -174,7 +177,7 @@ export function TaskApprovalActionsDialog({
             <UserPlus className="mr-2 h-4 w-4" />
             Approve & Submit Next
           </DropdownMenuItem>
-          {!isInProgress && (
+          {!isInProgressTask && (
             <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
               <XCircle className="mr-2 h-4 w-4" />
               Reject & Assign Back
