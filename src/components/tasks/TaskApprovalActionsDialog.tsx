@@ -10,8 +10,9 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { CheckCircle, UserPlus, XCircle } from 'lucide-react';
+import { CheckCircle, UserPlus, XCircle, ChevronDown } from 'lucide-react';
 
 interface TaskApprovalActionsDialogProps {
   taskId: string;
@@ -128,36 +129,29 @@ export function TaskApprovalActionsDialog({
   }
 
   return (
-    <div className="flex gap-2 flex-wrap">
-      {/* Fully Approve Button */}
-      <Button
-        size="sm"
-        variant="default"
-        onClick={() => setShowFullApprove(true)}
-      >
-        <CheckCircle className="mr-2 h-4 w-4" />
-        Fully Approve
-      </Button>
-
-      {/* Approve & Submit Next Button */}
-      <Button
-        size="sm"
-        variant="secondary"
-        onClick={() => setShowApproveNext(true)}
-      >
-        <UserPlus className="mr-2 h-4 w-4" />
-        Approve & Submit Next
-      </Button>
-
-      {/* Reject & Assign Back Button */}
-      <Button
-        size="sm"
-        variant="destructive"
-        onClick={() => setShowReject(true)}
-      >
-        <XCircle className="mr-2 h-4 w-4" />
-        Reject & Assign Back
-      </Button>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="sm" variant="outline">
+            Approval Actions
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={() => setShowFullApprove(true)}>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Fully Approve
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowApproveNext(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Approve & Submit Next
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
+            <XCircle className="mr-2 h-4 w-4" />
+            Reject & Assign Back
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Fully Approve Confirmation Dialog */}
       <AlertDialog open={showFullApprove} onOpenChange={setShowFullApprove}>
@@ -306,6 +300,6 @@ export function TaskApprovalActionsDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
