@@ -18,6 +18,9 @@ interface TaskApprovalActionsDialogProps {
   taskId: string;
   taskName: string;
   currentAssignee?: string;
+  taskStatus?: string;
+  checklistItems?: any[];
+  completionProgress?: { completed: number; total: number };
   onSuccess?: () => void;
 }
 
@@ -25,6 +28,9 @@ export function TaskApprovalActionsDialog({
   taskId,
   taskName,
   currentAssignee,
+  taskStatus,
+  checklistItems = [],
+  completionProgress = { completed: 0, total: 0 },
   onSuccess
 }: TaskApprovalActionsDialogProps) {
   const { user } = useAuth();
@@ -43,6 +49,20 @@ export function TaskApprovalActionsDialog({
   const currentUserRole = roles[0] || 'user';
 
   const canTakeAction = user?.id === currentAssignee || isAdmin;
+  const isInProgress = taskStatus === 'in_progress';
+  const hasChecklistItems = checklistItems.length > 0;
+  const allItemsCompleted = completionProgress.completed >= completionProgress.total;
+
+  // Validation function for checklist items
+  const validateChecklistItems = () => {
+    if (hasChecklistItems && !allItemsCompleted) {
+      toast.error("Cannot approve task", {
+        description: "Please complete all checklist items first."
+      });
+      return false;
+    }
+    return true;
+  };
 
   const actionMutation = useMutation({
     mutationFn: async (action: 'fully_approve' | 'approve_next' | 'reject') => {
@@ -138,18 +158,28 @@ export function TaskApprovalActionsDialog({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuItem onClick={() => setShowFullApprove(true)}>
+          <DropdownMenuItem onClick={() => {
+            if (validateChecklistItems()) {
+              setShowFullApprove(true);
+            }
+          }}>
             <CheckCircle className="mr-2 h-4 w-4" />
             Fully Approve
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setShowApproveNext(true)}>
+          <DropdownMenuItem onClick={() => {
+            if (validateChecklistItems()) {
+              setShowApproveNext(true);
+            }
+          }}>
             <UserPlus className="mr-2 h-4 w-4" />
             Approve & Submit Next
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
-            <XCircle className="mr-2 h-4 w-4" />
-            Reject & Assign Back
-          </DropdownMenuItem>
+          {!isInProgress && (
+            <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
+              <XCircle className="mr-2 h-4 w-4" />
+              Reject & Assign Back
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
