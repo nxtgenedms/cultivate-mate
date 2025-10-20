@@ -77,43 +77,8 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     enabled: open && checklistType === 'batch',
   });
 
-  const { data: nomenclature } = useQuery({
-    queryKey: ['nomenclature-task'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('nomenclature_templates')
-        .select('*')
-        .eq('entity_type', 'task')
-        .eq('is_active', true)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: open,
-  });
-
-  const { data: highestTaskNumber } = useQuery({
-    queryKey: ['tasks-highest-number'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('task_number')
-        .order('task_number', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      
-      // Extract the sequence number from the task_number (e.g., "TA-0015" -> 15)
-      if (data?.task_number) {
-        const match = data.task_number.match(/(\d+)$/);
-        return match ? parseInt(match[1]) : 0;
-      }
-      return 0;
-    },
-    enabled: open,
-  });
+  // No longer need to query for highest task number or nomenclature
+  // We'll use the database function generate_task_number() instead
 
   const createMutation = useMutation({
     mutationFn: async (signatures?: any) => {
@@ -152,20 +117,12 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       
       if (instanceError) throw instanceError;
 
-      // Generate task number
-      const generateTaskNumber = (formatPattern: string, count: number) => {
-        const counterMatch = formatPattern.match(/\{counter:(\d+)\}/) || formatPattern.match(/\{seq\}/);
-        if (counterMatch) {
-          const padding = counterMatch[1] ? parseInt(counterMatch[1]) : 4;
-          const counterValue = String(count + 1).padStart(padding, "0");
-          return formatPattern.replace(/\{counter:\d+\}|\{seq\}/, counterValue);
-        }
-        return formatPattern;
-      };
-
-      const taskNumber = nomenclature 
-        ? generateTaskNumber(nomenclature.format_pattern, highestTaskNumber || 0)
-        : `TASK-${String((highestTaskNumber || 0) + 1).padStart(4, '0')}`;
+      // Generate task number using database function (atomic, prevents duplicates)
+      const { data: taskNumber, error: taskNumError } = await supabase
+        .rpc('generate_task_number');
+      
+      if (taskNumError) throw taskNumError;
+      if (!taskNumber) throw new Error('Failed to generate task number');
 
       // Get batch details if batch-specific
       let batchInfo = null;
@@ -287,7 +244,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['checklist-instances'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['tasks-highest-number'] });
       toast.success("Checklist created successfully");
       onOpenChange(false);
       setSelectedTemplate('');

@@ -1588,6 +1588,10 @@ export type Database = {
         Args: { receipt_date?: string }
         Returns: string
       }
+      generate_task_number: {
+        Args: { creation_date?: string }
+        Returns: string
+      }
       has_permission: {
         Args: { _permission_key: string; _user_id: string }
         Returns: boolean
