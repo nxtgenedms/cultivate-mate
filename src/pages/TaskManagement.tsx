@@ -519,7 +519,7 @@ export default function TaskManagement() {
                   </Button>
                 )}
                 {task.task_category && task.approval_status === 'pending_approval' && 
-                  (task.assignee === user?.id || isAdmin) && (
+                  canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) && (
                   <TaskApprovalActions
                     taskId={task.id}
                     taskName={task.name}
