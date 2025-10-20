@@ -1,30 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
 import { AppRole } from '@/hooks/useUserRoles';
+import { PermissionDefinition } from '@/hooks/useUserPermissions';
 
-interface RolePermission {
-  role: AppRole;
-  permissions: Record<string, boolean>;
+interface PermissionsMatrixProps {
+  permissions: PermissionDefinition[];
 }
 
-export function PermissionsMatrix() {
-  const { data: permissions = [] } = useQuery({
-    queryKey: ['all-permissions'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('permission_definitions')
-        .select('*')
-        .eq('is_active', true)
-        .order('category, permission_name');
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
+export function PermissionsMatrix({ permissions }: PermissionsMatrixProps) {
   // Define default permissions for each role (matches the database function logic)
   const rolePermissions: Record<AppRole, string[]> = {
     it_admin: permissions.map((p) => p.permission_key), // All permissions
@@ -45,7 +29,7 @@ export function PermissionsMatrix() {
     }
     acc[perm.category].push(perm);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, PermissionDefinition[]>);
 
   const getRoleLabel = (role: AppRole) => {
     const labels: Record<AppRole, string> = {
@@ -59,6 +43,16 @@ export function PermissionsMatrix() {
     };
     return labels[role];
   };
+
+  if (permissions.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          No permissions defined
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

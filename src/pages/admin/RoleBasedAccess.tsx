@@ -146,7 +146,15 @@ export default function RoleBasedAccess() {
           </TabsContent>
 
           <TabsContent value="matrix" className="space-y-4">
-            <PermissionsMatrix />
+            {permissionsLoading ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  Loading permissions matrix...
+                </CardContent>
+              </Card>
+            ) : (
+              <PermissionsMatrix permissions={permissions} />
+            )}
           </TabsContent>
         </Tabs>
 
