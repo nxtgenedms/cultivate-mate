@@ -1,23 +1,70 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { AdminLayout } from '@/components/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Search, Settings, Eye, Users, Grid3x3 } from 'lucide-react';
+import { Shield, Search, Settings, Users, Grid3x3 } from 'lucide-react';
 import { UserPermissionsModal } from '@/components/admin/UserPermissionsModal';
 import { PermissionsMatrix } from '@/components/admin/PermissionsMatrix';
-import { useAllPermissions, useUsersWithPermissions } from '@/hooks/useUserPermissions';
-import { AppRole } from '@/hooks/useUserRoles';
 
 export default function RoleBasedAccess() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: permissions = [], isLoading: permissionsLoading } = useAllPermissions();
-  const { data: users = [], isLoading: usersLoading } = useUsersWithPermissions();
+  // Fetch permissions
+  const { data: permissions = [], isLoading: permissionsLoading } = useQuery({
+    queryKey: ['all-permissions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('permission_definitions')
+        .select('*')
+        .eq('is_active', true)
+        .order('category, permission_name');
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch users with roles and overrides
+  const { data: users = [], isLoading: usersLoading } = useQuery({
+    queryKey: ['users-with-permissions'],
+    queryFn: async () => {
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, is_active')
+        .eq('is_active', true)
+        .order('full_name');
+
+      if (profileError) throw profileError;
+
+      // Fetch roles
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Fetch overrides
+      const { data: overrides, error: overridesError } = await supabase
+        .from('user_permission_overrides')
+        .select('*');
+
+      if (overridesError) throw overridesError;
+
+      // Combine data
+      return profiles.map(profile => ({
+        ...profile,
+        roles: roles?.filter(r => r.user_id === profile.id).map(r => r.role) || [],
+        overrides: overrides?.filter(o => o.user_id === profile.id) || [],
+      }));
+    },
+  });
 
   const filteredUsers = users.filter(
     (user) =>
@@ -106,9 +153,6 @@ export default function RoleBasedAccess() {
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold">{user.full_name}</h3>
-                            {!user.is_active && (
-                              <Badge variant="secondary">Inactive</Badge>
-                            )}
                           </div>
                           <p className="text-sm text-muted-foreground">{user.email}</p>
                           <div className="flex items-center gap-2 mt-2">
@@ -153,7 +197,7 @@ export default function RoleBasedAccess() {
                 </CardContent>
               </Card>
             ) : (
-              <PermissionsMatrix permissions={permissions} />
+              <PermissionsMatrix permissions={permissions as any} />
             )}
           </TabsContent>
         </Tabs>

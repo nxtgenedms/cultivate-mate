@@ -9,7 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import LookupManagement from "./pages/admin/LookupManagement";
-// import RoleBasedAccess from "./pages/admin/RoleBasedAccess";
+import RoleBasedAccess from "./pages/admin/RoleBasedAccess";
 import BatchDashboard from "./pages/batch/BatchDashboard";
 import MasterRecord from "./pages/batch/MasterRecord";
 import BatchDetail from "./pages/batch/BatchDetail";
@@ -42,7 +42,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin/users" element={<UserManagement />} />
-            {/* <Route path="/admin/roles" element={<RoleBasedAccess />} /> */}
+            <Route path="/admin/roles" element={<RoleBasedAccess />} />
             <Route path="/admin/lookups" element={<LookupManagement />} />
             <Route path="/admin/nomenclature" element={<NomenclatureManagement />} />
             <Route path="/admin/checklists" element={<ChecklistManagement />} />
