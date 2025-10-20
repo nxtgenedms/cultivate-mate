@@ -76,11 +76,12 @@ const App = () => (
                 <ChecklistManagement />
               </ProtectedRoute>
             } />
-            <Route path="/admin/approval-workflows" element={
+            {/* Approval Workflows - Hidden for now (using manual approval selection) */}
+            {/* <Route path="/admin/approval-workflows" element={
               <ProtectedRoute requiredPermission="manage_approval_workflows">
                 <ApprovalWorkflows />
               </ProtectedRoute>
-            } />
+            } /> */}
             <Route path="/admin/task-mappings" element={
               <ProtectedRoute requiredPermission="manage_task_field_mappings">
                 <TaskFieldMappings />

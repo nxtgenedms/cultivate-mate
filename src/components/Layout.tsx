@@ -37,7 +37,8 @@ export function Layout({ children }: LayoutProps) {
     if ((permissions as any)?.manage_lookups) return '/admin/lookups';
     if ((permissions as any)?.manage_nomenclature) return '/admin/nomenclature';
     if ((permissions as any)?.manage_checklists) return '/admin/checklists';
-    if ((permissions as any)?.manage_approval_workflows) return '/admin/approval-workflows';
+    // Approval workflows hidden for now (using manual approval)
+    // if ((permissions as any)?.manage_approval_workflows) return '/admin/approval-workflows';
     if ((permissions as any)?.manage_task_field_mappings) return '/admin/task-mappings';
     if ((permissions as any)?.view_system_settings) return '/admin/checklists';
     return '/admin/users'; // fallback
