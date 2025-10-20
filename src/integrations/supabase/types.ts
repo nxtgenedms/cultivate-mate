@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      approval_workflows: {
+        Row: {
+          category_display_name: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          stages: Json
+          task_category: string
+          total_stages: number
+          updated_at: string | null
+        }
+        Insert: {
+          category_display_name: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          stages: Json
+          task_category: string
+          total_stages: number
+          updated_at?: string | null
+        }
+        Update: {
+          category_display_name?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          stages?: Json
+          task_category?: string
+          total_stages?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       batch_lifecycle_records: {
         Row: {
           actual_days: number | null
