@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsAdmin } from '@/hooks/useUserRoles';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Button } from '@/components/ui/button';
 import { LogOut, Users, Settings, LayoutDashboard, Leaf, ClipboardList, Bug, Droplets, Package, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,8 +15,17 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
+  const { data: permissions = {} } = useUserPermissions();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check if user has any admin permissions
+  const hasAdminAccess = isAdmin || 
+    !!(permissions as any)?.manage_users ||
+    !!(permissions as any)?.manage_permissions ||
+    !!(permissions as any)?.manage_lookups ||
+    !!(permissions as any)?.manage_nomenclature ||
+    !!(permissions as any)?.view_system_settings;
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', adminOnly: false },
@@ -26,7 +36,7 @@ export function Layout({ children }: LayoutProps) {
     { icon: Settings, label: 'Administration', path: '/admin/users', adminOnly: true },
   ];
 
-  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || isAdmin);
+  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || hasAdminAccess);
 
   const isActivePath = (path: string) => {
     if (path === '/admin/users') {
