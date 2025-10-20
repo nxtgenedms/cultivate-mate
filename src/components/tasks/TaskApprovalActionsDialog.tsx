@@ -51,8 +51,8 @@ export function TaskApprovalActionsDialog({
   const currentUserRole = roles[0] || 'user';
 
   const canTakeAction = user?.id === currentAssignee || isAdmin;
-  // Hide reject option only for in_progress tasks (not for pending_approval)
-  const isInProgressTask = taskStatus === 'in_progress';
+  // Hide reject option only for in_progress tasks that are NOT in pending_approval state
+  const shouldHideReject = taskStatus === 'in_progress' && approvalStatus !== 'pending_approval';
   const hasChecklistItems = checklistItems.length > 0;
   const allItemsCompleted = completionProgress.completed >= completionProgress.total;
 
@@ -177,7 +177,7 @@ export function TaskApprovalActionsDialog({
             <UserPlus className="mr-2 h-4 w-4" />
             Approve & Submit Next
           </DropdownMenuItem>
-          {!isInProgressTask && (
+          {!shouldHideReject && (
             <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
               <XCircle className="mr-2 h-4 w-4" />
               Reject & Assign Back
