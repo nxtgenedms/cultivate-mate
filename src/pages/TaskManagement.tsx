@@ -430,7 +430,7 @@ export default function TaskManagement() {
         
         return task.approval_status === 'pending_approval' &&
           !submittedByCurrentUser &&
-          (task.assignee === user?.id || hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : true));
+          (hasApprovePermission || (task.task_category ? canUserApprove(task.task_category, task.current_approval_stage || 0, userRoles) : false));
       }),
       in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: taskList.filter(task => task.status === 'completed'),
