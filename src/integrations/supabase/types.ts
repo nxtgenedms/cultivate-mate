@@ -1138,6 +1138,39 @@ export type Database = {
         }
         Relationships: []
       }
+      permission_definitions: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          permission_key: string
+          permission_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          permission_key: string
+          permission_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          permission_key?: string
+          permission_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -1422,6 +1455,42 @@ export type Database = {
           },
         ]
       }
+      user_permission_overrides: {
+        Row: {
+          created_at: string | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          is_granted: boolean
+          notes: string | null
+          permission_key: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_granted?: boolean
+          notes?: string | null
+          permission_key: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_granted?: boolean
+          notes?: string | null
+          permission_key?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -1458,6 +1527,10 @@ export type Database = {
       generate_receipt_number: {
         Args: { receipt_date?: string }
         Returns: string
+      }
+      has_permission: {
+        Args: { _permission_key: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

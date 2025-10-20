@@ -27,6 +27,7 @@ import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
 import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, canUserApprove } from "@/lib/taskCategoryUtils";
+import { useHasPermission } from "@/hooks/useUserPermissions";
 
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function TaskManagement() {
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
+  const canViewAllTasks = useHasPermission('view_all_tasks');
 
   const handleCategoryChange = (category: TaskCategory | "all") => {
     setSelectedCategory(category);
@@ -390,6 +392,9 @@ export default function TaskManagement() {
     [filteredTasks, user?.id]
   );
 
+  // Determine which view to show based on permissions
+  const showAllTasksView = isAdmin || canViewAllTasks;
+
   const renderTaskList = (taskList: any[]) => {
     if (!taskList || taskList.length === 0) {
       return (
@@ -640,7 +645,7 @@ export default function TaskManagement() {
       <div className="container mx-auto p-6 space-y-6">
         {isLoading ? (
           <div className="text-center py-12">Loading tasks...</div>
-        ) : isAdmin ? (
+        ) : showAllTasksView ? (
           <Tabs defaultValue="my-tasks" className="w-full" onValueChange={() => {
             setSelectedCategory("all");
           }}>
