@@ -107,3 +107,44 @@ export const useAllPermissions = () => {
     },
   });
 };
+
+export const useUsersWithPermissions = () => {
+  return useQuery({
+    queryKey: ['users-with-permissions'],
+    queryFn: async () => {
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          full_name,
+          email,
+          is_active
+        `)
+        .eq('is_active', true)
+        .order('full_name');
+
+      if (profileError) throw profileError;
+
+      // Fetch roles for all users
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Fetch permission overrides
+      const { data: overrides, error: overridesError } = await supabase
+        .from('user_permission_overrides')
+        .select('*');
+
+      if (overridesError) throw overridesError;
+
+      // Combine data
+      return profiles.map(profile => ({
+        ...profile,
+        roles: roles?.filter(r => r.user_id === profile.id).map(r => r.role) || [],
+        overrides: overrides?.filter(o => o.user_id === profile.id) || [],
+      }));
+    },
+  });
+};
