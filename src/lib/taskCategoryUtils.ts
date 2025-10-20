@@ -96,8 +96,8 @@ export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
     totalStages: 2,
   },
   cloning_pre_start: {
-    stages: ['Grower', 'Manager'],
-    totalStages: 2,
+    stages: ['Grower'],
+    totalStages: 1,
   },
 };
 
