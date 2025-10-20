@@ -27,6 +27,8 @@ import { Layout } from "@/components/Layout";
 import { useIsAdmin, useUserRoles } from "@/hooks/useUserRoles";
 import { useAuth } from "@/contexts/AuthContext";
 import { TaskCategory, TASK_CATEGORIES, getCategoryColor, getApprovalWorkflow, canUserApprove } from "@/lib/taskCategoryUtils";
+import { useHasPermission } from "@/hooks/useUserPermissions";
+
 export default function TaskManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isItemsDialogOpen, setIsItemsDialogOpen] = useState(false);
@@ -43,7 +45,6 @@ export default function TaskManagement() {
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
-  const canViewAllTasks = useHasPermission('view_all_tasks');
   const canViewAllTasks = useHasPermission('view_all_tasks');
 
   const handleCategoryChange = (category: TaskCategory | "all") => {
