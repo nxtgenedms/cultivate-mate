@@ -53,6 +53,8 @@ export function TaskApprovalActionsDialog({
   const canTakeAction = user?.id === currentAssignee || isAdmin;
   // Hide reject option only for in_progress tasks that are NOT in pending_approval state
   const shouldHideReject = taskStatus === 'in_progress' && approvalStatus !== 'pending_approval';
+  // Only admins can fully approve tasks that are in progress
+  const canFullyApprove = isAdmin || taskStatus !== 'in_progress';
   const hasChecklistItems = checklistItems.length > 0;
   const allItemsCompleted = completionProgress.completed >= completionProgress.total;
 
@@ -161,14 +163,16 @@ export function TaskApprovalActionsDialog({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuItem onClick={() => {
-            if (validateChecklistItems()) {
-              setShowFullApprove(true);
-            }
-          }}>
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Fully Approve
-          </DropdownMenuItem>
+          {canFullyApprove && (
+            <DropdownMenuItem onClick={() => {
+              if (validateChecklistItems()) {
+                setShowFullApprove(true);
+              }
+            }}>
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Fully Approve
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => {
             if (validateChecklistItems()) {
               setShowApproveNext(true);
