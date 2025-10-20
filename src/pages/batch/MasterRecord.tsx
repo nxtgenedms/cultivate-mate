@@ -142,10 +142,18 @@ export default function MasterRecord() {
       setIsDialogOpen(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      let errorMessage = 'Failed to save record. Please try again.';
+      
+      if (error.message?.includes('row-level security policy')) {
+        errorMessage = "You don't have permission to create batches. Please contact an administrator to upgrade your role.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: 'Error',
-        description: `Failed to save record: ${error.message}`,
+        title: 'Permission Denied',
+        description: errorMessage,
         variant: 'destructive',
       });
     },
