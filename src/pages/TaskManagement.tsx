@@ -18,7 +18,6 @@ import { TaskDialog } from "@/components/tasks/TaskDialog";
 import { TaskItemsManager } from "@/components/tasks/TaskItemsManager";
 import { TwoLevelCategoryFilter } from "@/components/tasks/TwoLevelCategoryFilter";
 import { TaskApprovalActions } from "@/components/tasks/TaskApprovalActions";
-import { ApprovalProgressBadge } from "@/components/tasks/ApprovalProgressBadge";
 import { TaskDetailsPopoverContent } from "@/components/tasks/TaskDetailsPopover";
 import CreateChecklistDialog from "@/components/checklists/CreateChecklistDialog";
 import { SignatureDialog } from "@/components/checklists/SignatureDialog";
@@ -63,7 +62,10 @@ export default function TaskManagement() {
           *,
           creator:profiles!tasks_created_by_fkey(full_name),
           assigned_to:profiles!tasks_assignee_fkey(full_name),
-          batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number)
+          batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number),
+          checklist:checklist_instances!tasks_checklist_id_fkey(
+            template:checklist_templates(approval_workflow)
+          )
         `)
         .order("created_at", { ascending: false });
 
@@ -456,12 +458,11 @@ export default function TaskManagement() {
                       {TASK_CATEGORIES[task.task_category as TaskCategory]}
                     </Badge>
                   )}
-                  {task.task_category && (
-                    <ApprovalProgressBadge
-                      category={task.task_category}
-                      currentStage={task.current_approval_stage || 0}
-                      approvalStatus={task.approval_status || "draft"}
-                    />
+                  {task.checklist?.template?.approval_workflow && (
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs py-0">
+                      <Info className="mr-1 h-3 w-3" />
+                      {task.checklist.template.approval_workflow}
+                    </Badge>
                   )}
                   {hasItems && (
                     <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-0 text-xs py-0">

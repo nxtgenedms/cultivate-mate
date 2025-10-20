@@ -42,6 +42,7 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
     is_batch_specific: false,
     lifecycle_phase: "",
     task_category: "",
+    approval_workflow: "",
   });
 
   useEffect(() => {
@@ -54,6 +55,7 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
         is_batch_specific: template.is_batch_specific || false,
         lifecycle_phase: template.lifecycle_phase || "",
         task_category: template.task_category || "",
+        approval_workflow: template.approval_workflow || "",
       });
     } else if (open) {
       setFormData({
@@ -64,6 +66,7 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
         is_batch_specific: false,
         lifecycle_phase: "",
         task_category: "",
+        approval_workflow: "",
       });
     }
   }, [template, open]);
@@ -239,11 +242,24 @@ const ChecklistTemplateDialog = ({ open, onOpenChange, template }: ChecklistTemp
             </Select>
           </div>
 
-          {formData.task_category && (
+          <div className="space-y-2">
+            <Label htmlFor="approval_workflow">Approval Workflow Guidance</Label>
+            <Input
+              id="approval_workflow"
+              value={formData.approval_workflow}
+              onChange={(e) => setFormData({ ...formData, approval_workflow: e.target.value })}
+              placeholder="e.g., Assistant Grower → Grower/Manager"
+            />
+            <p className="text-sm text-muted-foreground">
+              Enter the approval steps to guide users on who should approve this task
+            </p>
+          </div>
+
+          {formData.approval_workflow && (
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>Approval Workflow:</strong> {getApprovalWorkflow(formData.task_category)}
+                <strong>Approval Workflow:</strong> {formData.approval_workflow}
               </AlertDescription>
             </Alert>
           )}

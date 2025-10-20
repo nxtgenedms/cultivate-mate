@@ -844,6 +844,7 @@ export type Database = {
       }
       checklist_templates: {
         Row: {
+          approval_workflow: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -858,6 +859,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approval_workflow?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -872,6 +874,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approval_workflow?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
