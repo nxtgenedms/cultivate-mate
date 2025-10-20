@@ -56,22 +56,43 @@ export default function TaskManagement() {
   const { data: tasks, isLoading, refetch } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First fetch tasks with basic relationships
+      const { data: tasksData, error: tasksError } = await supabase
         .from("tasks")
         .select(`
           *,
           creator:profiles!tasks_created_by_fkey(full_name),
           assigned_to:profiles!tasks_assignee_fkey(full_name),
-          batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number),
-          checklist_instances!tasks_checklist_id_fkey(
-            id,
-            checklist_templates(approval_workflow)
-          )
+          batch:batch_lifecycle_records!tasks_batch_id_fkey(batch_number)
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (tasksError) throw tasksError;
+      
+      // Then fetch checklist instances and templates separately
+      const checklistIds = tasksData?.map(t => t.checklist_id).filter(Boolean) || [];
+      
+      if (checklistIds.length > 0) {
+        const { data: checklistsData, error: checklistsError } = await supabase
+          .from("checklist_instances")
+          .select(`
+            id,
+            checklist_templates(approval_workflow)
+          `)
+          .in('id', checklistIds);
+
+        if (checklistsError) {
+          console.error('Error fetching checklists:', checklistsError);
+        } else {
+          // Merge checklist data with tasks
+          return tasksData.map(task => ({
+            ...task,
+            checklist_instance: checklistsData?.find(c => c.id === task.checklist_id)
+          }));
+        }
+      }
+
+      return tasksData;
     },
   });
 
@@ -459,10 +480,10 @@ export default function TaskManagement() {
                       {TASK_CATEGORIES[task.task_category as TaskCategory]}
                     </Badge>
                   )}
-                  {task.checklist_instances?.[0]?.checklist_templates?.approval_workflow && (
+                  {task.checklist_instance?.checklist_templates?.approval_workflow && (
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs py-0">
                       <Info className="mr-1 h-3 w-3" />
-                      {task.checklist_instances[0].checklist_templates.approval_workflow}
+                      {task.checklist_instance.checklist_templates.approval_workflow}
                     </Badge>
                   )}
                   {hasItems && (
