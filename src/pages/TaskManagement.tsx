@@ -388,10 +388,22 @@ export default function TaskManagement() {
     });
   }, [tasks, searchTerm, dateFilter, selectedCategory]);
 
-  const myTasks = useMemo(() => 
-    hasViewAllPermission ? filteredTasks : filteredTasks.filter(task => task.assignee === user?.id),
-    [filteredTasks, user?.id, hasViewAllPermission]
-  );
+  const myTasks = useMemo(() => {
+    // Filter out tasks that current user submitted for approval
+    const tasksForUser = hasViewAllPermission ? filteredTasks : filteredTasks.filter(task => task.assignee === user?.id);
+    
+    // Exclude tasks submitted by current user from My Tasks view
+    return tasksForUser.filter(task => {
+      if (task.approval_status !== 'pending_approval') return true;
+      
+      const approvalHistory = Array.isArray(task.approval_history) ? task.approval_history : [];
+      const submittedByCurrentUser = approvalHistory.some((entry: any) => 
+        entry.action === 'submitted' && entry.submitted_by === user?.id
+      );
+      
+      return !submittedByCurrentUser;
+    });
+  }, [filteredTasks, user?.id, hasViewAllPermission]);
 
   // Determine which view to show based on permissions
   const showAllTasksView = isAdmin || hasViewAllPermission;
