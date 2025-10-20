@@ -27,13 +27,23 @@ export function Layout({ children }: LayoutProps) {
     !!(permissions as any)?.manage_nomenclature ||
     !!(permissions as any)?.view_system_settings;
 
+  // Determine first accessible admin page
+  const getFirstAdminPath = () => {
+    if ((permissions as any)?.manage_users) return '/admin/users';
+    if ((permissions as any)?.manage_permissions) return '/admin/roles';
+    if ((permissions as any)?.manage_lookups) return '/admin/lookups';
+    if ((permissions as any)?.manage_nomenclature) return '/admin/nomenclature';
+    if ((permissions as any)?.view_system_settings) return '/admin/checklists';
+    return '/admin/users'; // fallback
+  };
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', permission: null },
     { icon: Leaf, label: 'Batch', path: '/batch/dashboard', permission: 'view_all_batches' as PermissionKey },
     { icon: ClipboardList, label: 'Tasks', path: '/tasks', permission: 'view_all_tasks' as PermissionKey },
     { icon: Package, label: 'Inventory', path: '/inventory', permission: 'manage_inventory' as PermissionKey },
     { icon: BarChart3, label: 'Reports', path: '/reports', permission: 'view_reports' as PermissionKey },
-    { icon: Settings, label: 'Administration', path: '/admin/users', permission: null },
+    { icon: Settings, label: 'Administration', path: getFirstAdminPath(), permission: null },
   ];
 
   // Filter menu items based on permissions
@@ -41,7 +51,7 @@ export function Layout({ children }: LayoutProps) {
     // Dashboard is always visible
     if (!item.permission) {
       // For Administration, check if user has any admin access
-      if (item.path === '/admin/users') {
+      if (item.path.startsWith('/admin')) {
         return hasAdminAccess;
       }
       return true;
@@ -51,7 +61,7 @@ export function Layout({ children }: LayoutProps) {
   });
 
   const isActivePath = (path: string) => {
-    if (path === '/admin/users') {
+    if (path.startsWith('/admin')) {
       return location.pathname.startsWith('/admin');
     }
     if (path === '/batch/dashboard') {
