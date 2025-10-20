@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsAdmin } from '@/hooks/useUserRoles';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useUserPermissions, PermissionKey } from '@/hooks/useUserPermissions';
 import { Button } from '@/components/ui/button';
 import { LogOut, Users, Settings, LayoutDashboard, Leaf, ClipboardList, Bug, Droplets, Package, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,15 +28,27 @@ export function Layout({ children }: LayoutProps) {
     !!(permissions as any)?.view_system_settings;
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', adminOnly: false },
-    { icon: Leaf, label: 'Batch', path: '/batch/dashboard', adminOnly: false },
-    { icon: ClipboardList, label: 'Tasks', path: '/tasks', adminOnly: false },
-    { icon: Package, label: 'Inventory', path: '/inventory', adminOnly: false },
-    { icon: BarChart3, label: 'Reports', path: '/reports', adminOnly: false },
-    { icon: Settings, label: 'Administration', path: '/admin/users', adminOnly: true },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', permission: null },
+    { icon: Leaf, label: 'Batch', path: '/batch/dashboard', permission: 'view_all_batches' as PermissionKey },
+    { icon: ClipboardList, label: 'Tasks', path: '/tasks', permission: 'view_all_tasks' as PermissionKey },
+    { icon: Package, label: 'Inventory', path: '/inventory', permission: 'manage_inventory' as PermissionKey },
+    { icon: BarChart3, label: 'Reports', path: '/reports', permission: 'view_reports' as PermissionKey },
+    { icon: Settings, label: 'Administration', path: '/admin/users', permission: null },
   ];
 
-  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || hasAdminAccess);
+  // Filter menu items based on permissions
+  const filteredMenuItems = menuItems.filter(item => {
+    // Dashboard is always visible
+    if (!item.permission) {
+      // For Administration, check if user has any admin access
+      if (item.path === '/admin/users') {
+        return hasAdminAccess;
+      }
+      return true;
+    }
+    // Check specific permission
+    return (permissions as any)[item.permission];
+  });
 
   const isActivePath = (path: string) => {
     if (path === '/admin/users') {

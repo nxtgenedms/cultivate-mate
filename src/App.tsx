@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -41,20 +42,89 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/admin/roles" element={<RoleBasedAccess />} />
-            <Route path="/admin/lookups" element={<LookupManagement />} />
-            <Route path="/admin/nomenclature" element={<NomenclatureManagement />} />
-            <Route path="/admin/checklists" element={<ChecklistManagement />} />
-            <Route path="/admin/approval-workflows" element={<ApprovalWorkflows />} />
-            <Route path="/admin/task-mappings" element={<TaskFieldMappings />} />
-            <Route path="/batch/dashboard" element={<BatchDashboard />} />
-            <Route path="/batch/master-record" element={<MasterRecord />} />
-            <Route path="/batch/detail/:id" element={<BatchDetail />} />
-            <Route path="/tasks" element={<TaskManagement />} />
-            <Route path="/inventory" element={<InventoryManagement />} />
-            <Route path="/reports" element={<Reports />} />
+            
+            {/* Protected Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/users" element={
+              <ProtectedRoute requiredPermission="manage_users">
+                <UserManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/roles" element={
+              <ProtectedRoute requiredPermission="manage_permissions">
+                <RoleBasedAccess />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/lookups" element={
+              <ProtectedRoute requiredPermission="manage_lookups">
+                <LookupManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/nomenclature" element={
+              <ProtectedRoute requiredPermission="manage_nomenclature">
+                <NomenclatureManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/checklists" element={
+              <ProtectedRoute requiredPermission="view_system_settings">
+                <ChecklistManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/approval-workflows" element={
+              <ProtectedRoute requiredPermission="view_system_settings">
+                <ApprovalWorkflows />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/task-mappings" element={
+              <ProtectedRoute requiredPermission="view_system_settings">
+                <TaskFieldMappings />
+              </ProtectedRoute>
+            } />
+            
+            {/* Batch Routes */}
+            <Route path="/batch/dashboard" element={
+              <ProtectedRoute requiredPermission="view_all_batches">
+                <BatchDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/batch/master-record" element={
+              <ProtectedRoute requiredPermission="create_batches">
+                <MasterRecord />
+              </ProtectedRoute>
+            } />
+            <Route path="/batch/detail/:id" element={
+              <ProtectedRoute requiredPermission="view_all_batches">
+                <BatchDetail />
+              </ProtectedRoute>
+            } />
+            
+            {/* Task Management */}
+            <Route path="/tasks" element={
+              <ProtectedRoute requiredPermission="view_all_tasks">
+                <TaskManagement />
+              </ProtectedRoute>
+            } />
+            
+            {/* Inventory Management */}
+            <Route path="/inventory" element={
+              <ProtectedRoute requiredPermission="manage_inventory">
+                <InventoryManagement />
+              </ProtectedRoute>
+            } />
+            
+            {/* Reports */}
+            <Route path="/reports" element={
+              <ProtectedRoute requiredPermission="view_reports">
+                <Reports />
+              </ProtectedRoute>
+            } />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
