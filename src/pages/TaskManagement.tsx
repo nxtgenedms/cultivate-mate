@@ -515,30 +515,7 @@ export default function TaskManagement() {
 
               {/* Right: Actions */}
               <div className="flex items-center gap-1.5">
-                {((task.task_category && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft')) || 
-                  (hasItems && task.status === 'in_progress' && (!task.approval_status || task.approval_status === 'draft'))) && (
-                  <Button
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => {
-                      if (hasItems && progress.completed < progress.total) {
-                        toast.error("Please complete all checklist items first");
-                        return;
-                      }
-                      setTaskToSubmit(task.id);
-                      
-                      // For SOF-22, SOF-15, SOF-30, and SOF-19, show signature dialog first
-                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030') || task.name?.includes('HVCSOF019')) {
-                        setShowSignatureDialog(true);
-                      } else {
-                        setShowSubmitDialog(true);
-                      }
-                    }}
-                  >
-                    <Send className="mr-1 h-3 w-3" />
-                    Submit
-                  </Button>
-                )}
+                {/* Submit button removed for in_progress tasks - only approval actions available */}
                 
                 {/* Submit for Approval - for draft tasks only (not in_progress) */}
                 {task.status !== 'completed' && 
