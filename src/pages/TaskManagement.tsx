@@ -244,6 +244,7 @@ export default function TaskManagement() {
       const updatePayload: any = {
         approval_status: 'pending_approval',
         current_approval_stage: 0, // Start at stage 0
+        assignee: signatures?.grower_id || approverId, // Assign to the grower selected in signature dialog
         checklist_items: updatedChecklistItems as any,
         completion_progress: {
           completed: completedCount,

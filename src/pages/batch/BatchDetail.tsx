@@ -238,6 +238,7 @@ export default function BatchDetail() {
       const updatePayload: any = {
         approval_status: 'pending_approval',
         current_approval_stage: 0,
+        assignee: signatures?.grower_id, // Assign to the grower selected in signature dialog
         checklist_items: updatedChecklistItems as any,
         completion_progress: {
           completed: completedCount,
