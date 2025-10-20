@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { getStageLabel, BATCH_STAGES } from '@/lib/batchUtils';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 export default function BatchDashboard() {
   const navigate = useNavigate();
@@ -76,6 +77,14 @@ export default function BatchDashboard() {
   const handleEditBatch = (batch: any) => {
     navigate('/batch/master-record');
   };
+
+  // Prepare data for pie chart
+  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+  const chartData = Object.entries(stats.byStage).map(([stage, count], index) => ({
+    name: getStageLabel(stage),
+    value: count as number,
+    color: COLORS[index % COLORS.length]
+  }));
 
   return (
     <BatchLayout>
@@ -181,26 +190,39 @@ export default function BatchDashboard() {
             </CardHeader>
             <CardContent className="pt-0">
               {isLoading ? (
-                <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-10 w-full" />
-                  ))}
+                <div className="flex items-center justify-center h-[300px]">
+                  <Skeleton className="h-[250px] w-[250px] rounded-full" />
                 </div>
+              ) : chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [`${value} ${value === 1 ? 'batch' : 'batches'}`, 'Count']}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36}
+                      formatter={(value, entry: any) => `${value} (${entry.payload.value})`}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               ) : (
-                <div className="space-y-2">
-                  {Object.entries(stats.byStage).map(([stage, count]) => (
-                    <div key={stage} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {getStageLabel(stage)}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {count} {count === 1 ? 'batch' : 'batches'}
-                        </span>
-                      </div>
-                      <div className="text-lg font-bold text-primary">{count}</div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-center h-[300px] text-muted-foreground text-sm">
+                  No stage data available
                 </div>
               )}
             </CardContent>
