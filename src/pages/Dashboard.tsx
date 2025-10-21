@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { QuickTaskReference } from '@/components/dashboard/QuickTaskReference';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, isPast, parseISO } from 'date-fns';
@@ -153,6 +154,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Task Reference */}
+        <QuickTaskReference />
 
         {/* Open Tasks Requiring Action */}
         <Card>

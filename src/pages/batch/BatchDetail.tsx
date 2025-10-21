@@ -24,6 +24,7 @@ import { TaskApprovalActionsDialog } from "@/components/tasks/TaskApprovalAction
 import { ApprovalProgressBadge } from '@/components/tasks/ApprovalProgressBadge';
 import { TaskItemsManager } from '@/components/tasks/TaskItemsManager';
 import { SignatureDialog } from '@/components/checklists/SignatureDialog';
+import { TaskGuideTab } from '@/components/batch/TaskGuideTab';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRoles, useIsAdmin } from '@/hooks/useUserRoles';
@@ -395,6 +396,7 @@ export default function BatchDetail() {
           <TabsList>
             <TabsTrigger value="overview">Batch Overview</TabsTrigger>
             <TabsTrigger value="tasks">Batch Tasks</TabsTrigger>
+            <TabsTrigger value="task-guide">Task Guide</TabsTrigger>
             <TabsTrigger value="reconciliation">Batch Reconciliation</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -692,6 +694,17 @@ export default function BatchDetail() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="task-guide" className="mt-4">
+            <TaskGuideTab 
+              batchId={batch.id}
+              currentStage={batch.current_stage}
+              onTaskCreated={() => {
+                queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
+                setActiveTab('tasks');
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="reconciliation" className="mt-4">
