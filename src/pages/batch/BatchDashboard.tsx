@@ -142,23 +142,23 @@ export default function BatchDashboard() {
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Activity Feed */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <CardTitle className="text-base">Recent Activity</CardTitle>
               <CardDescription className="text-xs">Latest batch events</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
               {isLoading ? (
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
+                    <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
               ) : batches && batches.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {batches.slice(0, 5).map((batch) => (
                     <div 
                       key={batch.id} 
-                      className="flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-1.5 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                       onClick={() => handleViewBatch(batch)}
                     >
                       <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export default function BatchDashboard() {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground text-sm py-6">No recent activity</p>
+                <p className="text-center text-muted-foreground text-sm py-4">No recent activity</p>
               )}
             </CardContent>
           </Card>
