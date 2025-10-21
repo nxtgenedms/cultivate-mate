@@ -26,21 +26,19 @@ export const InventoryUsageForm = () => {
 
   // Fetch existing product names with availability from receipts and usage
   const { data: productsWithAvailability = [] } = useQuery({
-    queryKey: ['inventory-products-availability', formData.product_type],
+    queryKey: ['inventory-products-availability'],
     queryFn: async () => {
-      // Fetch receipts for the selected product type
+      // Fetch ALL receipts regardless of type
       const { data: receipts, error: receiptsError } = await supabase
         .from('inventory_receipts')
-        .select('product_name, quantity, unit')
-        .eq('receipt_type', formData.product_type as any);
+        .select('product_name, quantity, unit');
       
       if (receiptsError) throw receiptsError;
 
       // Fetch all usage records
       const { data: usageRecords, error: usageError } = await supabase
         .from('inventory_usage')
-        .select('product_name, quantity, unit, product_type')
-        .eq('product_type', formData.product_type as any);
+        .select('product_name, quantity, unit');
       
       if (usageError) throw usageError;
 
