@@ -243,13 +243,13 @@ export const RequiredFieldsStep = ({
     const isCopied = copiedFieldData.some(d => d.fieldName === fieldDef.field);
     
     return (
-      <div key={fieldDef.field} className="space-y-2">
+      <div key={fieldDef.field} className="space-y-1.5">
         <Label htmlFor={fieldDef.field} className="text-sm font-semibold text-foreground">
           {fieldDef.label}
           {isRequired && <span className="text-destructive ml-1 font-bold">*</span>}
           {isCopied && (
-            <span className="ml-2 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-0.5 rounded">
-              Auto-filled from task
+            <span className="ml-2 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-1.5 py-0.5 rounded">
+              Auto-filled
             </span>
           )}
         </Label>
@@ -322,35 +322,35 @@ export const RequiredFieldsStep = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-muted/30 p-4 rounded-lg border">
-        <h3 className="text-lg font-bold mb-2 text-foreground">Required Fields</h3>
+    <div className="space-y-4">
+      <div className="bg-muted/30 p-3 rounded-lg border">
+        <h3 className="text-base font-bold mb-1 text-foreground">Required Fields</h3>
         <p className="text-sm text-muted-foreground">
           Fill in the required information for moving from <strong className="text-foreground">{currentStage}</strong> to <strong className="text-foreground">{nextStage}</strong>.
         </p>
       </div>
 
-      <div className="space-y-6">
-        <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+      <div className="space-y-4">
+        <div className="space-y-3 bg-card p-3 rounded-lg border-2">
           <h4 className="text-base font-bold text-foreground">Required Information</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fieldRequirements.required.map(field => renderField(field, true))}
           </div>
         </div>
 
         {fieldRequirements.clonator2 && fieldRequirements.clonator2.length > 0 && (
-          <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+          <div className="space-y-3 bg-card p-3 rounded-lg border-2">
             <h4 className="text-base font-bold text-foreground">Clonator 2 Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fieldRequirements.clonator2.map(field => renderField(field, false))}
             </div>
           </div>
         )}
 
         {fieldRequirements.optional.length > 0 && (
-          <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+          <div className="space-y-3 bg-card p-3 rounded-lg border-2">
             <h4 className="text-base font-bold text-foreground">Optional Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fieldRequirements.optional.map(field => renderField(field, false))}
             </div>
           </div>

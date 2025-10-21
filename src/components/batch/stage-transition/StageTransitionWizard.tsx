@@ -440,21 +440,21 @@ export const StageTransitionWizard = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">
             Stage Transition: {currentStage === 'clone_germination' && nextStage === 'hardening' 
               ? 'Germination(Clonator1) → Hardening(Clonator2)' 
               : `${STAGE_LABELS[currentStage as keyof typeof STAGE_LABELS] || currentStage} → ${STAGE_LABELS[nextStage as keyof typeof STAGE_LABELS] || nextStage}`}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Batch: {batchNumber} | Step {currentStep} of 3
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <Progress value={progress} className="w-full" />
+        <div className="space-y-3">
+          <Progress value={progress} className="w-full h-2" />
 
-          <div className="min-h-[400px]">
+          <div className="min-h-[300px]">
             {currentStep === 1 && (
               <TaskValidationStep
                 tasks={tasks.map(t => ({
@@ -495,9 +495,9 @@ export const StageTransitionWizard = ({
           </div>
         </div>
 
-        <DialogFooter className="flex-col gap-2">
+        <DialogFooter className="flex-col gap-1.5 pt-2">
           {currentStep === 1 && !canProceed() && (
-            <Alert variant="destructive" className="w-full">
+            <Alert variant="destructive" className="w-full py-2">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 {(() => {
