@@ -119,7 +119,7 @@ export const TaskValidationStep = ({
           ? 'border-green-200 bg-green-50/30 dark:bg-green-950/10' 
           : 'border-orange-200 bg-orange-50/30 dark:bg-orange-950/10'
       }`}>
-        <div className="p-3 space-y-3">
+        <div className="p-2 space-y-2">
           {/* Task Header */}
           <div className="flex items-start gap-2">
             <Checkbox
@@ -129,28 +129,29 @@ export const TaskValidationStep = ({
               className="mt-1"
             />
             <div className="flex-1 min-w-0">
-              <Label htmlFor={`task-${task.id}`} className="text-sm font-medium cursor-pointer block">
-                {task.name}
-              </Label>
-              
-              {/* Task Number Badge */}
-              {task.task_number && (
-                <Badge variant="secondary" className="font-mono text-xs mt-1 inline-block">
-                  {task.task_number}
-                </Badge>
-              )}
-              
-              {/* Status and Progress */}
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {/* Task name and status on same line */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Label htmlFor={`task-${task.id}`} className="text-sm font-medium cursor-pointer">
+                  {task.name}
+                </Label>
                 {isCompleted ? (
-                  <Badge className="bg-green-600 text-xs">
+                  <Badge className="bg-green-600 text-xs flex-shrink-0">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     Completed
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-orange-100 text-orange-800 text-xs">
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 text-xs flex-shrink-0">
                     <Clock className="h-3 w-3 mr-1" />
                     {task.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Task Number Badge and Progress */}
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {task.task_number && (
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {task.task_number}
                   </Badge>
                 )}
                 {totalItems > 0 && (
@@ -161,9 +162,9 @@ export const TaskValidationStep = ({
               </div>
 
               {/* Creation & Completion Info */}
-              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+              <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                 {task.created_at && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-wrap">
                     <Calendar className="h-3 w-3" />
                     <span>Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
                     {task.created_by && (
@@ -176,7 +177,7 @@ export const TaskValidationStep = ({
                   </div>
                 )}
                 {isCompleted && task.updated_at && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-wrap">
                     <CheckCircle2 className="h-3 w-3" />
                     <span>Completed: {format(new Date(task.updated_at), 'MMM dd, yyyy')}</span>
                     {task.assignee && (
@@ -192,7 +193,7 @@ export const TaskValidationStep = ({
 
               {/* Checklist Items */}
               {totalItems > 0 && (
-                <Accordion type="single" collapsible className="mt-2">
+                <Accordion type="single" collapsible className="mt-1">
                   <AccordionItem value="items" className="border-0">
                     <AccordionTrigger className="py-1 text-xs hover:no-underline">
                       View {totalItems} checklist item{totalItems !== 1 ? 's' : ''}
@@ -200,7 +201,7 @@ export const TaskValidationStep = ({
                     <AccordionContent>
                       <div className="space-y-1 mt-1">
                         {task.checklist_items?.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs p-1.5 rounded bg-background/50">
+                          <div key={idx} className="flex items-start gap-2 text-xs p-1 rounded bg-background/50">
                             <div className="mt-0.5">
                               {item.completed ? (
                                 <CheckCircle2 className="h-3 w-3 text-green-600" />
@@ -252,31 +253,33 @@ export const TaskValidationStep = ({
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             {requiredChecklists.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
-              <div key={template.id} className={`flex items-center justify-between p-3 rounded-md border ${
+              <div key={template.id} className={`flex items-center justify-between p-2 rounded-md border ${
                 !tasksCreated 
                   ? 'border-red-300 bg-red-50 dark:bg-red-950/20' 
                   : completedTasks === totalTasks
                   ? 'border-green-300 bg-green-50 dark:bg-green-950/20'
                   : 'border-orange-200 bg-orange-50 dark:bg-orange-950/10'
               }`}>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{template.template_name}</p>
-                  <p className="text-xs text-muted-foreground">{template.sof_number}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-medium text-sm">{template.template_name}</p>
+                    <p className="text-xs text-muted-foreground">({template.sof_number})</p>
+                  </div>
                 </div>
                 {!tasksCreated ? (
-                  <Badge variant="destructive" className="text-xs">
+                  <Badge variant="destructive" className="text-xs flex-shrink-0 ml-2">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     Not Created
                   </Badge>
                 ) : completedTasks === totalTasks ? (
-                  <Badge className="bg-green-600 hover:bg-green-700 text-xs">
+                  <Badge className="bg-green-600 hover:bg-green-700 text-xs flex-shrink-0 ml-2">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     {completedTasks}/{totalTasks}
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs">
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs flex-shrink-0 ml-2">
                     <Clock className="h-3 w-3 mr-1" />
                     {completedTasks}/{totalTasks}
                   </Badge>
@@ -298,31 +301,33 @@ export const TaskValidationStep = ({
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             {optionalChecklists.map(({ template, tasksCreated, totalTasks, completedTasks }) => (
-              <div key={template.id} className={`flex items-center justify-between p-3 rounded-md border ${
+              <div key={template.id} className={`flex items-center justify-between p-2 rounded-md border ${
                 !tasksCreated 
                   ? 'border-blue-200 bg-blue-50 dark:bg-blue-950/20' 
                   : completedTasks === totalTasks
                   ? 'border-green-300 bg-green-50 dark:bg-green-950/20'
                   : 'border-orange-200 bg-orange-50 dark:bg-orange-950/10'
               }`}>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{template.template_name}</p>
-                  <p className="text-xs text-muted-foreground">{template.sof_number} (Optional)</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-medium text-sm">{template.template_name}</p>
+                    <p className="text-xs text-muted-foreground">({template.sof_number} - Optional)</p>
+                  </div>
                 </div>
                 {!tasksCreated ? (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs flex-shrink-0 ml-2">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     Not Created
                   </Badge>
                 ) : completedTasks === totalTasks ? (
-                  <Badge className="bg-green-600 hover:bg-green-700 text-xs">
+                  <Badge className="bg-green-600 hover:bg-green-700 text-xs flex-shrink-0 ml-2">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     {completedTasks}/{totalTasks}
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs">
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800 dark:bg-orange-900 text-xs flex-shrink-0 ml-2">
                     <Clock className="h-3 w-3 mr-1" />
                     {completedTasks}/{totalTasks}
                   </Badge>
