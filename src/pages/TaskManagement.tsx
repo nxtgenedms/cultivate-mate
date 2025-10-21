@@ -681,26 +681,26 @@ export default function TaskManagement() {
               </Button>
             </div>
             
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-2 mt-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by task name, number, or owner..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9"
                 />
               </div>
               <Input
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-48"
+                className="w-44 h-9"
                 placeholder="Filter by date"
               />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
               <TwoLevelCategoryFilter
                 selectedCategory={selectedCategory}
                 onCategoryChange={handleCategoryChange}
@@ -716,22 +716,22 @@ export default function TaskManagement() {
           </Tabs>
         ) : (
           <>
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <div className="flex gap-4 flex-1">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex gap-2 flex-1">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by task name, number, or owner..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-9"
                   />
                 </div>
                 <Input
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-48"
+                  className="w-44 h-9"
                   placeholder="Filter by date"
                 />
               </div>
