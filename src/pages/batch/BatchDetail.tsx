@@ -377,7 +377,6 @@ export default function BatchDetail() {
           <div className="flex gap-2">
             <Button 
               size="sm" 
-              variant="outline"
               onClick={() => generateBatchRecordPDF(batch, getUserName, getDisplayValue)} 
               className="h-8"
             >
