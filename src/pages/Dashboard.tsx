@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QuickTaskReference } from '@/components/dashboard/QuickTaskReference';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -155,63 +156,72 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Quick Task Reference */}
-        <QuickTaskReference />
-
-        {/* Open Tasks Requiring Action */}
+        {/* Tabbed Task Views */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Open Tasks</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">Tasks requiring your attention</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/tasks')}>
-              View All
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {openTasks.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <CheckCircle2 className="mx-auto h-12 w-12 mb-2 opacity-50" />
-                <p>No open tasks - you're all caught up!</p>
-                <Button variant="link" onClick={() => navigate('/tasks')} className="mt-2">
-                  Browse all tasks
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {openTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                    onClick={() => navigate('/tasks')}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm truncate">{task.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{task.task_number}</span>
-                        {task.due_date && (
-                          <>
-                            <span>•</span>
-                            <span className={isPast(parseISO(task.due_date)) ? 'text-red-500 font-medium' : ''}>
-                              Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {task.approval_status && getApprovalBadge(task.approval_status)}
-                      {getStatusBadge(task.status)}
-                    </div>
+          <Tabs defaultValue="open-tasks" className="w-full">
+            <CardHeader className="pb-3">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="open-tasks">
+                  Open Tasks ({openTasks.length})
+                </TabsTrigger>
+                <TabsTrigger value="task-reference">
+                  Quick Task Reference
+                </TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            
+            <TabsContent value="open-tasks" className="mt-0">
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">Tasks requiring your attention</p>
+                {openTasks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <CheckCircle2 className="mx-auto h-12 w-12 mb-2 opacity-50" />
+                    <p>No open tasks - you're all caught up!</p>
+                    <Button variant="link" onClick={() => navigate('/tasks')} className="mt-2">
+                      Browse all tasks
+                    </Button>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-3">
+                    {openTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                        onClick={() => navigate('/tasks')}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm truncate">{task.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{task.task_number}</span>
+                            {task.due_date && (
+                              <>
+                                <span>•</span>
+                                <span className={isPast(parseISO(task.due_date)) ? 'text-red-500 font-medium' : ''}>
+                                  Due: {format(parseISO(task.due_date), 'MMM d, yyyy')}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {task.approval_status && getApprovalBadge(task.approval_status)}
+                          {getStatusBadge(task.status)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </TabsContent>
+
+            <TabsContent value="task-reference" className="mt-0">
+              <div className="px-6 pb-6">
+                <QuickTaskReference />
               </div>
-            )}
-          </CardContent>
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </Layout>

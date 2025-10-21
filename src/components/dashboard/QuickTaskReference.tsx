@@ -39,26 +39,20 @@ export function QuickTaskReference() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              <CardTitle>Quick Task Reference</CardTitle>
-            </div>
-            <CardDescription className="mt-1.5">
-              Common daily and weekly tasks. Reference guide - go to task page to create them.
-            </CardDescription>
-          </div>
-          <Button onClick={() => navigate('/tasks')} variant="default">
-            Go to Task Page
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Common daily and weekly tasks. Reference guide - go to task page to create them.
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="daily" className="w-full">
+        <Button onClick={() => navigate('/tasks')} variant="default" size="sm">
+          Go to Task Page
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+      
+      <Tabs defaultValue="daily" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="daily">
               Daily Tasks ({dailyTasks.length})
@@ -140,7 +134,6 @@ export function QuickTaskReference() {
             )}
           </TabsContent>
         </Tabs>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
