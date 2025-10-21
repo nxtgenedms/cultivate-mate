@@ -165,7 +165,7 @@ export default function Dashboard() {
                   Open Tasks ({openTasks.length})
                 </TabsTrigger>
                 <TabsTrigger value="task-reference">
-                  Quick Task Reference
+                  Daily/Weekly Task Guide
                 </TabsTrigger>
               </TabsList>
             </CardHeader>
