@@ -68,7 +68,9 @@ export const InventoryUsageForm = () => {
         }
       });
 
-      return Array.from(availabilityMap.values()).filter(item => item.available > 0);
+      // Return all products, not just those with available inventory
+      // This allows users to record usage even if inventory tracking shows 0
+      return Array.from(availabilityMap.values());
     },
   });
 
