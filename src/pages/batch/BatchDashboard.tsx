@@ -184,17 +184,17 @@ export default function BatchDashboard() {
 
           {/* Stage Distribution */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <CardTitle className="text-base">Batches by Stage</CardTitle>
               <CardDescription className="text-xs">Distribution across stages</CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
               {isLoading ? (
-                <div className="flex items-center justify-center h-[350px]">
-                  <Skeleton className="h-[250px] w-[250px] rounded-full" />
+                <div className="flex items-center justify-center h-[280px]">
+                  <Skeleton className="h-[200px] w-[200px] rounded-full" />
                 </div>
               ) : chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={280}>
                   <PieChart>
                     <Pie
                       data={chartData}
@@ -202,7 +202,7 @@ export default function BatchDashboard() {
                       cy="50%"
                       labelLine={false}
                       label={false}
-                      outerRadius={90}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -228,7 +228,7 @@ export default function BatchDashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-[350px] text-muted-foreground text-sm">
+                <div className="flex items-center justify-center h-[280px] text-muted-foreground text-sm">
                   No stage data available
                 </div>
               )}
