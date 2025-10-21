@@ -639,7 +639,7 @@ export default function BatchDetail() {
                             </div>
                           </CardHeader>
                           <CardContent className="px-4 py-2 pt-1">
-                            {hasItems && progress.total > 0 && (
+                            {hasItems && progress.total > 0 && task.status !== 'completed' && (
                               <div className="mb-2">
                                 <div className="flex items-center gap-3 mb-1">
                                   <span className="text-xs text-muted-foreground font-semibold">Progress</span>
