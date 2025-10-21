@@ -251,23 +251,23 @@ const InventoryReceiptDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Header Info - 3 columns */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 bg-card p-4 rounded-lg border-2">
             <div className="space-y-2">
-              <Label htmlFor="responsible_person_id">Responsible Person</Label>
+              <Label htmlFor="responsible_person_id" className="text-sm font-semibold text-foreground">Responsible Person</Label>
               <Select
                 value={formData.responsible_person_id}
                 onValueChange={(value) =>
                   setFormData({ ...formData, responsible_person_id: value })
                 }
               >
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium">
                   <SelectValue placeholder="Select person" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
+                <SelectContent className="z-[100] bg-popover border-2">
                   {users?.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
+                    <SelectItem key={user.id} value={user.id} className="font-medium">
                       {user.full_name}
                     </SelectItem>
                   ))}
@@ -276,7 +276,7 @@ const InventoryReceiptDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="month">Month</Label>
+              <Label htmlFor="month" className="text-sm font-semibold text-foreground">Month</Label>
               <Input
                 id="month"
                 value={formData.month}
@@ -284,44 +284,49 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, month: e.target.value })
                 }
                 required
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="receipt_type">Receipt Type *</Label>
+              <Label htmlFor="receipt_type" className="text-sm font-semibold text-foreground">
+                Receipt Type <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Select
                 value={formData.receipt_type}
                 onValueChange={(value) =>
                   setFormData({ ...formData, receipt_type: value })
                 }
               >
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="chemical">Chemical</SelectItem>
-                  <SelectItem value="fertilizer">Fertilizer</SelectItem>
-                  <SelectItem value="seeds">Seeds</SelectItem>
-                  <SelectItem value="growing_media">Growing Media</SelectItem>
-                  <SelectItem value="packaging">Packaging</SelectItem>
-                  <SelectItem value="equipment">Equipment</SelectItem>
-                  <SelectItem value="harvest_output">Harvest Output</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                <SelectContent className="z-[100] bg-popover border-2">
+                  <SelectItem value="chemical" className="font-medium">Chemical</SelectItem>
+                  <SelectItem value="fertilizer" className="font-medium">Fertilizer</SelectItem>
+                  <SelectItem value="seeds" className="font-medium">Seeds</SelectItem>
+                  <SelectItem value="growing_media" className="font-medium">Growing Media</SelectItem>
+                  <SelectItem value="packaging" className="font-medium">Packaging</SelectItem>
+                  <SelectItem value="equipment" className="font-medium">Equipment</SelectItem>
+                  <SelectItem value="harvest_output" className="font-medium">Harvest Output</SelectItem>
+                  <SelectItem value="other" className="font-medium">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           {/* Date and Time */}
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 gap-4 bg-card p-4 rounded-lg border-2">
             <div className="space-y-2">
-              <Label>Date *</Label>
+              <Label className="text-sm font-semibold text-foreground">
+                Date <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-start text-left h-11 font-medium border-2 border-input hover:border-ring',
                       !formData.receipt_date && 'text-muted-foreground'
                     )}
                   >
@@ -333,7 +338,7 @@ const InventoryReceiptDialog = ({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+                <PopoverContent className="w-auto p-0 z-[100] bg-popover border-2" align="start">
                   <Calendar
                     mode="single"
                     selected={formData.receipt_date}
@@ -348,7 +353,9 @@ const InventoryReceiptDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="receipt_time">Time *</Label>
+              <Label htmlFor="receipt_time" className="text-sm font-semibold text-foreground">
+                Time <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Input
                 id="receipt_time"
                 type="time"
@@ -357,11 +364,14 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, receipt_time: e.target.value })
                 }
                 required
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
 
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="product_name">Product Name *</Label>
+              <Label htmlFor="product_name" className="text-sm font-semibold text-foreground">
+                Product Name <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Input
                 id="product_name"
                 value={formData.product_name}
@@ -369,11 +379,14 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, product_name: e.target.value })
                 }
                 required
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
 
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="supplier_name">Supplier *</Label>
+              <Label htmlFor="supplier_name" className="text-sm font-semibold text-foreground">
+                Supplier <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Input
                 id="supplier_name"
                 value={formData.supplier_name}
@@ -381,14 +394,17 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, supplier_name: e.target.value })
                 }
                 required
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
           </div>
 
           {/* Quantity, Unit, Received By, Receiver Signature - 4 columns */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 bg-card p-4 rounded-lg border-2">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity *</Label>
+              <Label htmlFor="quantity" className="text-sm font-semibold text-foreground">
+                Quantity <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Input
                 id="quantity"
                 type="number"
@@ -398,47 +414,52 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, quantity: e.target.value })
                 }
                 required
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit">Unit *</Label>
+              <Label htmlFor="unit" className="text-sm font-semibold text-foreground">
+                Unit <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Select
                 value={formData.unit}
                 onValueChange={(value) =>
                   setFormData({ ...formData, unit: value })
                 }
               >
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                  <SelectItem value="g">Grams (g)</SelectItem>
-                  <SelectItem value="l">Liters (L)</SelectItem>
-                  <SelectItem value="ml">Milliliters (mL)</SelectItem>
-                  <SelectItem value="units">Units</SelectItem>
-                  <SelectItem value="boxes">Boxes</SelectItem>
-                  <SelectItem value="bags">Bags</SelectItem>
-                  <SelectItem value="packs">Packs</SelectItem>
+                <SelectContent className="z-[100] bg-popover border-2">
+                  <SelectItem value="kg" className="font-medium">Kilograms (kg)</SelectItem>
+                  <SelectItem value="g" className="font-medium">Grams (g)</SelectItem>
+                  <SelectItem value="l" className="font-medium">Liters (L)</SelectItem>
+                  <SelectItem value="ml" className="font-medium">Milliliters (mL)</SelectItem>
+                  <SelectItem value="units" className="font-medium">Units</SelectItem>
+                  <SelectItem value="boxes" className="font-medium">Boxes</SelectItem>
+                  <SelectItem value="bags" className="font-medium">Bags</SelectItem>
+                  <SelectItem value="packs" className="font-medium">Packs</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="received_by_id">Received By *</Label>
+              <Label htmlFor="received_by_id" className="text-sm font-semibold text-foreground">
+                Received By <span className="text-destructive ml-1 font-bold">*</span>
+              </Label>
               <Select
                 value={formData.received_by_id}
                 onValueChange={(value) =>
                   setFormData({ ...formData, received_by_id: value })
                 }
               >
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium">
                   <SelectValue placeholder="Select person" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
+                <SelectContent className="z-[100] bg-popover border-2">
                   {users?.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
+                    <SelectItem key={user.id} value={user.id} className="font-medium">
                       {user.full_name}
                     </SelectItem>
                   ))}
@@ -447,19 +468,19 @@ const InventoryReceiptDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="receiver_signature_id">Receiver Signature</Label>
+              <Label htmlFor="receiver_signature_id" className="text-sm font-semibold text-foreground">Receiver Signature</Label>
               <Select
                 value={formData.receiver_signature_id}
                 onValueChange={(value) =>
                   setFormData({ ...formData, receiver_signature_id: value })
                 }
               >
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium">
                   <SelectValue placeholder="Select person" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
+                <SelectContent className="z-[100] bg-popover border-2">
                   {users?.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
+                    <SelectItem key={user.id} value={user.id} className="font-medium">
                       {user.full_name}
                     </SelectItem>
                   ))}
@@ -469,9 +490,9 @@ const InventoryReceiptDialog = ({
           </div>
 
           {/* Usage Area, Batch Number, Notes - combined row */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 bg-card p-4 rounded-lg border-2">
             <div className="space-y-2">
-              <Label htmlFor="usage_area">Usage Area</Label>
+              <Label htmlFor="usage_area" className="text-sm font-semibold text-foreground">Usage Area</Label>
               <Input
                 id="usage_area"
                 value={formData.usage_area}
@@ -479,22 +500,24 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, usage_area: e.target.value })
                 }
                 placeholder="e.g., Cloning, Flowering"
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium placeholder:text-muted-foreground/60 placeholder:font-normal"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="batch_number">Batch Number</Label>
+              <Label htmlFor="batch_number" className="text-sm font-semibold text-foreground">Batch Number</Label>
               <Input
                 id="batch_number"
                 value={formData.batch_number}
                 onChange={(e) =>
                   setFormData({ ...formData, batch_number: e.target.value })
                 }
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes" className="text-sm font-semibold text-foreground">Notes</Label>
               <Input
                 id="notes"
                 value={formData.notes}
@@ -502,13 +525,14 @@ const InventoryReceiptDialog = ({
                   setFormData({ ...formData, notes: e.target.value })
                 }
                 placeholder="Additional notes"
+                className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium placeholder:text-muted-foreground/60 placeholder:font-normal"
               />
             </div>
           </div>
 
           {/* File Upload */}
-          <div className="space-y-2">
-            <Label htmlFor="receipt_file">Receipt Attachment</Label>
+          <div className="space-y-2 bg-card p-4 rounded-lg border-2">
+            <Label htmlFor="receipt_file" className="text-sm font-semibold text-foreground">Receipt Attachment</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="receipt_file"
@@ -521,7 +545,7 @@ const InventoryReceiptDialog = ({
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('receipt_file')?.click()}
-                className="w-full"
+                className="w-full h-11 font-medium border-2 border-input hover:border-ring"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 {selectedFile ? selectedFile.name : existingFilePath ? 'Replace file' : 'Upload receipt scan'}
@@ -532,6 +556,7 @@ const InventoryReceiptDialog = ({
                   variant="ghost"
                   size="icon"
                   onClick={handleRemoveFile}
+                  className="h-11 w-11"
                 >
                   <X className="h-4 w-4" />
                 </Button>
