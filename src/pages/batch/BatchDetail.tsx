@@ -698,12 +698,8 @@ export default function BatchDetail() {
 
           <TabsContent value="task-guide" className="mt-4">
             <TaskGuideTab 
-              batchId={batch.id}
               currentStage={batch.current_stage}
-              onTaskCreated={() => {
-                queryClient.invalidateQueries({ queryKey: ['batch-tasks'] });
-                setActiveTab('tasks');
-              }}
+              onGoToTasks={() => setActiveTab('tasks')}
             />
           </TabsContent>
 
