@@ -718,14 +718,14 @@ export default function TaskManagement() {
               {/* Sub-tabs for My Tasks */}
               <div className="flex gap-2 mb-4">
                 <Button
-                  variant={myTasksSubTab === "active" ? "default" : "outline"}
+                  variant={myTasksSubTab === "active" ? "secondary" : "outline"}
                   onClick={() => setMyTasksSubTab("active")}
                   className="flex-1"
                 >
                   Active ({myTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
                 </Button>
                 <Button
-                  variant={myTasksSubTab === "completed" ? "default" : "outline"}
+                  variant={myTasksSubTab === "completed" ? "secondary" : "outline"}
                   onClick={() => setMyTasksSubTab("completed")}
                   className="flex-1"
                 >
@@ -738,14 +738,14 @@ export default function TaskManagement() {
               {/* Sub-tabs for All Tasks */}
               <div className="flex gap-2 mb-4">
                 <Button
-                  variant={allTasksSubTab === "active" ? "default" : "outline"}
+                  variant={allTasksSubTab === "active" ? "secondary" : "outline"}
                   onClick={() => setAllTasksSubTab("active")}
                   className="flex-1"
                 >
                   Active ({filteredTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
                 </Button>
                 <Button
-                  variant={allTasksSubTab === "completed" ? "default" : "outline"}
+                  variant={allTasksSubTab === "completed" ? "secondary" : "outline"}
                   onClick={() => setAllTasksSubTab("completed")}
                   className="flex-1"
                 >
