@@ -2,14 +2,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown, User, Calendar } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown, User, Calendar, ArrowRight } from "lucide-react";
 import { groupTasksByStatus, TaskData, TaskFieldMapping } from "@/lib/taskFieldMapper";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface ChecklistTemplate {
   id: string;
@@ -40,6 +42,8 @@ export const TaskValidationStep = ({
   checklistTemplates,
   onTaskSelectionChange,
 }: TaskValidationStepProps) => {
+  const navigate = useNavigate();
+  
   // Fetch user profiles for creator/completer names
   const { data: profiles = [] } = useQuery({
     queryKey: ['profiles-for-tasks'],
@@ -237,6 +241,15 @@ export const TaskValidationStep = ({
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
                 <CardTitle className="text-base">Required Checklists ({requiredChecklists.length})</CardTitle>
               </div>
+              <Button 
+                onClick={() => navigate('/tasks')} 
+                variant="outline" 
+                size="sm"
+                className="gap-2"
+              >
+                Go to Task Page
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
