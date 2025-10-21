@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, FileText, Calendar, ArrowRight } from 'lucide-react';
 import { getStageLabel, getStageIcon } from '@/lib/batchUtils';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const STAGE_ORDER = [
   'preclone',
@@ -22,10 +23,10 @@ const STAGE_ORDER = [
 
 interface TaskGuideTabProps {
   currentStage: string;
-  onGoToTasks: () => void;
 }
 
-export function TaskGuideTab({ currentStage, onGoToTasks }: TaskGuideTabProps) {
+export function TaskGuideTab({ currentStage }: TaskGuideTabProps) {
+  const navigate = useNavigate();
 
   // Fetch checklist templates
   const { data: templates, isLoading } = useQuery({
@@ -67,11 +68,11 @@ export function TaskGuideTab({ currentStage, onGoToTasks }: TaskGuideTabProps) {
               Task Guide - What to do at each stage
             </CardTitle>
             <CardDescription className="mt-1.5">
-              Reference guide for tasks at each lifecycle stage. Go to tasks tab to create them.
+              Reference guide for tasks at each lifecycle stage. Go to task page to create them.
             </CardDescription>
           </div>
-          <Button onClick={onGoToTasks} variant="default">
-            Go to Tasks
+          <Button onClick={() => navigate('/tasks')} variant="default">
+            Go to Task Page
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

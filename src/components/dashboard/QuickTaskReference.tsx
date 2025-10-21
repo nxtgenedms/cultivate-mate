@@ -48,11 +48,11 @@ export function QuickTaskReference() {
               <CardTitle>Quick Task Reference</CardTitle>
             </div>
             <CardDescription className="mt-1.5">
-              Common daily and weekly tasks. Reference guide - go to tasks to create them.
+              Common daily and weekly tasks. Reference guide - go to task page to create them.
             </CardDescription>
           </div>
           <Button onClick={() => navigate('/tasks')} variant="default">
-            Go to Tasks
+            Go to Task Page
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

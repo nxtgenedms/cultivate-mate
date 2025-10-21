@@ -699,7 +699,6 @@ export default function BatchDetail() {
           <TabsContent value="task-guide" className="mt-4">
             <TaskGuideTab 
               currentStage={batch.current_stage}
-              onGoToTasks={() => setActiveTab('tasks')}
             />
           </TabsContent>
 
