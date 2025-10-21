@@ -43,6 +43,8 @@ export default function TaskManagement() {
   const [selectedApprover, setSelectedApprover] = useState("");
   const [showApprovalSubmitDialog, setShowApprovalSubmitDialog] = useState(false);
   const [taskForApprovalSubmit, setTaskForApprovalSubmit] = useState<{id: string, name: string} | null>(null);
+  const [myTasksSubTab, setMyTasksSubTab] = useState<"active" | "completed">("active");
+  const [allTasksSubTab, setAllTasksSubTab] = useState<"active" | "completed">("active");
   const queryClient = useQueryClient();
   const isAdmin = useIsAdmin();
   const { user } = useAuth();
@@ -423,8 +425,13 @@ export default function TaskManagement() {
   // Determine which view to show based on permissions
   const showAllTasksView = isAdmin || hasViewAllPermission;
 
-  const renderTaskList = (taskList: any[]) => {
-    if (!taskList || taskList.length === 0) {
+  const renderTaskList = (taskList: any[], statusFilter: "active" | "completed" = "active") => {
+    // Filter by status first
+    const filteredByStatus = statusFilter === "active"
+      ? taskList.filter(task => task.status !== 'completed' && task.status !== 'cancelled' && task.approval_status !== 'rejected')
+      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled' || task.approval_status === 'rejected');
+
+    if (!filteredByStatus || filteredByStatus.length === 0) {
       return (
         <Card>
           <CardContent className="py-12 text-center">
@@ -436,10 +443,10 @@ export default function TaskManagement() {
 
     // Group tasks by status and approval
     const tasksByStatus = {
-      pending_approval: taskList.filter(task => task.approval_status === 'pending_approval'),
-      in_progress: taskList.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
-      completed: taskList.filter(task => task.status === 'completed'),
-      cancelled: taskList.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
+      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval'),
+      in_progress: filteredByStatus.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
+      completed: filteredByStatus.filter(task => task.status === 'completed'),
+      cancelled: filteredByStatus.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
     };
 
     const renderTaskCard = (task: any) => {
@@ -707,11 +714,45 @@ export default function TaskManagement() {
               />
             </div>
 
-            <TabsContent value="my-tasks" className="mt-6">
-              {renderTaskList(myTasks)}
+            <TabsContent value="my-tasks" className="mt-4">
+              {/* Sub-tabs for My Tasks */}
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant={myTasksSubTab === "active" ? "default" : "outline"}
+                  onClick={() => setMyTasksSubTab("active")}
+                  className="flex-1"
+                >
+                  Active ({myTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
+                </Button>
+                <Button
+                  variant={myTasksSubTab === "completed" ? "default" : "outline"}
+                  onClick={() => setMyTasksSubTab("completed")}
+                  className="flex-1"
+                >
+                  Completed ({myTasks.filter(t => t.status === 'completed' || t.status === 'cancelled' || t.approval_status === 'rejected').length})
+                </Button>
+              </div>
+              {renderTaskList(myTasks, myTasksSubTab)}
             </TabsContent>
-            <TabsContent value="all-tasks" className="mt-6">
-              {renderTaskList(filteredTasks)}
+            <TabsContent value="all-tasks" className="mt-4">
+              {/* Sub-tabs for All Tasks */}
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant={allTasksSubTab === "active" ? "default" : "outline"}
+                  onClick={() => setAllTasksSubTab("active")}
+                  className="flex-1"
+                >
+                  Active ({filteredTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
+                </Button>
+                <Button
+                  variant={allTasksSubTab === "completed" ? "default" : "outline"}
+                  onClick={() => setAllTasksSubTab("completed")}
+                  className="flex-1"
+                >
+                  Completed ({filteredTasks.filter(t => t.status === 'completed' || t.status === 'cancelled' || t.approval_status === 'rejected').length})
+                </Button>
+              </div>
+              {renderTaskList(filteredTasks, allTasksSubTab)}
             </TabsContent>
           </Tabs>
         ) : (
