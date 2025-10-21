@@ -6,6 +6,7 @@ import { AlertCircle } from "lucide-react";
 import { ExtractedFieldData } from "@/lib/taskFieldMapper";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface RequiredFieldsStepProps {
   currentStage: string;
@@ -243,12 +244,12 @@ export const RequiredFieldsStep = ({
     
     return (
       <div key={fieldDef.field} className="space-y-2">
-        <Label htmlFor={fieldDef.field}>
+        <Label htmlFor={fieldDef.field} className="text-sm font-semibold text-foreground">
           {fieldDef.label}
-          {isRequired && <span className="text-destructive ml-1">*</span>}
+          {isRequired && <span className="text-destructive ml-1 font-bold">*</span>}
           {isCopied && (
-            <span className="ml-2 text-xs text-green-600 dark:text-green-400">
-              (Auto-filled from task)
+            <span className="ml-2 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-0.5 rounded">
+              Auto-filled from task
             </span>
           )}
         </Label>
@@ -258,16 +259,22 @@ export const RequiredFieldsStep = ({
             value={formData[fieldDef.field] || ''}
             onValueChange={(value) => onFieldChange(fieldDef.field, value)}
           >
-            <SelectTrigger id={fieldDef.field}>
-              <SelectValue placeholder={
-                fieldDef.options === 'profiles' ? 'Select user...' : 
-                fieldDef.options === 'domes' ? 'Select dome...' : 
-                'Select...'
-              } />
+            <SelectTrigger 
+              id={fieldDef.field}
+              className="bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium"
+            >
+              <SelectValue 
+                placeholder={
+                  fieldDef.options === 'profiles' ? 'Select user...' : 
+                  fieldDef.options === 'domes' ? 'Select dome...' : 
+                  'Select...'
+                } 
+                className="text-foreground"
+              />
             </SelectTrigger>
-            <SelectContent className="z-50 bg-background">
+            <SelectContent className="z-[100] bg-popover border-2">
               {fieldDef.options === 'domes' && domeValues.map((dome) => (
-                <SelectItem key={dome.value_key} value={dome.value_key}>
+                <SelectItem key={dome.value_key} value={dome.value_key} className="font-medium">
                   {dome.value_display}
                 </SelectItem>
               ))}
@@ -282,15 +289,15 @@ export const RequiredFieldsStep = ({
             </SelectContent>
           </Select>
         ) : fieldDef.type === 'checkbox' ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 h-11 px-3 border-2 border-input rounded-md bg-background">
             <input
               type="checkbox"
               id={fieldDef.field}
               checked={formData[fieldDef.field] || false}
               onChange={(e) => onFieldChange(fieldDef.field, e.target.checked)}
-              className="rounded border-input"
+              className="w-4 h-4 rounded border-input"
             />
-            <Label htmlFor={fieldDef.field} className="font-normal cursor-pointer">
+            <Label htmlFor={fieldDef.field} className="font-medium cursor-pointer">
               Yes
             </Label>
           </div>
@@ -302,8 +309,12 @@ export const RequiredFieldsStep = ({
             onChange={(e) => onFieldChange(fieldDef.field, 
               fieldDef.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value
             )}
+            placeholder={fieldDef.type === 'date' ? 'mm/dd/yyyy' : ''}
             required={isRequired}
-            className={isCopied ? 'border-green-500' : ''}
+            className={cn(
+              "bg-background border-2 border-input hover:border-ring focus:border-ring h-11 font-medium placeholder:text-muted-foreground/60 placeholder:font-normal",
+              isCopied && 'border-green-500 bg-green-50/50 dark:bg-green-950/20'
+            )}
           />
         )}
       </div>
@@ -311,35 +322,35 @@ export const RequiredFieldsStep = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Required Fields</h3>
+    <div className="space-y-6">
+      <div className="bg-muted/30 p-4 rounded-lg border">
+        <h3 className="text-lg font-bold mb-2 text-foreground">Required Fields</h3>
         <p className="text-sm text-muted-foreground">
-          Fill in the required information for moving from <strong>{currentStage}</strong> to <strong>{nextStage}</strong>.
+          Fill in the required information for moving from <strong className="text-foreground">{currentStage}</strong> to <strong className="text-foreground">{nextStage}</strong>.
         </p>
       </div>
 
       <div className="space-y-6">
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium">Required Information</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+          <h4 className="text-base font-bold text-foreground">Required Information</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {fieldRequirements.required.map(field => renderField(field, true))}
           </div>
         </div>
 
         {fieldRequirements.clonator2 && fieldRequirements.clonator2.length > 0 && (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Clonator 2 Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+            <h4 className="text-base font-bold text-foreground">Clonator 2 Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {fieldRequirements.clonator2.map(field => renderField(field, false))}
             </div>
           </div>
         )}
 
         {fieldRequirements.optional.length > 0 && (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Optional Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4 bg-card p-4 rounded-lg border-2">
+            <h4 className="text-base font-bold text-foreground">Optional Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {fieldRequirements.optional.map(field => renderField(field, false))}
             </div>
           </div>
