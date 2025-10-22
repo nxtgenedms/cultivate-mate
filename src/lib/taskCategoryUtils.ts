@@ -5,7 +5,6 @@ export type TaskCategory =
   | 'clonator_weekly'
   | 'soil_moisture'
   | 'scouting_corrective'
-  | 'chemical_delivery'
   | 'fertigation_application'
   | 'ipm_chemical_mixing'
   | 'hygiene_check'
@@ -27,7 +26,6 @@ export const TASK_CATEGORIES: Record<TaskCategory, string> = {
   clonator_weekly: 'Clonator Weekly Checklist',
   soil_moisture: 'Soil Moisture Records',
   scouting_corrective: 'Scouting & Corrective Action',
-  chemical_delivery: 'Chemical Delivery Receipt',
   fertigation_application: 'Fertigation Application Record',
   ipm_chemical_mixing: 'IPM Chemical Mixing Record',
   hygiene_check: 'Personnel/Facility Hygiene Check',
@@ -62,10 +60,6 @@ export const APPROVAL_WORKFLOWS: Record<TaskCategory, ApprovalWorkflow> = {
   scouting_corrective: {
     stages: ['Grower', 'Manager', 'QA'],
     totalStages: 3,
-  },
-  chemical_delivery: {
-    stages: ['Receiver Signature'],
-    totalStages: 1,
   },
   fertigation_application: {
     stages: ['Grower', 'Manager', 'QA'],
@@ -140,7 +134,6 @@ export const CATEGORY_GROUPS: Record<CategoryGroup, { label: string; icon: strin
     label: 'Chemical Mgmt',
     icon: '🧪',
     categories: [
-      'chemical_delivery',
       'fertigation_application',
       'ipm_chemical_mixing',
     ],
@@ -171,7 +164,6 @@ export const getCategoryColor = (category: TaskCategory): string => {
     clonator_weekly: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
     soil_moisture: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
     scouting_corrective: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-    chemical_delivery: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     fertigation_application: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
     ipm_chemical_mixing: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
     hygiene_check: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
