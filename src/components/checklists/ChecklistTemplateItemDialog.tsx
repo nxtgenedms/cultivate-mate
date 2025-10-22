@@ -145,6 +145,7 @@ const ChecklistTemplateItemDialog = ({
                 <SelectItem value="number">Number</SelectItem>
                 <SelectItem value="date">Date</SelectItem>
                 <SelectItem value="textarea">Textarea</SelectItem>
+                <SelectItem value="signature">Signature</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -369,6 +369,15 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           placeholder="Enter text..."
                           disabled={readOnly}
                         />
+                      ) : item.item_type === 'signature' ? (
+                        <Textarea
+                          placeholder="Enter signature/name..."
+                          value={item.response_value || ""}
+                          onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
+                          rows={2}
+                          className="text-sm"
+                          disabled={readOnly}
+                        />
                       ) : (
                         // Default fallback for unknown types
                         <Textarea

@@ -85,6 +85,7 @@ const ChecklistTemplateItemsManager = ({ template, onBack }: ChecklistTemplateIt
       number: "bg-yellow-500",
       date: "bg-purple-500",
       textarea: "bg-orange-500",
+      signature: "bg-pink-500",
     };
     
     return (
