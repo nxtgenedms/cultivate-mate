@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
           task_number: taskNumber,
           name: `SOF12: Daily Check - ${batch.batch_number}`,
           description: `Mandatory daily checklist for batch ${batch.batch_number}. This is a recurring task that must be completed daily.`,
-          status: 'pending',
+          status: 'in_progress',
           due_date: dueDateString,
           assignee: batch.created_by,
           created_by: batch.created_by,

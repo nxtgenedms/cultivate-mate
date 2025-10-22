@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
           task_number: taskNumber,
           name: `SOF04: Weekly Maintenance - ${batch.batch_number}`,
           description: `Mandatory weekly maintenance checklist for batch ${batch.batch_number} in ${batch.current_stage} phase. Must be completed by Friday 5:00 PM SAST.`,
-          status: 'pending',
+          status: 'in_progress',
           due_date: dueDateString,
           assignee: batch.created_by,
           created_by: batch.created_by,

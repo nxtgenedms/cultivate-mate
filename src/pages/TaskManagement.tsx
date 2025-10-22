@@ -367,6 +367,15 @@ export default function TaskManagement() {
     }
   };
 
+  const handleCancel = (taskId: string) => {
+    if (confirm("Are you sure you want to cancel this task?")) {
+      updateTaskMutation.mutate({ 
+        taskId, 
+        updates: { status: 'cancelled' } 
+      });
+    }
+  };
+
   const handleNewTask = () => {
     setSelectedTask(null);
     setIsDialogOpen(true);
@@ -430,10 +439,14 @@ export default function TaskManagement() {
   const showAllTasksView = isAdmin || hasViewAllPermission;
 
   const renderTaskList = (taskList: any[], statusFilter: "active" | "completed" = "active") => {
-    // Filter by status first
+    // Filter by status: Active = in_progress + pending_approval, Completed = completed + cancelled
     const filteredByStatus = statusFilter === "active"
-      ? taskList.filter(task => task.status !== 'completed' && task.status !== 'cancelled' && task.approval_status !== 'rejected')
-      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled' || task.approval_status === 'rejected');
+      ? taskList.filter(task => 
+          (task.status === 'in_progress' || task.approval_status === 'pending_approval') && 
+          task.status !== 'completed' && 
+          task.status !== 'cancelled'
+        )
+      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled');
 
     if (!filteredByStatus || filteredByStatus.length === 0) {
       return (
@@ -447,10 +460,10 @@ export default function TaskManagement() {
 
     // Group tasks by status and approval
     const tasksByStatus = {
-      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval' || task.status === 'pending_approval'),
-      in_progress: filteredByStatus.filter(task => (task.status === 'in_progress' || task.status === 'pending') && task.approval_status !== 'pending_approval' && task.status !== 'pending_approval'),
+      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval'),
+      in_progress: filteredByStatus.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
       completed: filteredByStatus.filter(task => task.status === 'completed'),
-      cancelled: filteredByStatus.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
+      cancelled: filteredByStatus.filter(task => task.status === 'cancelled'),
     };
 
     const renderTaskCard = (task: any) => {
@@ -592,14 +605,24 @@ export default function TaskManagement() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40 bg-popover z-50">
-                    {!isCompleted && (
-                      <DropdownMenuItem 
-                        onClick={() => handleDelete(task.id)}
-                        className="cursor-pointer text-destructive focus:text-destructive text-sm"
-                      >
-                        <Trash2 className="mr-2 h-3.5 w-3.5" />
-                        Delete
-                      </DropdownMenuItem>
+                    {!isCompleted && task.status !== 'cancelled' && (
+                      <>
+                        <DropdownMenuItem 
+                          onClick={() => handleCancel(task.id)}
+                          className="cursor-pointer text-sm"
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Cancel
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => handleDelete(task.id)}
+                          className="cursor-pointer text-destructive focus:text-destructive text-sm"
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Delete
+                        </DropdownMenuItem>
+                      </>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -729,14 +752,14 @@ export default function TaskManagement() {
                   onClick={() => setMyTasksSubTab("active")}
                   className="flex-1"
                 >
-                  Active ({myTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
+                  Active ({myTasks.filter(t => (t.status === 'in_progress' || t.approval_status === 'pending_approval') && t.status !== 'completed' && t.status !== 'cancelled').length})
                 </Button>
                 <Button
                   variant={myTasksSubTab === "completed" ? "secondary" : "outline"}
                   onClick={() => setMyTasksSubTab("completed")}
                   className="flex-1"
                 >
-                  Completed ({myTasks.filter(t => t.status === 'completed' || t.status === 'cancelled' || t.approval_status === 'rejected').length})
+                  Completed ({myTasks.filter(t => t.status === 'completed' || t.status === 'cancelled').length})
                 </Button>
               </div>
               {renderTaskList(myTasks, myTasksSubTab)}
@@ -749,14 +772,14 @@ export default function TaskManagement() {
                   onClick={() => setAllTasksSubTab("active")}
                   className="flex-1"
                 >
-                  Active ({filteredTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled' && t.approval_status !== 'rejected').length})
+                  Active ({filteredTasks.filter(t => (t.status === 'in_progress' || t.approval_status === 'pending_approval') && t.status !== 'completed' && t.status !== 'cancelled').length})
                 </Button>
                 <Button
                   variant={allTasksSubTab === "completed" ? "secondary" : "outline"}
                   onClick={() => setAllTasksSubTab("completed")}
                   className="flex-1"
                 >
-                  Completed ({filteredTasks.filter(t => t.status === 'completed' || t.status === 'cancelled' || t.approval_status === 'rejected').length})
+                  Completed ({filteredTasks.filter(t => t.status === 'completed' || t.status === 'cancelled').length})
                 </Button>
               </div>
               {renderTaskList(filteredTasks, allTasksSubTab)}

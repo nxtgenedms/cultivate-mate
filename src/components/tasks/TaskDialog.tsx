@@ -44,7 +44,7 @@ export function TaskDialog({
     description: "",
     due_date: "",
     assignee: "",
-    status: "draft",
+    status: "in_progress",
   });
 
   const { data: profiles } = useQuery({
@@ -76,7 +76,7 @@ export function TaskDialog({
         description: "",
         due_date: "",
         assignee: "",
-        status: "draft",
+        status: "in_progress",
       });
     }
   }, [task, open]);

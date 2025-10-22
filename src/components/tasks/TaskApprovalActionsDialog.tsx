@@ -106,11 +106,11 @@ export function TaskApprovalActionsDialog({
         updateData.status = 'completed';
       } else if (action === 'approve_next') {
         updateData.approval_status = 'pending_approval';
-        updateData.status = 'pending';
+        updateData.status = 'in_progress';
         updateData.assignee = selectedUserId;
       } else if (action === 'reject') {
         updateData.approval_status = 'rejected';
-        updateData.status = 'pending';
+        updateData.status = 'in_progress';
         updateData.assignee = selectedUserId;
         updateData.rejection_reason = remarks;
       }
