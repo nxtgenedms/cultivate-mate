@@ -15,7 +15,6 @@ export interface TaskData {
   id: string;
   name: string;
   status: string;
-  approval_status: string;
   checklist_items?: any[];
   task_category?: string;
   lifecycle_stage?: string;
@@ -115,8 +114,8 @@ export function isTaskRelevantForStage(
  */
 export function groupTasksByStatus(tasks: TaskData[]) {
   return {
-    completed: tasks.filter(t => t.status === 'completed' && t.approval_status === 'approved'),
-    pending: tasks.filter(t => t.status === 'pending' || t.status === 'in_progress'),
-    other: tasks.filter(t => !['completed', 'pending', 'in_progress'].includes(t.status))
+    completed: tasks.filter(t => t.status === 'completed'),
+    pending: tasks.filter(t => t.status === 'pending_approval' || t.status === 'in_progress'),
+    other: tasks.filter(t => !['completed', 'pending_approval', 'in_progress'].includes(t.status))
   };
 }

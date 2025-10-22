@@ -63,15 +63,14 @@ export const TaskApprovalActions = ({
         },
       ];
 
-      const { error } = await supabase
-        .from("tasks")
-        .update({
-          current_approval_stage: newStage,
-          approval_status: isFullyApproved ? "approved" : "pending_approval",
-          status: isFullyApproved ? "completed" : "in_progress",
-          approval_history: newHistory,
-        })
-        .eq("id", taskId);
+        const { error } = await supabase
+          .from("tasks")
+          .update({
+            current_approval_stage: newStage,
+            status: isFullyApproved ? "completed" : "pending_approval",
+            approval_history: newHistory,
+          })
+          .eq("id", taskId);
 
       if (error) throw error;
     },
@@ -122,11 +121,10 @@ export const TaskApprovalActions = ({
         },
       ];
 
-      const { error } = await supabase
+      const { error} = await supabase
         .from("tasks")
         .update({
-          approval_status: "rejected",
-          status: "cancelled",
+          status: "rejected",
           rejection_reason: rejectionReason,
           approval_history: newHistory,
         })

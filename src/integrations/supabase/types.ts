@@ -666,7 +666,6 @@ export type Database = {
       checklist_instances: {
         Row: {
           approval_notes: string | null
-          approval_status: string | null
           approved_at: string | null
           approved_by: string | null
           batch_id: string | null
@@ -687,7 +686,6 @@ export type Database = {
         }
         Insert: {
           approval_notes?: string | null
-          approval_status?: string | null
           approved_at?: string | null
           approved_by?: string | null
           batch_id?: string | null
@@ -708,7 +706,6 @@ export type Database = {
         }
         Update: {
           approval_notes?: string | null
-          approval_status?: string | null
           approved_at?: string | null
           approved_by?: string | null
           batch_id?: string | null
@@ -1098,7 +1095,6 @@ export type Database = {
           reason: string
           record_date: string
           sof_number: string | null
-          status: Database["public"]["Enums"]["approval_status"] | null
           updated_at: string | null
         }
         Insert: {
@@ -1117,7 +1113,6 @@ export type Database = {
           reason: string
           record_date: string
           sof_number?: string | null
-          status?: Database["public"]["Enums"]["approval_status"] | null
           updated_at?: string | null
         }
         Update: {
@@ -1136,7 +1131,6 @@ export type Database = {
           reason?: string
           record_date?: string
           sof_number?: string | null
-          status?: Database["public"]["Enums"]["approval_status"] | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1439,7 +1433,6 @@ export type Database = {
       tasks: {
         Row: {
           approval_history: Json | null
-          approval_status: string | null
           assignee: string | null
           batch_id: string | null
           checklist_id: string | null
@@ -1465,7 +1458,6 @@ export type Database = {
         }
         Insert: {
           approval_history?: Json | null
-          approval_status?: string | null
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
@@ -1491,7 +1483,6 @@ export type Database = {
         }
         Update: {
           approval_history?: Json | null
-          approval_status?: string | null
           assignee?: string | null
           batch_id?: string | null
           checklist_id?: string | null
@@ -1641,7 +1632,6 @@ export type Database = {
         | "supervisor"
         | "it_admin"
         | "business_admin"
-      approval_status: "draft" | "pending" | "approved" | "rejected"
       batch_lifecycle_stage:
         | "preclone"
         | "clone_germination"
@@ -1859,7 +1849,6 @@ export const Constants = {
         "it_admin",
         "business_admin",
       ],
-      approval_status: ["draft", "pending", "approved", "rejected"],
       batch_lifecycle_stage: [
         "preclone",
         "clone_germination",

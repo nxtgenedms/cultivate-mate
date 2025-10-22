@@ -19,7 +19,6 @@ interface TaskApprovalActionsDialogProps {
   taskName: string;
   currentAssignee?: string;
   taskStatus?: string;
-  approvalStatus?: string;
   checklistItems?: any[];
   completionProgress?: { completed: number; total: number };
   onSuccess?: () => void;
@@ -30,7 +29,6 @@ export function TaskApprovalActionsDialog({
   taskName,
   currentAssignee,
   taskStatus,
-  approvalStatus,
   checklistItems = [],
   completionProgress = { completed: 0, total: 0 },
   onSuccess
@@ -51,10 +49,7 @@ export function TaskApprovalActionsDialog({
   const currentUserRole = roles[0] || 'user';
 
   const canTakeAction = user?.id === currentAssignee || isAdmin;
-  // Hide reject option only for in_progress tasks that are NOT in pending_approval state
-  const shouldHideReject = taskStatus === 'in_progress' && approvalStatus !== 'pending_approval';
-  // Only admins can fully approve tasks that are in progress
-  const canFullyApprove = isAdmin || taskStatus !== 'in_progress';
+  const canFullyApprove = isAdmin || taskStatus === 'pending_approval';
   const hasChecklistItems = checklistItems.length > 0;
   const allItemsCompleted = completionProgress.completed >= completionProgress.total;
 
@@ -102,15 +97,12 @@ export function TaskApprovalActionsDialog({
       };
 
       if (action === 'fully_approve') {
-        updateData.approval_status = 'approved';
         updateData.status = 'completed';
       } else if (action === 'approve_next') {
-        updateData.approval_status = 'pending_approval';
-        updateData.status = 'in_progress';
+        updateData.status = 'pending_approval';
         updateData.assignee = selectedUserId;
       } else if (action === 'reject') {
-        updateData.approval_status = 'rejected';
-        updateData.status = 'in_progress';
+        updateData.status = 'pending_approval';
         updateData.assignee = selectedUserId;
         updateData.rejection_reason = remarks;
       }
@@ -181,12 +173,10 @@ export function TaskApprovalActionsDialog({
             <UserPlus className="mr-2 h-4 w-4" />
             Approve & Submit Next
           </DropdownMenuItem>
-          {!shouldHideReject && (
-            <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
-              <XCircle className="mr-2 h-4 w-4" />
-              Reject & Assign Back
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={() => setShowReject(true)} className="text-destructive">
+            <XCircle className="mr-2 h-4 w-4" />
+            Reject & Assign Back
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

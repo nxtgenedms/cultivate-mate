@@ -71,11 +71,9 @@ export function TaskSubmitForApprovalDialog({
       };
 
       if (action === 'self_approve') {
-        updateData.approval_status = 'approved';
         updateData.status = 'completed';
       } else {
-        updateData.approval_status = 'pending_approval';
-        updateData.status = 'pending';
+        updateData.status = 'pending_approval';
         updateData.assignee = selectedUserId;
       }
 

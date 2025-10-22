@@ -74,7 +74,7 @@ export default function Dashboard() {
 
   // Calculate task stats - only for open tasks
   const openTasks = tasks || [];
-  const pendingApprovals = openTasks.filter(t => t.approval_status === 'pending').length;
+  const pendingApprovals = openTasks.filter(t => t.status === 'pending_approval').length;
   const inProgress = openTasks.filter(t => t.status === 'in_progress').length;
   const draftTasks = openTasks.filter(t => t.status === 'draft').length;
   const overdue = openTasks.filter(t => t.due_date && isPast(parseISO(t.due_date))).length;
@@ -206,7 +206,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {task.approval_status && getApprovalBadge(task.approval_status)}
+                          {task.status === 'pending_approval' && getApprovalBadge('pending')}
                           {getStatusBadge(task.status)}
                         </div>
                       </div>

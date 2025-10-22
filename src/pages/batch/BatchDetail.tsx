@@ -241,7 +241,7 @@ export default function BatchDetail() {
 
       // Prepare update payload
       const updatePayload: any = {
-        approval_status: 'pending_approval',
+        status: 'pending_approval',
         current_approval_stage: 0,
         assignee: signatures?.grower_id, // Assign to the grower selected in signature dialog
         checklist_items: updatedChecklistItems as any,
@@ -538,10 +538,10 @@ export default function BatchDetail() {
                                     </Popover>
                                   </CardTitle>
                                   {task.task_category && (
-                                    <ApprovalProgressBadge
+                                   <ApprovalProgressBadge
                                       category={task.task_category}
                                       currentStage={task.current_approval_stage || 0}
-                                      approvalStatus={task.approval_status || "draft"}
+                                      status={task.status || "in_progress"}
                                     />
                                   )}
                                   {hasItems && (
@@ -563,9 +563,8 @@ export default function BatchDetail() {
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                {/* Submit for Approval - only for draft tasks, not in_progress */}
-                                {((task.task_category && task.status === 'draft' && (!task.approval_status || task.approval_status === 'draft')) || 
-                                  (Array.isArray(task.checklist_items) && task.checklist_items.length > 0 && task.status === 'draft' && (!task.approval_status || task.approval_status === 'draft'))) && (
+                                {/* Submit for Approval - only for in_progress tasks */}
+                                {task.status === 'in_progress' && (
                                    <Button
                                     variant="default"
                                     size="sm"
@@ -593,21 +592,20 @@ export default function BatchDetail() {
                                   </Button>
                                  )}
                                  
-                                 {/* Approval Actions - for both pending approval and in progress tasks */}
-                                 {(task.approval_status === 'pending_approval' || task.status === 'in_progress') && 
+                                 {/* Approval Actions - for pending approval tasks */}
+                                 {task.status === 'pending_approval' && 
                                    (task.assignee === user?.id || isAdmin) && (
                                    <TaskApprovalActionsDialog
                                      taskId={task.id}
                                      taskName={task.name}
                                      currentAssignee={task.assignee || undefined}
                                      taskStatus={task.status}
-                                     approvalStatus={task.approval_status || undefined}
                                      checklistItems={task.checklist_items as any[] || []}
                                      completionProgress={task.completion_progress as any || { completed: 0, total: 0 }}
                                      onSuccess={() => queryClient.invalidateQueries({ queryKey: ['batch-tasks'] })}
                                    />
                                  )}
-                                {hasItems && task.status !== 'completed' && task.approval_status !== 'approved' && (
+                                {hasItems && task.status !== 'completed' && (
                                   <Button
                                     variant="default"
                                     size="sm"
@@ -617,7 +615,7 @@ export default function BatchDetail() {
                                     Manage Items
                                   </Button>
                                 )}
-                                {hasItems && (task.status === 'completed' || task.approval_status === 'approved') && (
+                                {hasItems && task.status === 'completed' && (
                                   <Button
                                     variant="outline"
                                     size="sm"

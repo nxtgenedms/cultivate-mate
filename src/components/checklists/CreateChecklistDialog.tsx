@@ -229,7 +229,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
           total: checklistItems.length,
           completed: 0,
         },
-        approval_status: 'draft',
         current_approval_stage: 0,
       };
 

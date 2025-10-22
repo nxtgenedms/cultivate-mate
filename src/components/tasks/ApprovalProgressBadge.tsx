@@ -5,27 +5,27 @@ import { getApprovalWorkflow, TaskCategory } from "@/lib/taskCategoryUtils";
 interface ApprovalProgressBadgeProps {
   category: TaskCategory;
   currentStage: number;
-  approvalStatus: string;
+  status: string;
 }
 
 export const ApprovalProgressBadge = ({
   category,
   currentStage,
-  approvalStatus,
+  status,
 }: ApprovalProgressBadgeProps) => {
   const workflow = getApprovalWorkflow(category);
   const currentStageName = workflow.stages[currentStage] || "Unknown";
 
-  if (approvalStatus === "approved") {
+  if (status === "completed") {
     return (
       <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
         <CheckCircle2 className="mr-1 h-3 w-3" />
-        Fully Approved
+        Completed
       </Badge>
     );
   }
 
-  if (approvalStatus === "rejected") {
+  if (status === "rejected") {
     return (
       <Badge variant="destructive">
         Rejected at Stage {currentStage + 1}

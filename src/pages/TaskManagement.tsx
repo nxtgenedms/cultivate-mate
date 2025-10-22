@@ -274,7 +274,7 @@ export default function TaskManagement() {
 
       // Prepare update payload
       const updatePayload: any = {
-        approval_status: 'pending_approval',
+        status: 'pending_approval',
         current_approval_stage: 0, // Start at stage 0
         assignee: signatures?.grower_id || approverId, // Assign to the grower selected in signature dialog
         checklist_items: updatedChecklistItems as any,
@@ -442,11 +442,12 @@ export default function TaskManagement() {
     // Filter by status: Active = in_progress + pending_approval, Completed = completed + cancelled
     const filteredByStatus = statusFilter === "active"
       ? taskList.filter(task => 
-          (task.status === 'in_progress' || task.approval_status === 'pending_approval') && 
+          (task.status === 'in_progress' || task.status === 'pending_approval') && 
           task.status !== 'completed' && 
-          task.status !== 'cancelled'
+          task.status !== 'cancelled' &&
+          task.status !== 'rejected'
         )
-      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled');
+      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled' || task.status === 'rejected');
 
     if (!filteredByStatus || filteredByStatus.length === 0) {
       return (
@@ -458,12 +459,13 @@ export default function TaskManagement() {
       );
     }
 
-    // Group tasks by status and approval
+    // Group tasks by status
     const tasksByStatus = {
-      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval'),
-      in_progress: filteredByStatus.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
+      pending_approval: filteredByStatus.filter(task => task.status === 'pending_approval'),
+      in_progress: filteredByStatus.filter(task => task.status === 'in_progress'),
       completed: filteredByStatus.filter(task => task.status === 'completed'),
       cancelled: filteredByStatus.filter(task => task.status === 'cancelled'),
+      rejected: filteredByStatus.filter(task => task.status === 'rejected'),
     };
 
     const renderTaskCard = (task: any) => {
@@ -472,7 +474,7 @@ export default function TaskManagement() {
       const progressPercent = progress.total > 0 
         ? (progress.completed / progress.total) * 100 
         : 0;
-      const isCompleted = task.status === 'completed' || task.approval_status === 'approved';
+      const isCompleted = task.status === 'completed';
       const showProgress = hasItems && progress.total > 0 && progressPercent < 100;
 
       return (
@@ -516,12 +518,11 @@ export default function TaskManagement() {
                   )}
                   <span className="text-muted-foreground">•</span>
                   <span className="text-muted-foreground">
-                    {task.approval_status === 'pending_approval' ? 'Pending Approval' :
+                    {task.status === 'pending_approval' ? 'Pending Approval' :
                      task.status === 'completed' ? 'Completed' :
                      task.status === 'in_progress' ? 'In Progress' :
-                     task.status === 'pending' ? 'Pending' :
                      task.status === 'cancelled' ? 'Cancelled' : 
-                     task.approval_status === 'rejected' ? 'Rejected' : 'Pending'}
+                     task.status === 'rejected' ? 'Rejected' : 'In Progress'}
                   </span>
                   <span className="text-muted-foreground">•</span>
                   <span className="text-muted-foreground">{task.assigned_to?.full_name || 'Unassigned'}</span>
@@ -544,10 +545,8 @@ export default function TaskManagement() {
               <div className="flex items-center gap-1.5">
                 {/* Submit button removed for in_progress tasks - only approval actions available */}
                 
-                {/* Submit for Approval - for draft tasks only (not in_progress) */}
-                {task.status !== 'completed' && 
-                 task.status !== 'in_progress' &&
-                 task.approval_status !== 'pending_approval' && (
+                {/* Submit for Approval - for in_progress tasks only */}
+                {task.status === 'in_progress' && (
                   <Button
                     variant="secondary"
                     size="sm"
@@ -562,15 +561,14 @@ export default function TaskManagement() {
                   </Button>
                 )}
                 
-                {/* Approval Actions - for both pending approval and in progress tasks */}
-                {(task.approval_status === 'pending_approval' || task.status === 'in_progress') && 
+                {/* Approval Actions - for pending approval tasks */}
+                {task.status === 'pending_approval' && 
                   (task.assignee === user?.id || isAdmin) && (
                   <TaskApprovalActionsDialog
                     taskId={task.id}
                     taskName={task.name}
                     currentAssignee={task.assignee || undefined}
                     taskStatus={task.status}
-                    approvalStatus={task.approval_status || undefined}
                     checklistItems={task.checklist_items as any[] || []}
                     completionProgress={task.completion_progress as any || { completed: 0, total: 0 }}
                     onSuccess={() => refetch()}
@@ -752,7 +750,7 @@ export default function TaskManagement() {
                   onClick={() => setMyTasksSubTab("active")}
                   className="flex-1"
                 >
-                  Active ({myTasks.filter(t => (t.status === 'in_progress' || t.approval_status === 'pending_approval') && t.status !== 'completed' && t.status !== 'cancelled').length})
+                  Active ({myTasks.filter(t => t.status === 'in_progress' || t.status === 'pending_approval').length})
                 </Button>
                 <Button
                   variant={myTasksSubTab === "completed" ? "secondary" : "outline"}
@@ -772,7 +770,7 @@ export default function TaskManagement() {
                   onClick={() => setAllTasksSubTab("active")}
                   className="flex-1"
                 >
-                  Active ({filteredTasks.filter(t => (t.status === 'in_progress' || t.approval_status === 'pending_approval') && t.status !== 'completed' && t.status !== 'cancelled').length})
+                  Active ({filteredTasks.filter(t => t.status === 'in_progress' || t.status === 'pending_approval').length})
                 </Button>
                 <Button
                   variant={allTasksSubTab === "completed" ? "secondary" : "outline"}
@@ -834,7 +832,7 @@ export default function TaskManagement() {
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {selectedTask && (selectedTask.status === 'completed' || selectedTask.approval_status === 'approved')
+                {selectedTask && selectedTask.status === 'completed'
                   ? 'View Task Items'
                   : 'Manage Task Items'}
               </DialogTitle>
@@ -843,7 +841,7 @@ export default function TaskManagement() {
               <TaskItemsManager
                 task={selectedTask}
                 onClose={() => setIsItemsDialogOpen(false)}
-                readOnly={selectedTask.status === 'completed' || selectedTask.approval_status === 'approved'}
+                readOnly={selectedTask.status === 'completed'}
               />
             )}
           </DialogContent>
