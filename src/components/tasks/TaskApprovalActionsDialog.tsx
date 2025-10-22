@@ -49,7 +49,7 @@ export function TaskApprovalActionsDialog({
   const currentUserRole = roles[0] || 'user';
 
   const canTakeAction = user?.id === currentAssignee || isAdmin;
-  const canFullyApprove = isAdmin || taskStatus === 'pending_approval';
+  const canFullyApprove = taskStatus === 'in_progress' ? isAdmin : true;
   const hasChecklistItems = checklistItems.length > 0;
   const allItemsCompleted = completionProgress.completed >= completionProgress.total;
 
@@ -102,7 +102,7 @@ export function TaskApprovalActionsDialog({
         updateData.status = 'pending_approval';
         updateData.assignee = selectedUserId;
       } else if (action === 'reject') {
-        updateData.status = 'pending_approval';
+        updateData.status = 'rejected';
         updateData.assignee = selectedUserId;
         updateData.rejection_reason = remarks;
       }

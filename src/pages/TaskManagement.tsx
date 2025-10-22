@@ -545,8 +545,8 @@ export default function TaskManagement() {
               <div className="flex items-center gap-1.5">
                 {/* Submit button removed for in_progress tasks - only approval actions available */}
                 
-                {/* Submit for Approval - for in_progress tasks only */}
-                {task.status === 'in_progress' && (
+                {/* Submit for Approval - for in_progress and rejected tasks */}
+                {(task.status === 'in_progress' || task.status === 'rejected') && (
                   <Button
                     variant="secondary"
                     size="sm"
