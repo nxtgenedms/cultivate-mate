@@ -26,7 +26,7 @@ export default function Dashboard() {
         .from('tasks')
         .select('*')
         .eq('assignee', user!.id)
-        .in('status', ['draft', 'in_progress', 'pending'])
+        .in('status', ['in_progress', 'pending_approval', 'rejected'])
         .order('due_date', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
       
@@ -72,17 +72,18 @@ export default function Dashboard() {
   const userName = profile?.full_name || user?.email?.split('@')[0] || 'User';
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
 
-  // Calculate task stats - only for open tasks
+  // Calculate task stats - only for open/active tasks
   const openTasks = tasks || [];
   const pendingApprovals = openTasks.filter(t => t.status === 'pending_approval').length;
   const inProgress = openTasks.filter(t => t.status === 'in_progress').length;
-  const draftTasks = openTasks.filter(t => t.status === 'draft').length;
+  const rejectedTasks = openTasks.filter(t => t.status === 'rejected').length;
   const overdue = openTasks.filter(t => t.due_date && isPast(parseISO(t.due_date))).length;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
-      draft: 'secondary',
       in_progress: 'default',
+      pending_approval: 'outline',
+      rejected: 'destructive',
       completed: 'outline',
       cancelled: 'destructive',
     };
