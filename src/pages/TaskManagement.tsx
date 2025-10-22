@@ -443,8 +443,8 @@ export default function TaskManagement() {
 
     // Group tasks by status and approval
     const tasksByStatus = {
-      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval'),
-      in_progress: filteredByStatus.filter(task => task.status === 'in_progress' && task.approval_status !== 'pending_approval'),
+      pending_approval: filteredByStatus.filter(task => task.approval_status === 'pending_approval' || task.status === 'pending_approval'),
+      in_progress: filteredByStatus.filter(task => (task.status === 'in_progress' || task.status === 'pending') && task.approval_status !== 'pending_approval' && task.status !== 'pending_approval'),
       completed: filteredByStatus.filter(task => task.status === 'completed'),
       cancelled: filteredByStatus.filter(task => task.status === 'cancelled' || task.approval_status === 'rejected'),
     };
