@@ -439,15 +439,14 @@ export default function TaskManagement() {
   const showAllTasksView = isAdmin || hasViewAllPermission;
 
   const renderTaskList = (taskList: any[], statusFilter: "active" | "completed" = "active") => {
-    // Filter by status: Active = in_progress + pending_approval, Completed = completed + cancelled
+    // Filter by status: Active = in_progress + pending_approval + rejected, Completed = completed + cancelled
     const filteredByStatus = statusFilter === "active"
       ? taskList.filter(task => 
-          (task.status === 'in_progress' || task.status === 'pending_approval') && 
-          task.status !== 'completed' && 
-          task.status !== 'cancelled' &&
-          task.status !== 'rejected'
+          task.status === 'in_progress' || 
+          task.status === 'pending_approval' || 
+          task.status === 'rejected'
         )
-      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled' || task.status === 'rejected');
+      : taskList.filter(task => task.status === 'completed' || task.status === 'cancelled');
 
     if (!filteredByStatus || filteredByStatus.length === 0) {
       return (
