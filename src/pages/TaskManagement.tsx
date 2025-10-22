@@ -223,43 +223,7 @@ export default function TaskManagement() {
       if (!user) throw new Error("Not authenticated");
 
       const task = tasks?.find(t => t.id === taskId);
-      let updatedChecklistItems = (task?.checklist_items as any[]) || [];
-      
-      // For SOF-22, SOF-15, SOF-30, and SOF-19, add signature fields if provided
-      if ((task?.name?.includes('HVCSOF022') || task?.name?.includes('HVCSOF015') || task?.name?.includes('HVCSOF030') || task?.name?.includes('HVCSOF019')) && signatures) {
-        const { data: qaProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', signatures.qa_id)
-          .single();
-
-        const { data: managerProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', signatures.manager_id)
-          .single();
-
-        // Add QA and Manager signature items to checklist
-        updatedChecklistItems = [
-          ...updatedChecklistItems,
-          {
-            id: crypto.randomUUID(),
-            label: 'QA Signature',
-            completed: true,
-            section: 'approvals',
-            type: 'signature',
-            notes: `QA Approver: ${qaProfile?.full_name} (ID: ${signatures.qa_id})`,
-          },
-          {
-            id: crypto.randomUUID(),
-            label: 'Manager Signature',
-            completed: true,
-            section: 'approvals',
-            type: 'signature',
-            notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
-          }
-        ];
-      }
+      const updatedChecklistItems = (task?.checklist_items as any[]) || [];
 
       // Create initial approval history
       const approvalHistory = [{
@@ -276,7 +240,7 @@ export default function TaskManagement() {
       const updatePayload: any = {
         status: 'pending_approval',
         current_approval_stage: 0, // Start at stage 0
-        assignee: signatures?.grower_id || approverId, // Assign to the grower selected in signature dialog
+        assignee: approverId,
         checklist_items: updatedChecklistItems as any,
         completion_progress: {
           completed: completedCount,
@@ -284,20 +248,6 @@ export default function TaskManagement() {
         } as any,
         approval_history: approvalHistory,
       };
-
-      // Set category for SOF-22, SOF-15, SOF-30, and SOF-19 if not already set
-      if (task?.name?.includes('HVCSOF022') && !task?.task_category) {
-        updatePayload.task_category = 'scouting_corrective';
-      }
-      if (task?.name?.includes('HVCSOF015') && !task?.task_category) {
-        updatePayload.task_category = 'mortality_discard';
-      }
-      if (task?.name?.includes('HVCSOF030') && !task?.task_category) {
-        updatePayload.task_category = 'fertigation_application';
-      }
-      if (task?.name?.includes('HVCSOF019') && !task?.task_category) {
-        updatePayload.task_category = 'ipm_chemical_mixing';
-      }
 
       const { error } = await supabase
         .from("tasks")

@@ -37,28 +37,7 @@ interface TaskItemsManagerProps {
 }
 
 export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsManagerProps) {
-  // Filter out signature fields for specific SOF tasks (they're added on submit or preserved separately)
-  const filterSignatureFields = (items: TaskItem[]) => {
-    const shouldFilterSignatures = task.name?.includes('HVCSOF022') || 
-                                    task.name?.includes('HVCSOF015') || 
-                                    task.name?.includes('HVCSOF030') || 
-                                    task.name?.includes('HVCSOF019');
-    
-    if (shouldFilterSignatures) {
-      return items.filter(item => {
-        const label = item.label.toLowerCase();
-        return !label.includes('grower sign') && 
-               !label.includes('manager sign') && 
-               !label.includes('qa sign') &&
-               !label.includes('grower approval') &&
-               !label.includes('manager approval') &&
-               !label.includes('qa approval');
-      });
-    }
-    return items;
-  };
-
-  const [items, setItems] = useState<TaskItem[]>(filterSignatureFields(task.checklist_items || []));
+  const [items, setItems] = useState<TaskItem[]>(task.checklist_items || []);
   const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
   const [tempDate, setTempDate] = useState<Date | undefined>(undefined);
   const [tempHour, setTempHour] = useState<string>("09");
@@ -70,7 +49,7 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
 
   // Initialize items from task
   useEffect(() => {
-    setItems(filterSignatureFields(task.checklist_items || []));
+    setItems(task.checklist_items || []);
   }, [task.checklist_items]);
 
   const updateMutation = useMutation({
@@ -78,37 +57,10 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
       const completed = items.filter(item => item.completed).length;
       const total = items.length;
 
-      // Get original checklist items (with signatures if present)
-      const originalItems = task.checklist_items || [];
-      
-      // Only preserve and merge signature fields for specific SOF templates that have signature filtering
-      const shouldPreserveSignatures = task.name?.includes('HVCSOF022') || 
-                                       task.name?.includes('HVCSOF015') || 
-                                       task.name?.includes('HVCSOF030') || 
-                                       task.name?.includes('HVCSOF019');
-      
-      let updatedItems = items;
-      
-      if (shouldPreserveSignatures) {
-        // For SOF-22, 15, 30, 19: preserve signature fields if they exist
-        const signatureItems = originalItems.filter((item: any) => {
-          const label = item.label.toLowerCase();
-          return label.includes('grower sign') || 
-                 label.includes('manager sign') || 
-                 label.includes('qa sign') ||
-                 label.includes('grower approval') ||
-                 label.includes('manager approval') ||
-                 label.includes('qa approval');
-        });
-        
-        // Merge updated items with signature items
-        updatedItems = [...items, ...signatureItems];
-      }
-
       const { error } = await supabase
         .from("tasks")
         .update({
-          checklist_items: updatedItems as any,
+          checklist_items: items as any,
           completion_progress: { completed, total } as any,
           // Don't auto-change status - user must manually submit for approval
         })

@@ -133,7 +133,7 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
       }
 
       // Convert template items to checklist items format
-      let checklistItems = templateItems?.map(item => ({
+      const checklistItems = templateItems?.map(item => ({
         id: crypto.randomUUID(),
         label: item.item_label,
         section: item.section_name || 'General',
@@ -144,51 +144,6 @@ const CreateChecklistDialog = ({ open, onOpenChange }: CreateChecklistDialogProp
         response_value: '',
         notes: '',
       })) || [];
-
-      console.log('Initial checklist items:', checklistItems.map(i => i.label));
-
-      // For SOF-22, SOF-15, SOF-30, and SOF-19, filter out signature fields and auto-populate batch info
-      if (template.sof_number === 'HVCSOF022' || template.sof_number === 'HVCSOF015' || template.sof_number === 'HVCSOF030' || template.sof_number === 'HVCSOF019') {
-        console.log(`Processing ${template.sof_number} template`);
-        
-        // Remove signature fields from the checklist (they'll be added on submit)
-        checklistItems = checklistItems.filter(item => {
-          const label = item.label.toLowerCase();
-          return !label.includes('grower sign') && 
-                 !label.includes('manager sign') && 
-                 !label.includes('qa sign');
-        });
-        
-        console.log('After filtering signatures:', checklistItems.map(i => i.label));
-        
-        // Auto-populate batch info if batch is selected
-        if (batchInfo) {
-          console.log('Auto-populating batch data...', batchInfo);
-          checklistItems = checklistItems.map(item => {
-            const label = item.label.toLowerCase();
-            console.log('Checking label:', label);
-            
-            // More flexible matching for batch ID/number including "Batches/Table No"
-            if ((label.includes('batch') && (label.includes('id') || label.includes('number') || label.includes('table'))) ||
-                label.includes('batch no') || 
-                label.includes('batch#') ||
-                label.includes('batches/table')) {
-              console.log('Matched batch field, setting:', batchInfo.batch_number);
-              return { ...item, response_value: batchInfo.batch_number, completed: true };
-            }
-            
-            // More flexible matching for strain
-            if (label.includes('strain') || label.includes('cultivar')) {
-              console.log('Matched strain field, setting:', batchInfo.strain_name || batchInfo.strain_id);
-              return { ...item, response_value: batchInfo.strain_name || batchInfo.strain_id || '', completed: !!(batchInfo.strain_name || batchInfo.strain_id) };
-            }
-            
-            return item;
-          });
-          
-          console.log('After population:', checklistItems.filter(i => i.response_value).map(i => ({ label: i.label, value: i.response_value })));
-        }
-      }
 
       // Validate task_category - only use if it's a valid enum value
       const validTaskCategories = [

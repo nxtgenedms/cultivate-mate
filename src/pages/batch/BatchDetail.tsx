@@ -183,59 +183,7 @@ export default function BatchDetail() {
 
       const workflow = getApprovalWorkflow(task.task_category);
       
-      let updatedChecklistItems = (task.checklist_items as any[]) || [];
-      
-      // For SOF-22, SOF-15, SOF-30, and SOF-19, add signature fields if provided
-      if ((task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030') || task.name?.includes('HVCSOF019')) && signatures) {
-        const { data: qaProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', signatures.qa_id)
-          .single();
-          
-        const { data: managerProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', signatures.manager_id)
-          .single();
-        
-        updatedChecklistItems = [
-          ...updatedChecklistItems,
-          {
-            id: crypto.randomUUID(),
-            label: 'Grower Signature',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 9998,
-            completed: true,
-            response_value: signatures.grower_name,
-            notes: `Signed by: ${signatures.grower_name} (ID: ${signatures.grower_id})`,
-          },
-          {
-            id: crypto.randomUUID(),
-            label: 'QA Approval',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 9999,
-            completed: true,
-            response_value: qaProfile?.full_name || signatures.qa_id,
-            notes: `QA Approver: ${qaProfile?.full_name} (ID: ${signatures.qa_id})`,
-          },
-          {
-            id: crypto.randomUUID(),
-            label: 'Manager Approval',
-            section: 'Signatures',
-            item_type: 'text',
-            is_required: true,
-            sort_order: 10000,
-            completed: true,
-            response_value: managerProfile?.full_name || signatures.manager_id,
-            notes: `Manager Approver: ${managerProfile?.full_name} (ID: ${signatures.manager_id})`,
-          }
-        ];
-      }
+      const updatedChecklistItems = (task.checklist_items as any[]) || [];
 
       const completedCount = updatedChecklistItems.filter((item: any) => item.completed).length;
 
@@ -243,7 +191,7 @@ export default function BatchDetail() {
       const updatePayload: any = {
         status: 'pending_approval',
         current_approval_stage: 0,
-        assignee: signatures?.grower_id, // Assign to the grower selected in signature dialog
+        assignee: signatures?.grower_id,
         checklist_items: updatedChecklistItems as any,
         completion_progress: {
           completed: completedCount,
@@ -258,20 +206,6 @@ export default function BatchDetail() {
           }
         ]
       };
-
-      // Set category for SOF-22, SOF-15, SOF-30, and SOF-19 if not already set
-      if (task.name?.includes('HVCSOF022') && !task.task_category) {
-        updatePayload.task_category = 'scouting_corrective';
-      }
-      if (task.name?.includes('HVCSOF015') && !task.task_category) {
-        updatePayload.task_category = 'mortality_discard';
-      }
-      if (task.name?.includes('HVCSOF030') && !task.task_category) {
-        updatePayload.task_category = 'fertigation_application';
-      }
-      if (task.name?.includes('HVCSOF019') && !task.task_category) {
-        updatePayload.task_category = 'ipm_chemical_mixing';
-      }
 
       const { error } = await supabase
         .from('tasks')
@@ -579,13 +513,7 @@ export default function BatchDetail() {
                                       }
                                       
                                       setTaskToSubmit(task.id);
-                                      
-                                      // For SOF-22, SOF-15, SOF-30, and SOF-19, show signature dialog first
-                                      if (task.name?.includes('HVCSOF022') || task.name?.includes('HVCSOF015') || task.name?.includes('HVCSOF030') || task.name?.includes('HVCSOF019')) {
-                                        setShowSignatureDialog(true);
-                                      } else {
-                                        setShowSubmitDialog(true);
-                                      }
+                                      setShowSubmitDialog(true);
                                     }}
                                   >
                                     Submit for Approval
