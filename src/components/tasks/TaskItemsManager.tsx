@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CalendarIcon } from "lucide-react";
+import { CheckCircle2, CalendarIcon, Pen } from "lucide-react";
 import { toast } from "sonner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { SignaturePadDialog } from "./SignaturePadDialog";
 
 interface TaskItem {
   id: string;
@@ -58,6 +59,8 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
   const [tempHour, setTempHour] = useState<string>("09");
   const [tempMinute, setTempMinute] = useState<string>("00");
   const [tempPeriod, setTempPeriod] = useState<string>("AM");
+  const [signatureDialogOpen, setSignatureDialogOpen] = useState<string | null>(null);
+  const [currentSignatureItem, setCurrentSignatureItem] = useState<TaskItem | null>(null);
   const queryClient = useQueryClient();
 
   // Initialize items from task
@@ -171,6 +174,19 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
       setTempPeriod("AM");
     }
     setDatePickerOpen(itemId);
+  };
+
+  const openSignaturePad = (item: TaskItem) => {
+    setCurrentSignatureItem(item);
+    setSignatureDialogOpen(item.id);
+  };
+
+  const handleSignatureSave = (signatureDataUrl: string) => {
+    if (currentSignatureItem) {
+      handleResponseValueChange(currentSignatureItem.id, signatureDataUrl);
+      setSignatureDialogOpen(null);
+      setCurrentSignatureItem(null);
+    }
   };
 
   const groupedItems = items.reduce((acc, item) => {
@@ -370,18 +386,39 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
                           disabled={readOnly}
                         />
                       ) : item.item_type === 'signature' ? (
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            value={item.response_value || ""}
-                            onChange={(e) => handleResponseValueChange(item.id, e.target.value)}
-                            className="text-sm italic border-primary/50 focus:border-primary"
-                            placeholder="Enter signature/name..."
-                            disabled={readOnly}
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                            ✍️
-                          </span>
+                        <div className="space-y-2">
+                          {item.response_value ? (
+                            <div className="border-2 border-primary/20 rounded-md p-3 bg-muted/30 relative group">
+                              <img
+                                src={item.response_value}
+                                alt="Signature"
+                                className="max-h-[100px] mx-auto"
+                              />
+                              {!readOnly && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openSignaturePad(item)}
+                                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity gap-2"
+                                >
+                                  <Pen className="h-3 w-3" />
+                                  Re-sign
+                                </Button>
+                              )}
+                            </div>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => openSignaturePad(item)}
+                              disabled={readOnly}
+                              className="w-full gap-2 border-dashed border-primary/50 hover:border-primary"
+                            >
+                              <Pen className="h-4 w-4" />
+                              Click to Sign
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         // Default fallback for unknown types
@@ -419,6 +456,21 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
           </>
         )}
       </div>
+
+      {currentSignatureItem && (
+        <SignaturePadDialog
+          open={signatureDialogOpen === currentSignatureItem.id}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSignatureDialogOpen(null);
+              setCurrentSignatureItem(null);
+            }
+          }}
+          onSave={handleSignatureSave}
+          label={currentSignatureItem.label}
+          currentSignature={currentSignatureItem.response_value}
+        />
+      )}
     </div>
   );
 }
