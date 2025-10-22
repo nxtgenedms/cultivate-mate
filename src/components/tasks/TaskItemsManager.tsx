@@ -37,9 +37,14 @@ interface TaskItemsManagerProps {
 }
 
 export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsManagerProps) {
-  // Filter out signature fields for SOF-22 tasks (they're added on submit, not displayed in form)
+  // Filter out signature fields for specific SOF tasks (they're added on submit or preserved separately)
   const filterSignatureFields = (items: TaskItem[]) => {
-    if (task.name?.includes('HVCSOF022')) {
+    const shouldFilterSignatures = task.name?.includes('HVCSOF022') || 
+                                    task.name?.includes('HVCSOF015') || 
+                                    task.name?.includes('HVCSOF030') || 
+                                    task.name?.includes('HVCSOF019');
+    
+    if (shouldFilterSignatures) {
       return items.filter(item => {
         const label = item.label.toLowerCase();
         return !label.includes('grower sign') && 
@@ -76,19 +81,29 @@ export function TaskItemsManager({ task, onClose, readOnly = false }: TaskItemsM
       // Get original checklist items (with signatures if present)
       const originalItems = task.checklist_items || [];
       
-      // For SOF-22, preserve signature fields if they exist
-      const signatureItems = originalItems.filter((item: any) => {
-        const label = item.label.toLowerCase();
-        return label.includes('grower sign') || 
-               label.includes('manager sign') || 
-               label.includes('qa sign') ||
-               label.includes('grower approval') ||
-               label.includes('manager approval') ||
-               label.includes('qa approval');
-      });
+      // Only preserve and merge signature fields for specific SOF templates that have signature filtering
+      const shouldPreserveSignatures = task.name?.includes('HVCSOF022') || 
+                                       task.name?.includes('HVCSOF015') || 
+                                       task.name?.includes('HVCSOF030') || 
+                                       task.name?.includes('HVCSOF019');
       
-      // Merge updated items with signature items (for SOF-22)
-      const updatedItems = [...items, ...signatureItems];
+      let updatedItems = items;
+      
+      if (shouldPreserveSignatures) {
+        // For SOF-22, 15, 30, 19: preserve signature fields if they exist
+        const signatureItems = originalItems.filter((item: any) => {
+          const label = item.label.toLowerCase();
+          return label.includes('grower sign') || 
+                 label.includes('manager sign') || 
+                 label.includes('qa sign') ||
+                 label.includes('grower approval') ||
+                 label.includes('manager approval') ||
+                 label.includes('qa approval');
+        });
+        
+        // Merge updated items with signature items
+        updatedItems = [...items, ...signatureItems];
+      }
 
       const { error } = await supabase
         .from("tasks")
