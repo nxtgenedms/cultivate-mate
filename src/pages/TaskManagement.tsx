@@ -380,6 +380,8 @@ export default function TaskManagement() {
         return "bg-blue-500 text-white";
       case "in_progress":
         return "bg-warning text-warning-foreground";
+      case "pending":
+        return "bg-muted text-muted-foreground";
       case "cancelled":
         return "bg-destructive text-destructive-foreground";
       default:
@@ -393,6 +395,8 @@ export default function TaskManagement() {
         return "PENDING APPROVAL";
       case "in_progress":
         return "IN PROGRESS";
+      case "pending":
+        return "PENDING";
       default:
         return status.replace("_", " ").toUpperCase();
     }
@@ -501,7 +505,10 @@ export default function TaskManagement() {
                   <span className="text-muted-foreground">
                     {task.approval_status === 'pending_approval' ? 'Pending Approval' :
                      task.status === 'completed' ? 'Completed' :
-                     task.status === 'in_progress' ? 'In Progress' : 'Cancelled'}
+                     task.status === 'in_progress' ? 'In Progress' :
+                     task.status === 'pending' ? 'Pending' :
+                     task.status === 'cancelled' ? 'Cancelled' : 
+                     task.approval_status === 'rejected' ? 'Rejected' : 'Pending'}
                   </span>
                   <span className="text-muted-foreground">•</span>
                   <span className="text-muted-foreground">{task.assigned_to?.full_name || 'Unassigned'}</span>
