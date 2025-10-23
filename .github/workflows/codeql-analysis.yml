@@ -1,0 +1,38 @@
+name: "CodeQL Analysis - Manual Scan"
+
+on:
+  workflow_dispatch:    # allows you to trigger the scan manually
+  push:
+    branches: [ main ]  # optional - runs on main branch pushes too
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write  # needed to upload scan results
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ javascript ]  # supports JS, TS, JSX, TSX
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build project
+        run: npm run build || echo "No build step needed"
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
